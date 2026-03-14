@@ -17,11 +17,12 @@ export default function SignupPage() {
   const [fullName, setFullName] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
-  const supabase = createClient()
+
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    const supabase = createClient()
 
     const { error } = await supabase.auth.signUp({
       email,
