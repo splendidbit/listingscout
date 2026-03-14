@@ -2,10 +2,11 @@ import { createClient } from '@/lib/supabase/server'
 import { Header } from '@/components/layout/header'
 import { ListingsTable, ListingRow } from '@/components/listings/listings-table'
 import { Button } from '@/components/ui/button'
-import { Upload, Bot, BarChart3 } from 'lucide-react'
+import { Upload, Bot } from 'lucide-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Database } from '@/types/database'
+import { ScoreActions } from '@/components/scoring/score-actions'
 
 type ListingDbRow = Database['public']['Tables']['listings']['Row']
 
@@ -74,12 +75,11 @@ export default async function CampaignListingsPage({ params }: ListingsPageProps
             ← Back to campaign
           </Link>
           <div className="flex items-center gap-2">
-            {unscoredCount > 0 && (
-              <Button variant="outline" size="sm">
-                <BarChart3 className="h-4 w-4 mr-2" />
-                Score {unscoredCount} Unscored
-              </Button>
-            )}
+            <ScoreActions 
+              campaignId={id} 
+              unscoredCount={unscoredCount} 
+              totalCount={listingData.length}
+            />
             <Button variant="outline" size="sm">
               <Upload className="h-4 w-4 mr-2" />
               Import
