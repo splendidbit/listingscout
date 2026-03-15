@@ -443,7 +443,7 @@ function ListingDetailPanel({ listing }: { listing: ListingRow }) {
     : null
 
   return (
-    <div className="px-4 py-4 space-y-4 text-xs border-t border-[#2A2A3C]">
+    <div className="px-4 py-4 space-y-4 text-xs border-t border-[#2A2A3C] overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-3 flex-wrap">
         {listing.lead_score !== null && (
@@ -520,17 +520,17 @@ function ListingDetailPanel({ listing }: { listing: ListingRow }) {
 
       {/* AI analysis */}
       {(listing.opportunity_notes || listing.outreach_angle) ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 gap-2 min-w-0">
           {listing.opportunity_notes && (
             <div className="bg-[#12121A] border border-[#2A2A3C] rounded p-2.5">
               <p className="text-[#6366F1] font-medium mb-1">💡 Primary Opportunity</p>
-              <p className="text-[#F0F0F5] leading-relaxed">{listing.opportunity_notes}</p>
+              <p className="text-[#F0F0F5] leading-relaxed break-words whitespace-normal">{listing.opportunity_notes}</p>
             </div>
           )}
           {listing.outreach_angle && (
             <div className="bg-[#6366F1]/10 border border-[#6366F1]/20 rounded p-2.5">
               <p className="text-[#6366F1] font-medium mb-1">✉️ Suggested Outreach</p>
-              <p className="text-[#F0F0F5] leading-relaxed italic">&ldquo;{listing.outreach_angle}&rdquo;</p>
+              <p className="text-[#F0F0F5] leading-relaxed italic break-words whitespace-normal">&ldquo;{listing.outreach_angle}&rdquo;</p>
             </div>
           )}
         </div>

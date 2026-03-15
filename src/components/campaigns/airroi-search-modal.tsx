@@ -491,13 +491,13 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
                             {listing.opportunity_notes && (
                               <div className="bg-[#0A0A0F] rounded p-2.5">
                                 <p className="text-[#6366F1] font-medium mb-1">💡 Primary Opportunity</p>
-                                <p className="text-[#F0F0F5] leading-relaxed">{listing.opportunity_notes}</p>
+                                <p className="text-[#F0F0F5] leading-relaxed break-words whitespace-normal">{listing.opportunity_notes}</p>
                               </div>
                             )}
                             {listing.outreach_angle && (
                               <div className="bg-[#6366F1]/10 border border-[#6366F1]/20 rounded p-2.5">
                                 <p className="text-[#6366F1] font-medium mb-1">✉️ Suggested Outreach</p>
-                                <p className="text-[#F0F0F5] leading-relaxed italic">&ldquo;{listing.outreach_angle}&rdquo;</p>
+                                <p className="text-[#F0F0F5] leading-relaxed italic break-words whitespace-normal">&ldquo;{listing.outreach_angle}&rdquo;</p>
                               </div>
                             )}
                           </div>
