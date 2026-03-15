@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     if (listingIds && listingIds.length > 0) {
       query = query.in('id', listingIds)
     } else if (!rescore) {
-      query = query.is('revenue_potential_score', null)
+      query = query.is('lead_score', null)
     }
 
     const { data: listings, error: listingsError } = await query
@@ -109,6 +109,8 @@ export async function POST(request: NextRequest) {
         const { error: updateError } = await (supabase as any)
           .from('listings')
           .update({
+            // Primary score fields (keep both in sync)
+            lead_score: result.revenue_potential_score,
             revenue_potential_score: result.revenue_potential_score,
             pricing_opportunity_score: result.pricing_opportunity_score,
             listing_quality_score: result.listing_quality_score,
@@ -117,6 +119,7 @@ export async function POST(request: NextRequest) {
             host_type: result.host_type,
             ai_bucket: result.ai_bucket,
             lead_tier: result.lead_tier,
+            scored_at: new Date().toISOString(),
           })
           .eq('id', listing.id)
 
@@ -130,12 +133,21 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Refresh campaign stats if RPC exists
+    // Update campaign stats
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).rpc('refresh_campaign_stats', { p_campaign_id: campaignId })
+      const { data: allListings } = await (supabase as any)
+        .from('listings').select('lead_tier').eq('campaign_id', campaignId).eq('status', 'active')
+      const rows = allListings ?? []
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase as any).from('campaigns').update({
+        total_listings: rows.length,
+        strong_leads: rows.filter((r: {lead_tier: string}) => r.lead_tier === 'strong').length,
+        moderate_leads: rows.filter((r: {lead_tier: string}) => r.lead_tier === 'moderate').length,
+        weak_leads: rows.filter((r: {lead_tier: string}) => r.lead_tier === 'weak').length,
+      }).eq('id', campaignId)
     } catch {
-      // Non-fatal — stats refresh is optional
+      // Non-fatal
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
