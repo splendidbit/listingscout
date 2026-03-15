@@ -164,35 +164,13 @@ export async function POST(request: NextRequest) {
 
         const result = scoreListing(listingData)
 
+        // Only update columns that exist in the DB schema.
+        // All rich scoring data lives in score_breakdown (Json column).
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { error: updateError } = await (supabase as any)
           .from('listings')
           .update({
-            // Primary score fields
             lead_score: result.opportunity_score,
-            revenue_potential_score: result.revenue_potential_score,
-            opportunity_score: result.opportunity_score,
-            pricing_opportunity_score: result.pricing_opportunity_score,
-            listing_quality_score: result.listing_quality_score,
-            review_momentum_score: result.review_momentum_score,
-            competition_pressure_score: result.competition_pressure_score,
-            // New opportunity fields
-            occupancy_gap_score: result.occupancy_gap_score,
-            revpan_gap_score: result.revpan_gap_score,
-            pricing_inefficiency_score: result.pricing_inefficiency_score,
-            listing_quality_gap_score: result.listing_quality_gap_score,
-            momentum_score: result.momentum_score,
-            host_profile_score: result.host_profile_score,
-            occupancy_delta: result.occupancy_delta,
-            revpan_delta: result.revpan_delta,
-            adr_delta: result.adr_delta,
-            momentum_signal: result.momentum_signal,
-            estimated_revenue_upside: result.estimated_revenue_upside,
-            estimated_upside_pct: result.estimated_upside_pct,
-            lead_priority_rank: result.lead_priority_rank,
-            recommended_outreach_reason: result.recommended_outreach_reason,
-            host_type: result.host_type,
-            ai_bucket: result.ai_bucket,
             lead_tier: result.lead_tier,
             score_breakdown: result,
             scored_at: new Date().toISOString(),
