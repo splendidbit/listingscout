@@ -42,28 +42,31 @@ export async function researchListings(
   }
 
   const systemPrompt = getResearchSystemPrompt(criteria)
+  const userPrompt = `Research and return listings matching the criteria above. Return a JSON array of listing objects.`
 
   try {
-    // In production, this would call the actual AI API
-    // For now, we'll return a mock response structure
-    const mockResponse = getMockListings(criteria)
-    
-    const parseResult = parseListingsResponse(JSON.stringify(mockResponse))
-    
-    if (!parseResult.success) {
-      return {
-        success: false,
-        error: parseResult.error,
-      }
+    const openaiKey = apiKey || process.env.OPENAI_API_KEY
+    const anthropicKey = process.env.ANTHROPIC_API_KEY
+
+    let rawResponse: string
+
+    if (openaiKey) {
+      rawResponse = await callOpenAI(systemPrompt, userPrompt, openaiKey)
+    } else if (anthropicKey) {
+      rawResponse = await callAnthropic(systemPrompt, userPrompt, anthropicKey)
+    } else {
+      return { success: false, error: 'No AI API key available' }
     }
 
-    // Sanitize each listing
+    const parseResult = parseListingsResponse(rawResponse)
+
+    if (!parseResult.success) {
+      return { success: false, error: parseResult.error }
+    }
+
     const sanitizedListings = parseResult.data!.map(sanitizeListing)
 
-    return {
-      success: true,
-      listings: sanitizedListings,
-    }
+    return { success: true, listings: sanitizedListings }
   } catch (error) {
     return {
       success: false,
@@ -93,25 +96,29 @@ export async function researchOwner(
   }
 
   const prompt = getOwnerResearchPrompt(listingData)
+  const systemPrompt = `You are a real estate research assistant. Research the owner of the given AirBNB listing and return a JSON object with owner contact information.`
 
   try {
-    // In production, call actual AI API here
-    // Mock response for now
-    const mockOwner: AIOwner = {
-      owner_name: listingData.host_name,
-      email: null,
-      phone: null,
-      linkedin_url: null,
-      company_name: null,
-      verification_level: 'unverified',
-      verification_sources: [],
-      confidence_notes: 'Mock data - AI integration required',
+    const openaiKey = apiKey || process.env.OPENAI_API_KEY
+    const anthropicKey = process.env.ANTHROPIC_API_KEY
+
+    let rawResponse: string
+
+    if (openaiKey) {
+      rawResponse = await callOpenAI(systemPrompt, prompt, openaiKey)
+    } else if (anthropicKey) {
+      rawResponse = await callAnthropic(systemPrompt, prompt, anthropicKey)
+    } else {
+      return { success: false, error: 'No AI API key configured' }
     }
 
-    return {
-      success: true,
-      owner: mockOwner,
+    const parseResult = parseOwnerResponse(rawResponse)
+
+    if (!parseResult.success) {
+      return { success: false, error: parseResult.error }
     }
+
+    return { success: true, owner: parseResult.data }
   } catch (error) {
     return {
       success: false,
