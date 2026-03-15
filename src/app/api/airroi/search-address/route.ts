@@ -41,7 +41,7 @@ function mapToEnriched(listing: AirROIListing, market: MarketSummaryResponse | n
     host_name: hi.host_name ?? null,
     host_id: hi.host_id ? String(hi.host_id) : null,
     host_listing_count: hi.host_listing_count ?? null,
-    host_type: 'diy',
+    host_type: 'independent',
     superhost: hi.superhost ?? false,
     nightly_rate: pi.price_nightly ?? pi.nightly_rate ?? pm.ttm_avg_rate ?? null,
     ttm_avg_rate: pm.ttm_avg_rate ?? null,
@@ -56,6 +56,10 @@ function mapToEnriched(listing: AirROIListing, market: MarketSummaryResponse | n
     ttm_occupancy: pm.ttm_occupancy ?? null,
     l90d_revenue: pm.l90d_revenue ?? null,
     l90d_occupancy: pm.l90d_occupancy ?? null,
+    l90d_avg_rate: pm.l90d_avg_rate ?? null,
+    ttm_revpar: pm.ttm_revpar ?? null,
+    l90d_revpar: pm.l90d_revpar ?? null,
+    professional_management: hi.professional_management ?? false,
     rating_cleanliness: rat.rating_cleanliness ?? null,
     rating_accuracy: rat.rating_accuracy ?? null,
     rating_communication: rat.rating_communication ?? null,
@@ -96,6 +100,11 @@ function mapToEnriched(listing: AirROIListing, market: MarketSummaryResponse | n
     market_avg_price: base.market_avg_price,
     market_avg_occupancy: base.market_avg_occupancy,
     market_avg_revenue: base.market_avg_revenue,
+    l90d_revenue: base.l90d_revenue,
+    ttm_revpar: base.ttm_revpar,
+    l90d_revpar: base.l90d_revpar,
+    l90d_avg_rate: base.l90d_avg_rate,
+    professional_management: base.professional_management,
   }
   const scores = scoreListing(ld)
   return { ...base, ...scores }
@@ -120,7 +129,7 @@ export async function POST(request: NextRequest) {
       ?? []
 
     const listings = raw.map((l: AirROIListing) => mapToEnriched(l, null))
-      .sort((a, b) => b.revenue_potential_score - a.revenue_potential_score)
+      .sort((a, b) => (b.opportunity_score ?? b.revenue_potential_score ?? 0) - (a.opportunity_score ?? a.revenue_potential_score ?? 0))
 
     return NextResponse.json({ listings, count: listings.length })
   } catch (error) {

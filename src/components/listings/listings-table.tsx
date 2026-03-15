@@ -30,10 +30,10 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  ChevronsLeft, 
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
   ChevronsRight,
   SlidersHorizontal,
   Search,
@@ -44,6 +44,7 @@ import {
   ChevronUp
 } from 'lucide-react'
 import { ScoreBadge } from '@/components/scoring/score-badge'
+import { cn } from '@/lib/utils'
 
 export interface ListingRow {
   id: string
@@ -80,6 +81,24 @@ export interface ListingRow {
   outreach_angle?: string | null
   ai_lead_score?: number | null
   ai_bucket?: string | null
+  // New opportunity scoring fields
+  opportunity_score?: number | null
+  lead_priority_rank?: string | null
+  recommended_outreach_reason?: string | null
+  occupancy_gap_score?: number | null
+  revpan_gap_score?: number | null
+  pricing_inefficiency_score?: number | null
+  listing_quality_gap_score?: number | null
+  momentum_score?: number | null
+  host_profile_score?: number | null
+  occupancy_delta?: number | null
+  revpan_delta?: number | null
+  adr_delta?: number | null
+  momentum_signal?: number | null
+  estimated_revenue_upside?: number | null
+  estimated_upside_pct?: number | null
+  cohost_presence?: boolean
+  professional_management?: boolean
 }
 
 interface ListingsTableProps {
@@ -88,6 +107,13 @@ interface ListingsTableProps {
   selectable?: boolean
   selectedIds?: string[]
   onSelectionChange?: (ids: string[]) => void
+}
+
+const PRIORITY_BADGE: Record<string, { label: string; className: string }> = {
+  hot: { label: 'HOT', className: 'bg-red-500/15 text-red-400 border-red-500/30' },
+  warm: { label: 'WARM', className: 'bg-orange-500/15 text-orange-400 border-orange-500/30' },
+  cold: { label: 'COLD', className: 'bg-blue-500/15 text-blue-400 border-blue-500/30' },
+  excluded: { label: 'EXCL', className: 'bg-gray-500/15 text-gray-400 border-gray-500/30' },
 }
 
 export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], onSelectionChange }: ListingsTableProps) {
@@ -143,12 +169,54 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
       accessorKey: 'lead_score',
       header: 'Score',
       cell: ({ row }) => (
-        <ScoreBadge 
-          score={row.original.lead_score} 
+        <ScoreBadge
+          score={row.original.lead_score}
           tier={row.original.lead_tier}
         />
       ),
       size: 80,
+    },
+    {
+      id: 'opportunity',
+      accessorKey: 'opportunity_score',
+      header: 'Opportunity',
+      cell: ({ row }) => {
+        const opp = row.original.opportunity_score
+        const priority = row.original.lead_priority_rank
+        const upside = row.original.estimated_revenue_upside
+        const badge = priority ? PRIORITY_BADGE[priority] : null
+
+        return (
+          <div className="flex flex-col items-start gap-1">
+            <div className="flex items-center gap-1.5">
+              {opp !== null && opp !== undefined ? (
+                <span className={cn(
+                  'font-mono font-bold text-sm',
+                  opp >= 70 ? 'text-red-400' :
+                  opp >= 50 ? 'text-orange-400' :
+                  opp >= 30 ? 'text-yellow-400' :
+                  'text-green-400'
+                )}>
+                  {opp}
+                </span>
+              ) : (
+                <span className="text-[#5C5C72] text-sm">—</span>
+              )}
+              {badge && (
+                <span className={cn('text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded border', badge.className)}>
+                  {badge.label}
+                </span>
+              )}
+            </div>
+            {upside && (
+              <span className="text-[10px] text-emerald-400 font-mono">
+                +${upside.toLocaleString()}
+              </span>
+            )}
+          </div>
+        )
+      },
+      size: 120,
     },
     {
       accessorKey: 'listing_title',
@@ -182,8 +250,8 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
       header: 'Rate',
       cell: ({ row }) => (
         <span className="font-mono text-[#F0F0F5]">
-          {row.original.nightly_rate 
-            ? `$${row.original.nightly_rate.toFixed(0)}` 
+          {row.original.nightly_rate
+            ? `$${row.original.nightly_rate.toFixed(0)}`
             : '—'}
         </span>
       ),
@@ -436,28 +504,59 @@ const bucketConfig: Record<string, { emoji: string; label: string }> = {
   weak_lead:                { emoji: '❌', label: 'Weak Lead' },
 }
 
+const HOST_TYPE_LABELS: Record<string, string> = {
+  independent: '🏠 Independent Host',
+  scaling: '📈 Scaling Host',
+  professional: '🏢 Professional',
+  diy: '🏠 DIY Host',
+}
+
 function ListingDetailPanel({ listing }: { listing: ListingRow }) {
   const bucket = bucketConfig[listing.ai_bucket ?? 'weak_lead'] ?? bucketConfig.weak_lead
   const pricingGap = listing.market_avg_price && listing.ttm_avg_rate
     ? Math.round(listing.market_avg_price - listing.ttm_avg_rate)
     : null
+  const hasNewScoring = listing.opportunity_score !== null && listing.opportunity_score !== undefined
+  const oppScore = listing.opportunity_score ?? listing.lead_score ?? 0
+  const priority = listing.lead_priority_rank
+  const priorityBadge = priority ? PRIORITY_BADGE[priority] : null
 
   return (
     <div className="px-4 py-4 space-y-4 text-xs border-t border-[#2A2A3C] overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-3 flex-wrap">
-        {listing.lead_score !== null && (
-          <span className={`font-mono font-bold text-base px-2 py-0.5 rounded ${(listing.lead_score ?? 0) >= 65 ? 'bg-green-500/10 text-green-400' : (listing.lead_score ?? 0) >= 40 ? 'bg-yellow-500/10 text-yellow-400' : 'bg-red-500/10 text-red-400'}`}>
-            {listing.lead_score}
+        <span className={cn(
+          'font-mono font-bold text-base px-2 py-0.5 rounded',
+          oppScore >= 70 ? 'bg-red-500/10 text-red-400' :
+          oppScore >= 50 ? 'bg-orange-500/10 text-orange-400' :
+          oppScore >= 30 ? 'bg-yellow-500/10 text-yellow-400' :
+          'bg-green-500/10 text-green-400'
+        )}>
+          {oppScore}
+        </span>
+        {priorityBadge && (
+          <span className={cn('text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded border', priorityBadge.className)}>
+            {priorityBadge.label}
           </span>
         )}
         <span className="text-[#F0F0F5] font-medium">{bucket.emoji} {bucket.label}</span>
         <span className="text-[#9494A8]">
-          {listing.host_type === 'diy' ? '🏠 DIY Host' : listing.host_type === 'scaling' ? '📈 Scaling Host' : '🏢 Professional'}
+          {HOST_TYPE_LABELS[listing.host_type ?? 'independent'] ?? listing.host_type}
           {listing.host_listing_count ? ` · ${listing.host_listing_count} listing${listing.host_listing_count > 1 ? 's' : ''}` : ''}
         </span>
         {pricingGap && pricingGap > 5 && <span className="text-orange-400">↑ ${pricingGap} below market</span>}
+        {listing.estimated_revenue_upside && (
+          <span className="text-emerald-400 font-mono">+${listing.estimated_revenue_upside.toLocaleString()} upside</span>
+        )}
       </div>
+
+      {/* Outreach reason callout */}
+      {listing.recommended_outreach_reason && (
+        <div className="bg-[#6366F1]/10 border border-[#6366F1]/20 rounded p-2.5">
+          <p className="text-[#6366F1] font-medium mb-0.5">📡 Outreach Signal</p>
+          <p className="text-[#F0F0F5] leading-relaxed">{listing.recommended_outreach_reason}</p>
+        </div>
+      )}
 
       {/* Score breakdown */}
       <div>
@@ -465,51 +564,62 @@ function ListingDetailPanel({ listing }: { listing: ListingRow }) {
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
           {[
             {
-              label: 'Pricing Gap',
-              value: listing.pricing_opportunity_score,
-              desc: listing.market_avg_price && listing.ttm_avg_rate
-                ? `$${Math.round(listing.ttm_avg_rate)}/night vs $${Math.round(listing.market_avg_price)} market avg${pricingGap && pricingGap > 0 ? ` - $${pricingGap} below market` : ' - at market rate'}`
-                : 'Market pricing data unavailable.',
+              label: 'Occupancy Gap',
+              value: listing.occupancy_gap_score,
+              desc: listing.occupancy_delta !== null && listing.occupancy_delta !== undefined
+                ? `${listing.occupancy_delta > 0 ? '+' : ''}${Math.round(listing.occupancy_delta * 100)}% vs market occupancy`
+                : listing.market_avg_occupancy
+                  ? `Market avg ${Math.round(listing.market_avg_occupancy * 100)}% occupancy`
+                  : 'Market occupancy data unavailable.',
             },
             {
-              label: 'Listing Quality Gap',
-              value: listing.listing_quality_score,
-              desc: `${listing.photo_count ?? '?'} photos, ${listing.amenities_count ?? '?'} amenities.${(listing.photo_count ?? 15) < 15 ? ' Low photo count - strong optimization opportunity.' : ''}${(listing.amenities_count ?? 8) < 8 ? ' Few amenities listed.' : ''}`,
+              label: 'RevPAR Gap',
+              value: listing.revpan_gap_score,
+              desc: listing.revpan_delta !== null && listing.revpan_delta !== undefined
+                ? `$${Math.round(listing.revpan_delta)} vs market RevPAR`
+                : 'RevPAR comparison data unavailable.',
             },
             {
-              label: 'Review Momentum',
-              value: listing.review_momentum_score,
-              desc: `${listing.total_reviews} reviews, ${listing.avg_rating?.toFixed(1) ?? '?'}★.${(listing.total_reviews ?? 0) < 80 ? ' Under 80 reviews - still building momentum.' : ' Well-established.'}`,
+              label: 'Pricing Efficiency',
+              value: listing.pricing_inefficiency_score ?? listing.pricing_opportunity_score,
+              desc: listing.adr_delta !== null && listing.adr_delta !== undefined
+                ? `ADR $${Math.round(listing.adr_delta)} vs market${listing.adr_delta > 0 ? ' (above)' : ' (below)'}`
+                : listing.market_avg_price && listing.ttm_avg_rate
+                  ? `$${Math.round(listing.ttm_avg_rate)}/night vs $${Math.round(listing.market_avg_price)} market avg`
+                  : 'Market pricing data unavailable.',
+            },
+            {
+              label: 'Listing Quality',
+              value: listing.listing_quality_gap_score ?? (listing.listing_quality_score !== null && listing.listing_quality_score !== undefined ? 100 - listing.listing_quality_score : null),
+              desc: `${listing.photo_count ?? '?'} photos, ${listing.amenities_count ?? '?'} amenities.${(listing.photo_count ?? 15) < 15 ? ' Low photo count.' : ''}${(listing.amenities_count ?? 8) < 8 ? ' Few amenities.' : ''}`,
+            },
+            {
+              label: 'Momentum',
+              value: listing.momentum_score ?? listing.review_momentum_score,
+              desc: listing.momentum_signal !== null && listing.momentum_signal !== undefined
+                ? `Revenue ${listing.momentum_signal > 0 ? 'up' : 'down'} ${Math.round(Math.abs(listing.momentum_signal) * 100)}% vs last year`
+                : `${listing.total_reviews} reviews, ${listing.avg_rating?.toFixed(1) ?? '?'}★`,
             },
             {
               label: 'Host Profile',
-              value: null,
-              desc: listing.host_type === 'diy'
-                ? `DIY host${listing.host_listing_count ? ` with ${listing.host_listing_count} listing${listing.host_listing_count > 1 ? 's' : ''}` : ''} - prime consulting target.`
+              value: listing.host_profile_score,
+              desc: listing.host_type === 'independent'
+                ? `Independent host${listing.host_listing_count ? ` with ${listing.host_listing_count} listing${listing.host_listing_count > 1 ? 's' : ''}` : ''} — prime target.`
                 : listing.host_type === 'scaling'
                 ? `Scaling host with ${listing.host_listing_count ?? '?'} listings.`
-                : 'Professional operator.',
-            },
-            {
-              label: 'Market Demand',
-              value: null,
-              desc: listing.market_avg_occupancy
-                ? `${Math.round(listing.market_avg_occupancy * 100)}% avg market occupancy.${listing.market_avg_occupancy >= 0.65 ? ' Strong demand market.' : ' Moderate demand.'}`
-                : 'Market occupancy data unavailable.',
-            },
-            {
-              label: 'Revenue vs Market',
-              value: null,
-              desc: listing.ttm_revenue && listing.market_avg_revenue
-                ? `Earns $${Math.round(listing.ttm_revenue / 1000)}k/yr vs $${Math.round(listing.market_avg_revenue / 1000)}k market avg.${listing.ttm_revenue < listing.market_avg_revenue ? ` $${Math.round((listing.market_avg_revenue - listing.ttm_revenue) / 1000)}k below market.` : ' At or above market.'}`
-                : listing.ttm_revenue ? `Earned $${Math.round(listing.ttm_revenue / 1000)}k last 12 months.` : 'Revenue data unavailable.',
+                : listing.host_type === 'professional'
+                ? 'Professional operator.'
+                : `${listing.host_listing_count ?? '?'} listings.`,
             },
           ].map(item => (
             <div key={item.label} className="bg-[#12121A] rounded p-2.5 border border-[#2A2A3C]">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-[#9494A8] font-medium">{item.label}</span>
                 {item.value !== null && item.value !== undefined && (
-                  <span className={`font-mono font-bold ${item.value >= 65 ? 'text-green-400' : item.value >= 40 ? 'text-yellow-400' : 'text-red-400'}`}>{item.value}</span>
+                  <span className={cn(
+                    'font-mono font-bold',
+                    (item.value as number) >= 65 ? 'text-red-400' : (item.value as number) >= 40 ? 'text-orange-400' : 'text-green-400'
+                  )}>{item.value}</span>
                 )}
               </div>
               <p className="text-[#9494A8] leading-relaxed">{item.desc}</p>
@@ -517,6 +627,17 @@ function ListingDetailPanel({ listing }: { listing: ListingRow }) {
           ))}
         </div>
       </div>
+
+      {/* Revenue upside estimate */}
+      {(listing.estimated_revenue_upside || listing.estimated_upside_pct) && (
+        <div className="bg-emerald-500/5 border border-emerald-500/20 rounded p-2.5">
+          <p className="text-emerald-400 font-medium mb-0.5">💰 Revenue Upside Estimate</p>
+          <p className="text-[#F0F0F5] leading-relaxed">
+            {listing.estimated_revenue_upside && `$${listing.estimated_revenue_upside.toLocaleString()} estimated annual upside`}
+            {listing.estimated_upside_pct && ` (${Math.round(listing.estimated_upside_pct * 100)}% improvement potential)`}
+          </p>
+        </div>
+      )}
 
       {/* AI analysis */}
       {(listing.opportunity_notes || listing.outreach_angle) ? (

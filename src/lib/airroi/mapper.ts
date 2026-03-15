@@ -16,6 +16,7 @@ export interface MappedListing {
   bathrooms: number
   max_guests: number
   amenities: string[] | null
+  amenities_count: number | null
   city: string
   state: string
   country: string | null
@@ -29,14 +30,21 @@ export interface MappedListing {
   occupancy_rate: number | null
   host_name: string | null
   host_id: string | null
+  host_listing_count: number | null
   superhost: boolean
+  professional_management: boolean
   response_rate: number | null
   cover_image_url: string | null
   ttm_revenue: number | null
   ttm_occupancy: number | null
   ttm_avg_rate: number | null
+  ttm_revpar: number | null
   l90d_revenue: number | null
   l90d_occupancy: number | null
+  l90d_avg_rate: number | null
+  l90d_revpar: number | null
+  description_length: number | null
+  title_length: number | null
   raw_data: Record<string, unknown>
 }
 
@@ -63,6 +71,7 @@ export function mapAirROIListing(listing: AirROIListing): MappedListing {
     bathrooms: pd.baths ?? pd.bathrooms ?? 0,
     max_guests: pd.guests ?? pd.accommodates ?? 0,
     amenities: pd.amenities ?? null,
+    amenities_count: pd.amenities ? pd.amenities.length : null,
     city: loc.locality ?? '',
     state: loc.region ?? '',
     country: loc.country ?? null,
@@ -76,14 +85,21 @@ export function mapAirROIListing(listing: AirROIListing): MappedListing {
     occupancy_rate: pm.ttm_occupancy ?? null,
     host_name: hi.host_name ?? null,
     host_id: hi.host_id ? String(hi.host_id) : null,
+    host_listing_count: hi.host_listing_count ?? null,
     superhost: hi.superhost ?? false,
+    professional_management: hi.professional_management ?? false,
     response_rate: null,
     cover_image_url: li.cover_photo_url ?? null,
     ttm_revenue: pm.ttm_revenue ?? null,
     ttm_occupancy: pm.ttm_occupancy ?? null,
     ttm_avg_rate: pm.ttm_avg_rate ?? null,
+    ttm_revpar: pm.ttm_revpar ?? null,
     l90d_revenue: pm.l90d_revenue ?? null,
     l90d_occupancy: pm.l90d_occupancy ?? null,
+    l90d_avg_rate: pm.l90d_avg_rate ?? null,
+    l90d_revpar: pm.l90d_revpar ?? null,
+    description_length: null,
+    title_length: null,
     raw_data: listing as unknown as Record<string, unknown>,
   }
 }

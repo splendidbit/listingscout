@@ -403,7 +403,7 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
                             <ScoreBadge score={listing.revenue_potential_score} />
                             <span className={`text-[10px] px-1.5 py-0.5 rounded border ${bucket.color}`}>{bucket.emoji} {bucket.label}</span>
                             <span className="text-[10px] text-[#9494A8]">
-                              {listing.host_type === 'diy' ? '🏠 DIY' : listing.host_type === 'scaling' ? '📈 Scaling' : '🏢 Pro'}
+                              {listing.host_type === 'diy' || listing.host_type === 'independent' ? '🏠 Independent' : listing.host_type === 'scaling' ? '📈 Scaling' : '🏢 Pro'}
                               {listing.host_listing_count ? ` · ${listing.host_listing_count} listing${listing.host_listing_count > 1 ? 's' : ''}` : ''}
                             </span>
                             {pricingGap && pricingGap > 5 && <span className="text-[10px] text-orange-400">↑ ${pricingGap} below mkt</span>}
@@ -451,8 +451,8 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
                               {
                                 label: 'Host Profile',
                                 value: null,
-                                desc: listing.host_type === 'diy'
-                                  ? `DIY host${listing.host_listing_count ? ` with ${listing.host_listing_count} listing${listing.host_listing_count > 1 ? 's' : ''}` : ''}. Likely self-managing — prime consulting target.`
+                                desc: listing.host_type === 'diy' || listing.host_type === 'independent'
+                                  ? `Independent host${listing.host_listing_count ? ` with ${listing.host_listing_count} listing${listing.host_listing_count > 1 ? 's' : ''}` : ''}. Likely self-managing — prime consulting target.`
                                   : listing.host_type === 'scaling'
                                   ? `Scaling host with ${listing.host_listing_count} listings. Growing operator who may want professional help.`
                                   : 'Professional operator — less likely to need consulting.',

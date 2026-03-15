@@ -15,7 +15,7 @@ import {
   AirROIListing,
   MarketSummaryResponse,
 } from '@/lib/airroi/client'
-import { scoreListing, ListingData } from '@/lib/scoring/engine'
+import { scoreListing, ListingData, ScoringResult } from '@/lib/scoring/engine'
 import { analyzeListingWithAI, isAnalysisFresh } from '@/lib/ai/listing-analyzer'
 import { CampaignCriteria } from '@/lib/types/criteria'
 
@@ -43,6 +43,7 @@ export interface EnrichedListing {
   host_listing_count: number | null
   host_type: string
   superhost: boolean
+  professional_management: boolean
   nightly_rate: number | null
   ttm_avg_rate: number | null
   cleaning_fee: number | null
@@ -54,8 +55,11 @@ export interface EnrichedListing {
   annual_revenue: number | null
   ttm_revenue: number | null
   ttm_occupancy: number | null
+  ttm_revpar: number | null
   l90d_revenue: number | null
   l90d_occupancy: number | null
+  l90d_avg_rate: number | null
+  l90d_revpar: number | null
   rating_cleanliness: number | null
   rating_accuracy: number | null
   rating_communication: number | null
@@ -65,6 +69,26 @@ export interface EnrichedListing {
   market_avg_price: number | null
   market_avg_occupancy: number | null
   market_avg_revenue: number | null
+  market_avg_revpar: number | null
+  market_avg_adr: number | null
+  // Scoring results
+  opportunity_score: number
+  lead_priority_rank: string
+  recommended_outreach_reason: string
+  occupancy_gap_score: number
+  revpan_gap_score: number
+  pricing_inefficiency_score: number
+  listing_quality_gap_score: number
+  momentum_score: number
+  host_profile_score: number
+  occupancy_delta: number | null
+  revpan_delta: number | null
+  adr_delta: number | null
+  momentum_signal: number | null
+  estimated_revenue_upside: number | null
+  estimated_upside_pct: number | null
+  cohost_presence: boolean
+  // Backward compat
   revenue_potential_score: number
   pricing_opportunity_score: number
   listing_quality_score: number
@@ -85,7 +109,6 @@ function mapAirROIToEnriched(
   listing: AirROIListing,
   market: MarketSummaryResponse | null
 ): EnrichedListing {
-  // Destructure nested objects
   const li = listing.listing_info ?? {}
   const hi = listing.host_info ?? {}
   const loc = listing.location_info ?? {}
@@ -123,8 +146,9 @@ function mapAirROIToEnriched(
     host_name: hi.host_name ?? null,
     host_id: hi.host_id ? String(hi.host_id) : null,
     host_listing_count: hi.host_listing_count ?? null,
-    host_type: 'diy', // overwritten by scoring
+    host_type: 'independent', // overwritten by scoring
     superhost: hi.superhost ?? false,
+    professional_management: hi.professional_management ?? false,
 
     nightly_rate: pi.price_nightly ?? pi.nightly_rate ?? pm.ttm_avg_rate ?? null,
     ttm_avg_rate: pm.ttm_avg_rate ?? null,
@@ -138,8 +162,11 @@ function mapAirROIToEnriched(
     annual_revenue: pm.ttm_revenue ?? null,
     ttm_revenue: pm.ttm_revenue ?? null,
     ttm_occupancy: pm.ttm_occupancy ?? null,
+    ttm_revpar: pm.ttm_revpar ?? null,
     l90d_revenue: pm.l90d_revenue ?? null,
     l90d_occupancy: pm.l90d_occupancy ?? null,
+    l90d_avg_rate: pm.l90d_avg_rate ?? null,
+    l90d_revpar: pm.l90d_revpar ?? null,
 
     rating_cleanliness: rat.rating_cleanliness ?? null,
     rating_accuracy: rat.rating_accuracy ?? null,
@@ -151,7 +178,26 @@ function mapAirROIToEnriched(
     market_avg_price: market?.average_daily_rate ?? null,
     market_avg_occupancy: market?.occupancy ?? null,
     market_avg_revenue: market?.revenue ?? null,
+    market_avg_revpar: market?.rev_par ?? null,
+    market_avg_adr: market?.average_daily_rate ?? null,
 
+    // Scoring defaults — overwritten below
+    opportunity_score: 0,
+    lead_priority_rank: 'cold',
+    recommended_outreach_reason: '',
+    occupancy_gap_score: 0,
+    revpan_gap_score: 0,
+    pricing_inefficiency_score: 0,
+    listing_quality_gap_score: 0,
+    momentum_score: 0,
+    host_profile_score: 0,
+    occupancy_delta: null,
+    revpan_delta: null,
+    adr_delta: null,
+    momentum_signal: null,
+    estimated_revenue_upside: null,
+    estimated_upside_pct: null,
+    cohost_presence: false,
     revenue_potential_score: 0,
     pricing_opportunity_score: 0,
     listing_quality_score: 0,
@@ -168,6 +214,36 @@ function mapAirROIToEnriched(
 
     cover_image_url: li.cover_photo_url ?? null,
     raw_data: listing as unknown as Record<string, unknown>,
+  }
+}
+
+function applyScores(listing: EnrichedListing, scores: ScoringResult): EnrichedListing {
+  return {
+    ...listing,
+    opportunity_score: scores.opportunity_score,
+    lead_priority_rank: scores.lead_priority_rank,
+    recommended_outreach_reason: scores.recommended_outreach_reason,
+    occupancy_gap_score: scores.occupancy_gap_score,
+    revpan_gap_score: scores.revpan_gap_score,
+    pricing_inefficiency_score: scores.pricing_inefficiency_score,
+    listing_quality_gap_score: scores.listing_quality_gap_score,
+    momentum_score: scores.momentum_score,
+    host_profile_score: scores.host_profile_score,
+    occupancy_delta: scores.occupancy_delta,
+    revpan_delta: scores.revpan_delta,
+    adr_delta: scores.adr_delta,
+    momentum_signal: scores.momentum_signal,
+    estimated_revenue_upside: scores.estimated_revenue_upside,
+    estimated_upside_pct: scores.estimated_upside_pct,
+    host_type: scores.host_type,
+    cohost_presence: scores.cohost_presence,
+    revenue_potential_score: scores.revenue_potential_score,
+    pricing_opportunity_score: scores.pricing_opportunity_score,
+    listing_quality_score: scores.listing_quality_score,
+    review_momentum_score: scores.review_momentum_score,
+    competition_pressure_score: scores.competition_pressure_score,
+    ai_bucket: scores.ai_bucket,
+    lead_tier: scores.lead_tier,
   }
 }
 
@@ -236,9 +312,9 @@ export async function POST(request: NextRequest) {
     const validAmenities = criteria.property.required_amenities.filter(a => VALID_AIRROI_AMENITIES.has(a))
     if (validAmenities.length > 0) filter.amenities = { all: validAmenities }
 
-    // Sort ascending by revenue to surface underperformers — hosts leaving money on the table
+    // Sort ascending by revenue to surface underperformers
     const sort: AirROISort = { ttm_revenue: 'asc', ttm_occupancy: 'asc' }
-    const desiredCount = Math.min(page_size, 50) // fetch up to 50 (5 pages of 10)
+    const desiredCount = Math.min(page_size, 50)
     const pages = Math.ceil(desiredCount / 10)
 
     const marketParams = isMarketSearch
@@ -286,11 +362,10 @@ export async function POST(request: NextRequest) {
     listings = listings.filter(l => l.host_listing_count === null || l.host_listing_count <= 9)
 
     // Filter out already-optimized listings (high revenue + high rating = not a consulting target)
-    // Keep listings where EITHER revenue is low OR rating is below 4.8
     listings = listings.filter(l => {
       const highRevenue = l.ttm_revenue !== null && l.ttm_revenue > 100000
       const highRating = l.avg_rating !== null && l.avg_rating >= 4.9
-      return !(highRevenue && highRating) // exclude only if BOTH are excellent
+      return !(highRevenue && highRating)
     })
 
     // Score every listing
@@ -309,22 +384,32 @@ export async function POST(request: NextRequest) {
         photo_count: l.photo_count,
         nightly_rate: l.nightly_rate,
         ttm_avg_rate: l.ttm_avg_rate,
+        l90d_avg_rate: l.l90d_avg_rate,
         avg_rating: l.avg_rating,
         total_reviews: l.total_reviews,
         occupancy_rate: l.occupancy_rate,
         ttm_occupancy: l.ttm_occupancy,
         annual_revenue: l.annual_revenue,
         ttm_revenue: l.ttm_revenue,
+        l90d_revenue: l.l90d_revenue,
+        ttm_revpar: l.ttm_revpar,
+        l90d_revpar: l.l90d_revpar,
         host_listing_count: l.host_listing_count,
         superhost: l.superhost,
+        professional_management: l.professional_management,
         rating_cleanliness: l.rating_cleanliness,
         rating_communication: l.rating_communication,
+        rating_accuracy: l.rating_accuracy,
+        rating_checkin: l.rating_checkin,
+        rating_value: l.rating_value,
         market_avg_price: l.market_avg_price,
         market_avg_occupancy: l.market_avg_occupancy,
         market_avg_revenue: l.market_avg_revenue,
+        market_avg_revpar: l.market_avg_revpar,
+        market_avg_adr: l.market_avg_adr,
       }
       const scores = scoreListing(listingData)
-      return { ...l, ...scores }
+      return applyScores(l, scores)
     })
 
     // AI analysis — run on ALL listings (key is set)
@@ -367,8 +452,8 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Sort by revenue_potential_score desc
-    listings.sort((a, b) => b.revenue_potential_score - a.revenue_potential_score)
+    // Sort by opportunity_score desc
+    listings.sort((a, b) => b.opportunity_score - a.opportunity_score)
 
     // Audit log
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
