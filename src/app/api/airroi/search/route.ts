@@ -271,36 +271,31 @@ export async function POST(request: NextRequest) {
 
     const criteria = campaign.criteria as CampaignCriteria
 
-    // Build AirROI filter from campaign criteria
+    // Build AirROI filter — keep loose so our scoring engine does the ranking.
+    // Only apply hard filters for entire_home and explicit user-set criteria.
     const filter: AirROIFilter = {
-      // Always filter to entire home only (our target segment)
       room_type: { eq: 'entire_home' },
     }
 
-    if (criteria.property.min_bedrooms > 0) {
+    // Only filter bedrooms if user explicitly set > 1
+    if (criteria.property.min_bedrooms > 1) {
       filter.bedrooms = { gte: criteria.property.min_bedrooms }
     }
-    if (criteria.property.min_bathrooms > 0) {
-      filter.baths = { gte: criteria.property.min_bathrooms }
-    }
-    if (criteria.property.min_guests > 0) {
-      filter.guests = { gte: criteria.property.min_guests }
-    }
-    if (criteria.performance.nightly_rate_min > 0 || criteria.performance.nightly_rate_max > 0) {
+
+    // Only filter ADR if user set a non-default range (not 0-1000)
+    if (criteria.performance.nightly_rate_min > 0 && criteria.performance.nightly_rate_max < 1000) {
       filter.ttm_avg_rate = {
-        ...(criteria.performance.nightly_rate_min > 0 && { gte: criteria.performance.nightly_rate_min }),
-        ...(criteria.performance.nightly_rate_max > 0 && { lte: criteria.performance.nightly_rate_max }),
+        gte: criteria.performance.nightly_rate_min,
+        lte: criteria.performance.nightly_rate_max,
       }
     }
-    if (criteria.performance.min_rating > 0) {
-      filter.rating_overall = { gte: criteria.performance.min_rating }
-    }
-    if (criteria.performance.min_reviews > 0) {
-      filter.num_reviews = { gte: criteria.performance.min_reviews }
-    }
+
+    // Only hard-require superhost if explicitly required
     if (criteria.host.superhost_required) {
       filter.superhost = { eq: true }
     }
+
+    // Only hard-require amenities if explicitly set
     if (criteria.property.required_amenities.length > 0) {
       filter.amenities = { all: criteria.property.required_amenities }
     }
