@@ -236,7 +236,8 @@ export async function POST(request: NextRequest) {
     const validAmenities = criteria.property.required_amenities.filter(a => VALID_AIRROI_AMENITIES.has(a))
     if (validAmenities.length > 0) filter.amenities = { all: validAmenities }
 
-    const sort: AirROISort = { ttm_revenue: 'desc' }
+    // Sort ascending by revenue to surface underperformers — hosts leaving money on the table
+    const sort: AirROISort = { ttm_revenue: 'asc', ttm_occupancy: 'asc' }
     const pagination = { page_size: Math.min(page_size, 10), offset }
 
     const marketParams = isMarketSearch
@@ -268,8 +269,16 @@ export async function POST(request: NextRequest) {
     // Map nested AirROI response → flat EnrichedListing
     let listings = rawListings.map((l: AirROIListing) => mapAirROIToEnriched(l, market))
 
-    // Filter out professional operators (10+ listings) — host_listing_count is often null from search
+    // Filter out professional operators (10+ listings)
     listings = listings.filter(l => l.host_listing_count === null || l.host_listing_count <= 9)
+
+    // Filter out already-optimized listings (high revenue + high rating = not a consulting target)
+    // Keep listings where EITHER revenue is low OR rating is below 4.8
+    listings = listings.filter(l => {
+      const highRevenue = l.ttm_revenue !== null && l.ttm_revenue > 100000
+      const highRating = l.avg_rating !== null && l.avg_rating >= 4.9
+      return !(highRevenue && highRating) // exclude only if BOTH are excellent
+    })
 
     // Score every listing
     listings = listings.map(l => {
