@@ -197,7 +197,7 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
           country: country || 'United States',
           region: region || undefined,
           locality: locality || undefined,
-          page_size: 25,
+          page_size: 10,
         }),
       })
       const data = await res.json()

@@ -227,7 +227,7 @@ export async function POST(request: NextRequest) {
       latitude,
       longitude,
       radius_miles,
-      page_size = 25,
+      page_size = 10,
       offset = 0,
     } = body as {
       campaignId: string
@@ -306,7 +306,7 @@ export async function POST(request: NextRequest) {
     }
 
     const sort: AirROISort = { ttm_revenue: 'desc', rating_overall: 'desc' }
-    const pagination = { page_size: Math.min(page_size, 25), offset }
+    const pagination = { page_size: Math.min(page_size, 10), offset }
 
     // Fetch listings and market summary in parallel
     const marketParams = isMarketSearch
