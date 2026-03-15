@@ -461,16 +461,19 @@ export function CampaignWizard() {
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Minimum Reviews</Label>
+          <Label>Maximum Reviews</Label>
+          <p className="text-xs text-[#9494A8]">Target hosts still gaining traction (sweet spot: under 80)</p>
           <Input
             type="number"
             value={state.criteria.performance.min_reviews}
             onChange={e => updateCriteria('performance', { ...state.criteria.performance, min_reviews: parseInt(e.target.value) || 0 })}
+            placeholder="e.g. 80"
             className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5]"
           />
         </div>
         <div className="space-y-2">
-          <Label>Minimum Rating</Label>
+          <Label>Maximum Rating</Label>
+          <p className="text-xs text-[#9494A8]">Hosts below 4.8 have room to improve (sweet spot: 4.4–4.8)</p>
           <Select
             value={String(state.criteria.performance.min_rating)}
             onValueChange={v => updateCriteria('performance', { ...state.criteria.performance, min_rating: parseFloat(v || "0") })}
@@ -479,8 +482,8 @@ export function CampaignWizard() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {[3.0, 3.5, 4.0, 4.2, 4.5, 4.7, 4.8, 4.9].map(n => (
-                <SelectItem key={n} value={String(n)}>{n}+</SelectItem>
+              {[4.9, 4.8, 4.7, 4.5, 4.2, 4.0, 3.5, 3.0].map(n => (
+                <SelectItem key={n} value={String(n)}>Under {n}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -753,12 +756,12 @@ export function CampaignWizard() {
           <h4 className="text-sm font-medium text-[#9494A8] mb-2">Performance</h4>
           <div className="grid grid-cols-3 gap-4 text-sm">
             <div>
-              <span className="text-[#5C5C72]">Min Reviews:</span>
-              <p className="text-[#F0F0F5]">{state.criteria.performance.min_reviews}</p>
+              <span className="text-[#5C5C72]">Max Reviews:</span>
+              <p className="text-[#F0F0F5]">Under {state.criteria.performance.min_reviews || '—'}</p>
             </div>
             <div>
-              <span className="text-[#5C5C72]">Min Rating:</span>
-              <p className="text-[#F0F0F5]">{state.criteria.performance.min_rating}+</p>
+              <span className="text-[#5C5C72]">Max Rating:</span>
+              <p className="text-[#F0F0F5]">Under {state.criteria.performance.min_rating || '—'}</p>
             </div>
             <div>
               <span className="text-[#5C5C72]">Rate Range:</span>

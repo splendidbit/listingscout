@@ -526,16 +526,19 @@ export default function CampaignSettingsPage() {
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Minimum Reviews</Label>
+                    <Label>Maximum Reviews</Label>
+                    <p className="text-xs text-[#9494A8]">Target hosts still gaining traction (sweet spot: under 80)</p>
                     <Input
                       type="number"
                       value={criteria.performance.min_reviews}
                       onChange={e => updateCriteriaField('performance', { ...criteria.performance, min_reviews: parseInt(e.target.value) || 0 })}
+                      placeholder="e.g. 80"
                       className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5]"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Minimum Rating</Label>
+                    <Label>Maximum Rating</Label>
+                    <p className="text-xs text-[#9494A8]">Hosts below 4.8 have room to improve</p>
                     <Select
                       value={String(criteria.performance.min_rating)}
                       onValueChange={v => updateCriteriaField('performance', { ...criteria.performance, min_rating: parseFloat(v || "0") })}
@@ -544,8 +547,8 @@ export default function CampaignSettingsPage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {[3.0, 3.5, 4.0, 4.2, 4.5, 4.7, 4.8, 4.9].map(n => (
-                          <SelectItem key={n} value={String(n)}>{n}+</SelectItem>
+                        {[4.9, 4.8, 4.7, 4.5, 4.2, 4.0, 3.5, 3.0].map(n => (
+                          <SelectItem key={n} value={String(n)}>Under {n}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
