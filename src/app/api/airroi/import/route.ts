@@ -1,11 +1,12 @@
 /**
  * POST /api/airroi/import
  * Import reviewed AirROI listings into a campaign with dedup.
+ * Saves all enriched fields: scoring, AI analysis, market data, sub-ratings, etc.
  */
 
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
-import { MappedListing } from '@/lib/airroi/mapper'
+import { EnrichedListing } from '@/app/api/airroi/search/route'
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { campaignId, listings } = body as { campaignId: string; listings: MappedListing[] }
+    const { campaignId, listings } = body as { campaignId: string; listings: EnrichedListing[] }
 
     if (!campaignId || !listings?.length) {
       return NextResponse.json({ error: 'campaignId and listings required' }, { status: 400 })
@@ -55,36 +56,86 @@ export async function POST(request: NextRequest) {
     }
 
     const rows = newListings.map(l => ({
+      // Core identity
       campaign_id: campaignId,
       user_id: user.id,
       listing_id: l.listing_id,
       listing_url: l.listing_url,
       listing_title: l.listing_title,
       collection_source: 'airroi',
+
+      // Property
       property_type: l.property_type,
       room_type: l.room_type,
       bedrooms: l.bedrooms,
       bathrooms: l.bathrooms,
       max_guests: l.max_guests,
       amenities: l.amenities,
+      amenities_count: l.amenities_count,
+      photo_count: l.photo_count,
+
+      // Location
       city: l.city,
       state: l.state,
       country: l.country,
       neighborhood: l.neighborhood,
       latitude: l.latitude,
       longitude: l.longitude,
-      avg_rating: l.avg_rating,
-      total_reviews: l.total_reviews,
-      nightly_rate: l.nightly_rate,
-      annual_revenue: l.annual_revenue,
-      occupancy_rate: l.occupancy_rate,
+
+      // Host
       host_name: l.host_name,
       host_id: l.host_id,
+      host_listing_count: l.host_listing_count,
+      host_type: l.host_type,
       superhost: l.superhost,
-      response_rate: l.response_rate,
+
+      // Pricing
+      nightly_rate: l.nightly_rate,
+      cleaning_fee: l.cleaning_fee,
+      minimum_stay: l.minimum_stay,
+      instant_book: l.instant_book,
+
+      // Performance
+      avg_rating: l.avg_rating,
+      total_reviews: l.total_reviews,
+      occupancy_rate: l.occupancy_rate,
+      annual_revenue: l.annual_revenue,
+
+      // Sub-ratings
+      rating_cleanliness: l.rating_cleanliness,
+      rating_accuracy: l.rating_accuracy,
+      rating_communication: l.rating_communication,
+      rating_location: l.rating_location,
+      rating_checkin: l.rating_checkin,
+      rating_value: l.rating_value,
+
+      // Market comparison
+      market_avg_price: l.market_avg_price,
+      market_avg_occupancy: l.market_avg_occupancy,
+      market_avg_revenue: l.market_avg_revenue,
+
+      // Calculated scores
+      revenue_potential_score: l.revenue_potential_score,
+      pricing_opportunity_score: l.pricing_opportunity_score,
+      listing_quality_score: l.listing_quality_score,
+      review_momentum_score: l.review_momentum_score,
+      competition_pressure_score: l.competition_pressure_score,
+
+      // AI analysis
+      ai_lead_score: l.ai_lead_score,
+      ai_bucket: l.ai_bucket,
+      opportunity_notes: l.opportunity_notes,
+      outreach_angle: l.outreach_angle,
+      ai_confidence: l.ai_confidence,
+      ai_analyzed_at: l.ai_analyzed_at,
+
+      // Pipeline
+      lead_status: 'new',
+
+      // Misc
       cover_image_url: l.cover_image_url,
       raw_data: l.raw_data,
-      status: 'unscored',
+      status: 'active',
     }))
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
