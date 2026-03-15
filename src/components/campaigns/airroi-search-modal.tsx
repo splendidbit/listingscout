@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, Search, Download, ExternalLink, Star, DollarSign, TrendingUp, MapPin } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Loader2, Search, Download, ExternalLink, Star, DollarSign, TrendingUp, MapPin, Link as LinkIcon, Hash } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface Market {
@@ -85,6 +86,10 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
   const [searched, setSearched] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Lookup tab state
+  const [lookupInput, setLookupInput] = useState('')
+  const [isLooking, setIsLooking] = useState(false)
 
   // Market typeahead
   useEffect(() => {
@@ -185,6 +190,49 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
     }
   }
 
+  const handleLookup = async () => {
+    const val = lookupInput.trim()
+    if (!val) { toast.error('Enter an Airbnb URL, listing ID, or address'); return }
+    setIsLooking(true)
+
+    try {
+      // Extract listing ID from URL or use as-is
+      const idMatch = val.match(/airbnb\.com\/rooms\/(\d+)/) ?? val.match(/^(\d+)$/)
+      
+      let res, data
+      if (idMatch) {
+        // Lookup by listing ID
+        res = await fetch(`/api/airroi/property?id=${idMatch[1]}`)
+        data = await res.json()
+        if (!res.ok) throw new Error(data.error || 'Lookup failed')
+        const listing = data.listing as EnrichedListing
+        if (listing) {
+          setResults([listing])
+          setSelected(new Set([listing.listing_id]))
+          setSearched(true)
+        }
+      } else {
+        // Treat as address — use comparables endpoint via a new route
+        res = await fetch('/api/airroi/search-address', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ address: val, campaignId }),
+        })
+        data = await res.json()
+        if (!res.ok) throw new Error(data.error || 'Address search failed')
+        const listings = data.listings ?? []
+        setResults(listings)
+        setSelected(new Set(listings.filter((l: EnrichedListing) => l.revenue_potential_score >= 65).map((l: EnrichedListing) => l.listing_id)))
+        setSearched(true)
+        if (listings.length === 0) toast.info('No listings found for that address.')
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Lookup failed')
+    } finally {
+      setIsLooking(false)
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col bg-[#12121A] border-[#2A2A3C]">
@@ -195,6 +243,17 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
           </DialogDescription>
         </DialogHeader>
 
+        <Tabs defaultValue="market" onValueChange={() => { setResults([]); setSearched(false) }}>
+        <TabsList className="bg-[#1A1A26] border border-[#2A2A3C] w-full">
+          <TabsTrigger value="market" className="flex-1 data-[state=active]:bg-[#6366F1]/20">
+            <MapPin className="h-3.5 w-3.5 mr-1.5" />Market Search
+          </TabsTrigger>
+          <TabsTrigger value="lookup" className="flex-1 data-[state=active]:bg-[#6366F1]/20">
+            <LinkIcon className="h-3.5 w-3.5 mr-1.5" />Listing / Address
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="market" className="mt-3 space-y-3">
         {/* Market Search */}
         <div className="relative" ref={dropdownRef}>
           <Label className="text-[#9494A8] text-xs mb-1 block">Market</Label>
@@ -240,6 +299,37 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
             : <><Search className="h-4 w-4 mr-2" />Search {query.trim() || 'Market'}</>
           }
         </Button>
+        </TabsContent>
+
+        <TabsContent value="lookup" className="mt-3 space-y-3">
+          <div>
+            <Label className="text-[#9494A8] text-xs mb-1 block">Airbnb URL, Listing ID, or Address</Label>
+            <div className="relative">
+              <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#5C5C72]" />
+              <Input
+                placeholder="https://airbnb.com/rooms/12345  or  123 Main St, Austin TX"
+                value={lookupInput}
+                onChange={e => setLookupInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleLookup()}
+                className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5] pl-9"
+              />
+            </div>
+            <p className="text-xs text-[#5C5C72] mt-1">
+              Paste an Airbnb URL, numeric listing ID, or a street address to find comparable listings
+            </p>
+          </div>
+          <Button
+            onClick={handleLookup}
+            disabled={isLooking || !lookupInput.trim()}
+            className="bg-[#6366F1] hover:bg-[#818CF8] w-full"
+          >
+            {isLooking
+              ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Looking up…</>
+              : <><Search className="h-4 w-4 mr-2" />Look Up Listing</>
+            }
+          </Button>
+        </TabsContent>
+        </Tabs>
 
         {/* Results */}
         {searched && (
