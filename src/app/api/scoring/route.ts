@@ -1,6 +1,52 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { scoreListing, ListingData } from '@/lib/scoring/engine'
+import { getMarketSummary } from '@/lib/airroi/client'
+
+interface MarketData {
+  avg_occupancy: number | null
+  avg_revpar: number | null
+  avg_adr: number | null
+  avg_revenue: number | null
+}
+
+async function fetchMarketData(
+  listings: Array<{ city?: string | null; state?: string | null }>
+): Promise<Map<string, MarketData>> {
+  const map = new Map<string, MarketData>()
+  const nullEntry: MarketData = { avg_occupancy: null, avg_revpar: null, avg_adr: null, avg_revenue: null }
+
+  if (!process.env.AIRROI_API_KEY) {
+    return map
+  }
+
+  // Collect unique city|state pairs
+  const unique = new Set<string>()
+  for (const l of listings) {
+    if (l.city && l.state) {
+      unique.add(`${l.city}|${l.state}`)
+    }
+  }
+
+  for (const key of unique) {
+    const [city, state] = key.split('|')
+    try {
+      const summary = await getMarketSummary({
+        market: { country: 'US', region: state, locality: city },
+      })
+      map.set(key, {
+        avg_occupancy: summary.occupancy ?? null,
+        avg_revpar: summary.rev_par ?? null,
+        avg_adr: summary.average_daily_rate ?? null,
+        avg_revenue: summary.revenue ?? null,
+      })
+    } catch {
+      map.set(key, nullEntry)
+    }
+  }
+
+  return map
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -59,11 +105,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ scored: 0, message: 'No listings to score' })
     }
 
+    // Fetch market data for all unique city+state combos
+    const marketMap = await fetchMarketData(listings)
+
     let scoredCount = 0
     const errors: string[] = []
 
     for (const listing of listings) {
       try {
+        const marketKey = listing.city && listing.state ? `${listing.city}|${listing.state}` : null
+
         const listingData: ListingData = {
           listing_id: listing.listing_id,
           room_type: listing.room_type,
@@ -103,10 +154,10 @@ export async function POST(request: NextRequest) {
           rating_checkin: listing.rating_checkin,
           rating_value: listing.rating_value,
           market_avg_price: listing.market_avg_price,
-          market_avg_occupancy: listing.market_avg_occupancy,
-          market_avg_revenue: listing.market_avg_revenue,
-          market_avg_revpar: listing.market_avg_revpar ?? null,
-          market_avg_adr: listing.market_avg_adr ?? null,
+          market_avg_occupancy: marketKey ? (marketMap.get(marketKey)?.avg_occupancy ?? null) : null,
+          market_avg_revenue: marketKey ? (marketMap.get(marketKey)?.avg_revenue ?? null) : null,
+          market_avg_revpar: marketKey ? (marketMap.get(marketKey)?.avg_revpar ?? null) : null,
+          market_avg_adr: marketKey ? (marketMap.get(marketKey)?.avg_adr ?? null) : null,
           city: listing.city,
           state: listing.state,
         }
@@ -143,6 +194,7 @@ export async function POST(request: NextRequest) {
             host_type: result.host_type,
             ai_bucket: result.ai_bucket,
             lead_tier: result.lead_tier,
+            score_breakdown: result,
             scored_at: new Date().toISOString(),
           })
           .eq('id', listing.id)
