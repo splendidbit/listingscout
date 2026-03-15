@@ -53,6 +53,41 @@ export default async function CampaignListingsPage({ params }: ListingsPageProps
     superhost: l.superhost,
     lead_score: l.lead_score,
     lead_tier: l.lead_tier,
+    // Extended fields for detail panel
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    host_listing_count: (l as any).host_listing_count ?? null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    host_type: (l as any).host_type ?? null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    photo_count: (l as any).photo_count ?? null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    amenities_count: (l as any).amenities_count ?? null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ttm_avg_rate: (l as any).ttm_avg_rate ?? null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ttm_revenue: (l as any).ttm_revenue ?? null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ttm_occupancy: (l as any).ttm_occupancy ?? null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    market_avg_price: (l as any).market_avg_price ?? null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    market_avg_occupancy: (l as any).market_avg_occupancy ?? null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    market_avg_revenue: (l as any).market_avg_revenue ?? null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    pricing_opportunity_score: (l as any).pricing_opportunity_score ?? null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    listing_quality_score: (l as any).listing_quality_score ?? null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    review_momentum_score: (l as any).review_momentum_score ?? null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    opportunity_notes: (l as any).opportunity_notes ?? null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    outreach_angle: (l as any).outreach_angle ?? null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ai_lead_score: (l as any).ai_lead_score ?? null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ai_bucket: (l as any).ai_bucket ?? null,
   }))
 
   const unscoredCount = listingData.filter(l => l.lead_score === null).length
