@@ -314,8 +314,9 @@ export async function POST(request: NextRequest) {
       return { ...l, ...scores }
     })
 
-    // AI analysis on score >= 40 listings
+    // AI analysis — run on ALL listings (key is set)
     if (process.env.OPENAI_API_KEY) {
+      console.log(`Running AI analysis on ${listings.length} listings`)
       const marketData = {
         average_daily_rate: market?.average_daily_rate ?? null,
         occupancy: market?.occupancy ?? null,
@@ -324,12 +325,13 @@ export async function POST(request: NextRequest) {
       }
 
       const analysisPromises = listings
-        .filter(l => l.revenue_potential_score >= 40 && !isAnalysisFresh(l.ai_analyzed_at))
+        .filter(l => !isAnalysisFresh(l.ai_analyzed_at))
         .map(async l => {
           try {
             const analysis = await analyzeListingWithAI(l as unknown as ListingData, marketData)
             return { listing_id: l.listing_id, analysis }
-          } catch {
+          } catch (err) {
+            console.error(`AI analysis failed for ${l.listing_id}:`, err)
             return null
           }
         })
