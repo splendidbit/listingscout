@@ -1,12 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { scoreListing, ListingData } from '@/lib/scoring/engine'
-import { CampaignCriteria } from '@/lib/types/criteria'
 
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
-    
+
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     if (userError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -23,11 +22,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Campaign ID required' }, { status: 400 })
     }
 
-    // Get campaign with criteria
+    // Verify campaign ownership
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: campaign, error: campaignError } = await (supabase as any)
       .from('campaigns')
-      .select('id, criteria')
+      .select('id')
       .eq('id', campaignId)
       .eq('user_id', user.id)
       .single()
@@ -35,8 +34,6 @@ export async function POST(request: NextRequest) {
     if (campaignError || !campaign) {
       return NextResponse.json({ error: 'Campaign not found' }, { status: 404 })
     }
-
-    const criteria = campaign.criteria as CampaignCriteria
 
     // Build query for listings to score
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -49,8 +46,7 @@ export async function POST(request: NextRequest) {
     if (listingIds && listingIds.length > 0) {
       query = query.in('id', listingIds)
     } else if (!rescore) {
-      // Only score unscored listings
-      query = query.is('lead_score', null)
+      query = query.is('revenue_potential_score', null)
     }
 
     const { data: listings, error: listingsError } = await query
@@ -60,54 +56,67 @@ export async function POST(request: NextRequest) {
     }
 
     if (!listings || listings.length === 0) {
-      return NextResponse.json({
-        scored: 0,
-        message: 'No listings to score',
-      })
+      return NextResponse.json({ scored: 0, message: 'No listings to score' })
     }
 
-    // Score each listing
     let scoredCount = 0
     const errors: string[] = []
 
     for (const listing of listings) {
       try {
         const listingData: ListingData = {
-          city: listing.city,
-          state: listing.state,
-          neighborhood: listing.neighborhood,
-          property_type: listing.property_type,
+          listing_id: listing.listing_id,
+          room_type: listing.room_type,
           bedrooms: listing.bedrooms,
           bathrooms: listing.bathrooms,
           max_guests: listing.max_guests,
           amenities: listing.amenities,
+          amenities_count: listing.amenities_count,
+          photo_count: listing.photo_count,
+          description_length: listing.description_length,
+          title_length: listing.title_length,
+          host_listing_count: listing.host_listing_count,
+          superhost: listing.superhost,
+          host_response_rate: listing.host_response_rate,
+          nightly_rate: listing.nightly_rate,
+          ttm_avg_rate: listing.ttm_avg_rate ?? null,
+          cleaning_fee: listing.cleaning_fee,
+          minimum_stay: listing.minimum_stay,
+          instant_book: listing.instant_book,
           avg_rating: listing.avg_rating,
           total_reviews: listing.total_reviews,
-          nightly_rate: listing.nightly_rate,
-          host_name: listing.host_name,
-          host_listing_count: listing.host_listing_count,
-          host_response_rate: listing.host_response_rate,
-          host_since: listing.host_since,
-          superhost: listing.superhost,
-          // Owner data if available via join
-          owner_verified: false,
-          has_email: false,
-          has_phone: false,
-          has_linkedin: false,
+          reviews_per_month: listing.reviews_per_month,
+          occupancy_rate: listing.occupancy_rate,
+          ttm_occupancy: null,
+          annual_revenue: listing.annual_revenue,
+          ttm_revenue: null,
+          rating_cleanliness: listing.rating_cleanliness,
+          rating_accuracy: listing.rating_accuracy,
+          rating_communication: listing.rating_communication,
+          rating_location: listing.rating_location,
+          rating_checkin: listing.rating_checkin,
+          rating_value: listing.rating_value,
+          market_avg_price: listing.market_avg_price,
+          market_avg_occupancy: listing.market_avg_occupancy,
+          market_avg_revenue: listing.market_avg_revenue,
+          city: listing.city,
+          state: listing.state,
         }
 
-        const result = scoreListing(listingData, criteria)
+        const result = scoreListing(listingData)
 
-        // Update listing with score
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { error: updateError } = await (supabase as any)
           .from('listings')
           .update({
-            lead_score: result.total,
-            lead_tier: result.tier,
-            score_breakdown: result.breakdown,
-            flags: result.flags,
-            scored_at: new Date().toISOString(),
+            revenue_potential_score: result.revenue_potential_score,
+            pricing_opportunity_score: result.pricing_opportunity_score,
+            listing_quality_score: result.listing_quality_score,
+            review_momentum_score: result.review_momentum_score,
+            competition_pressure_score: result.competition_pressure_score,
+            host_type: result.host_type,
+            ai_bucket: result.ai_bucket,
+            lead_tier: result.lead_tier,
           })
           .eq('id', listing.id)
 
@@ -121,22 +130,21 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Update campaign stats
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).rpc('refresh_campaign_stats', { p_campaign_id: campaignId })
+    // Refresh campaign stats if RPC exists
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase as any).rpc('refresh_campaign_stats', { p_campaign_id: campaignId })
+    } catch {
+      // Non-fatal — stats refresh is optional
+    }
 
-    // Create audit log
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase as any).from('audit_log').insert({
       user_id: user.id,
       campaign_id: campaignId,
       action: rescore ? 'listings_rescored' : 'listings_scored',
       entity_type: 'listing',
-      details: {
-        scored: scoredCount,
-        errors: errors.length,
-        rescore,
-      },
+      details: { scored: scoredCount, errors: errors.length, rescore },
     })
 
     return NextResponse.json({
@@ -146,9 +154,6 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error in POST /api/scoring:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
