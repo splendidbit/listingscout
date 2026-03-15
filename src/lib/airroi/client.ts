@@ -78,31 +78,39 @@ async function fetchAirROI<T>(
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export interface AirROIListing {
-  // ID — may be listing_id or id
+// AirROI returns nested sub-objects per listing
+export interface AirROIListingInfo {
   listing_id?: number
-  id?: number
-  // URL — may be url, listing_url, airbnb_url
-  url?: string
-  listing_url?: string
-  airbnb_url?: string
-  // Title — may be title, name, listing_title
-  title?: string
-  name?: string
-  listing_title?: string
-  // Type
+  listing_name?: string
   listing_type?: string
   room_type?: string
-  // Location
+  cover_photo_url?: string
+  photos_count?: number
+  listing_url?: string
+  [key: string]: unknown
+}
+
+export interface AirROIHostInfo {
+  host_id?: number
+  host_name?: string
+  superhost?: boolean
+  professional_management?: boolean
+  host_listing_count?: number
+  [key: string]: unknown
+}
+
+export interface AirROILocationInfo {
   latitude?: number
   longitude?: number
   country?: string
+  country_code?: string
   region?: string
   locality?: string
   district?: string
-  city?: string
-  state?: string
-  // Property
+  [key: string]: unknown
+}
+
+export interface AirROIPropertyDetails {
   bedrooms?: number
   beds?: number
   baths?: number
@@ -110,21 +118,26 @@ export interface AirROIListing {
   guests?: number
   accommodates?: number
   amenities?: string[]
-  photos_count?: number
-  // Host
-  host_id?: number
-  host_name?: string
-  superhost?: boolean
-  professional_management?: boolean
-  // Pricing
-  price_nightly?: number
-  nightly_rate?: number
-  cleaning_fee?: number
-  extra_guest_fee?: number
+  [key: string]: unknown
+}
+
+export interface AirROIBookingSettings {
   instant_book?: boolean
   min_nights?: number
   minimum_nights?: number
-  // Ratings
+  cancellation_policy?: string
+  [key: string]: unknown
+}
+
+export interface AirROIPricingInfo {
+  nightly_rate?: number
+  price_nightly?: number
+  cleaning_fee?: number
+  extra_guest_fee?: number
+  [key: string]: unknown
+}
+
+export interface AirROIRatings {
   rating_overall?: number
   rating_accuracy?: number
   rating_cleanliness?: number
@@ -134,27 +147,36 @@ export interface AirROIListing {
   rating_value?: number
   num_reviews?: number
   review_count?: number
-  reviews?: number
-  // TTM Performance
+  [key: string]: unknown
+}
+
+export interface AirROIPerformanceMetrics {
   ttm_revenue?: number
   ttm_occupancy?: number
   ttm_avg_rate?: number
   ttm_revpar?: number
   ttm_adjusted_occupancy?: number
-  ttm_adjusted_revpar?: number
   ttm_days_booked?: number
   ttm_available_days?: number
-  // L90D Performance
   l90d_revenue?: number
   l90d_occupancy?: number
   l90d_avg_rate?: number
   l90d_revpar?: number
   l90d_days_booked?: number
   l90d_available_days?: number
-  // Image
-  cover_photo_url?: string
-  cover_image_url?: string
-  thumbnail?: string
+  [key: string]: unknown
+}
+
+export interface AirROIListing {
+  // Nested structure (actual API response)
+  listing_info?: AirROIListingInfo
+  host_info?: AirROIHostInfo
+  location_info?: AirROILocationInfo
+  property_details?: AirROIPropertyDetails
+  booking_settings?: AirROIBookingSettings
+  pricing_info?: AirROIPricingInfo
+  ratings?: AirROIRatings
+  performance_metrics?: AirROIPerformanceMetrics
   // Allow any other fields
   [key: string]: unknown
 }

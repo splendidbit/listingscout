@@ -2,15 +2,6 @@
  * POST /api/airroi/search
  * Search AirROI for listings matching campaign criteria.
  * Returns enriched listings with scoring pre-calculated.
- *
- * Pipeline:
- * 1. Fetch listings from AirROI
- * 2. Fetch market summary for context
- * 3. Map to enriched format
- * 4. Run scoring on every listing
- * 5. Run AI analysis on listings with revenue_potential_score >= 40 (if OPENAI_API_KEY set)
- * 6. Filter: entire_home only, host_listing_count <= 9
- * 7. Sort by revenue_potential_score descending
  */
 
 import { createClient } from '@/lib/supabase/server'
@@ -28,16 +19,11 @@ import { scoreListing, ListingData } from '@/lib/scoring/engine'
 import { analyzeListingWithAI, isAnalysisFresh } from '@/lib/ai/listing-analyzer'
 import { CampaignCriteria } from '@/lib/types/criteria'
 
-// ─── Enriched Listing Type (returned to client) ───────────────────────────────
-
 export interface EnrichedListing {
-  // Identity
   listing_id: string
   listing_url: string
   listing_title: string
   collection_source: 'airroi'
-
-  // Property
   property_type: string
   room_type: string
   bedrooms: number
@@ -46,30 +32,22 @@ export interface EnrichedListing {
   amenities: string[] | null
   amenities_count: number | null
   photo_count: number | null
-
-  // Location
   city: string
   state: string
   country: string | null
   neighborhood: string | null
   latitude: number | null
   longitude: number | null
-
-  // Host
   host_name: string | null
   host_id: string | null
   host_listing_count: number | null
   host_type: string
   superhost: boolean
-
-  // Pricing
   nightly_rate: number | null
   ttm_avg_rate: number | null
   cleaning_fee: number | null
   minimum_stay: number | null
   instant_book: boolean | null
-
-  // Performance
   avg_rating: number | null
   total_reviews: number
   occupancy_rate: number | null
@@ -78,107 +56,102 @@ export interface EnrichedListing {
   ttm_occupancy: number | null
   l90d_revenue: number | null
   l90d_occupancy: number | null
-
-  // Sub-ratings
   rating_cleanliness: number | null
   rating_accuracy: number | null
   rating_communication: number | null
   rating_location: number | null
   rating_checkin: number | null
   rating_value: number | null
-
-  // Market comparison
   market_avg_price: number | null
   market_avg_occupancy: number | null
   market_avg_revenue: number | null
-
-  // Opportunity scores
   revenue_potential_score: number
   pricing_opportunity_score: number
   listing_quality_score: number
   review_momentum_score: number
   competition_pressure_score: number
   lead_tier: string
-
-  // AI analysis
   ai_lead_score: number | null
   ai_bucket: string
   opportunity_notes: string | null
   outreach_angle: string | null
   ai_confidence: number | null
   ai_analyzed_at: string | null
-
-  // Cover image
   cover_image_url: string | null
-
-  // Raw data for storage
   raw_data: Record<string, unknown>
 }
-
-// ─── Mapping ──────────────────────────────────────────────────────────────────
 
 function mapAirROIToEnriched(
   listing: AirROIListing,
   market: MarketSummaryResponse | null
 ): EnrichedListing {
-  const amenitiesCount = listing.amenities?.length ?? null
-  const photoCount = listing.photos_count ?? null
+  // Destructure nested objects
+  const li = listing.listing_info ?? {}
+  const hi = listing.host_info ?? {}
+  const loc = listing.location_info ?? {}
+  const pd = listing.property_details ?? {}
+  const bs = listing.booking_settings ?? {}
+  const pi = listing.pricing_info ?? {}
+  const rat = listing.ratings ?? {}
+  const pm = listing.performance_metrics ?? {}
 
-  const enriched: EnrichedListing = {
-    listing_id: String(listing.listing_id ?? listing.id ?? Math.random()),
-    listing_url: listing.url ?? listing.listing_url ?? listing.airbnb_url ?? `https://www.airbnb.com/rooms/${listing.listing_id ?? listing.id}`,
-    listing_title: listing.title ?? listing.name ?? listing.listing_title ?? 'Untitled Listing',
+  const listingId = String(li.listing_id ?? Math.random())
+  const listingUrl = li.listing_url ?? `https://www.airbnb.com/rooms/${li.listing_id ?? ''}`
+
+  return {
+    listing_id: listingId,
+    listing_url: listingUrl,
+    listing_title: li.listing_name ?? 'Untitled Listing',
     collection_source: 'airroi',
 
-    property_type: listing.listing_type ?? listing.room_type ?? 'unknown',
-    room_type: listing.room_type ?? listing.listing_type ?? 'unknown',
-    bedrooms: listing.bedrooms ?? 0,
-    bathrooms: listing.baths ?? listing.bathrooms ?? 0,
-    max_guests: listing.guests ?? listing.accommodates ?? 0,
-    amenities: listing.amenities ?? null,
-    amenities_count: amenitiesCount,
-    photo_count: photoCount,
+    property_type: li.listing_type ?? li.room_type ?? 'Entire home',
+    room_type: li.room_type ?? 'entire_home',
+    bedrooms: pd.bedrooms ?? 0,
+    bathrooms: pd.baths ?? pd.bathrooms ?? 0,
+    max_guests: pd.guests ?? pd.accommodates ?? 0,
+    amenities: pd.amenities ?? null,
+    amenities_count: pd.amenities?.length ?? null,
+    photo_count: li.photos_count ?? null,
 
-    city: listing.locality ?? listing.city ?? '',
-    state: listing.region ?? listing.state ?? '',
-    country: listing.country ?? null,
-    neighborhood: listing.district ?? null,
-    latitude: listing.latitude ?? null,
-    longitude: listing.longitude ?? null,
+    city: loc.locality ?? '',
+    state: loc.region ?? '',
+    country: loc.country ?? null,
+    neighborhood: loc.district ?? null,
+    latitude: loc.latitude ?? null,
+    longitude: loc.longitude ?? null,
 
-    host_name: listing.host_name ?? null,
-    host_id: listing.host_id ? String(listing.host_id) : null,
-    host_listing_count: null, // AirROI doesn't expose this in search results
-    host_type: 'diy',         // Will be overwritten by scoring
-    superhost: listing.superhost ?? false,
+    host_name: hi.host_name ?? null,
+    host_id: hi.host_id ? String(hi.host_id) : null,
+    host_listing_count: hi.host_listing_count ?? null,
+    host_type: 'diy', // overwritten by scoring
+    superhost: hi.superhost ?? false,
 
-    nightly_rate: listing.price_nightly ?? listing.ttm_avg_rate ?? null,
-    ttm_avg_rate: listing.ttm_avg_rate ?? null,
-    cleaning_fee: listing.cleaning_fee ?? null,
-    minimum_stay: listing.min_nights ?? null,
-    instant_book: listing.instant_book ?? null,
+    nightly_rate: pi.price_nightly ?? pi.nightly_rate ?? pm.ttm_avg_rate ?? null,
+    ttm_avg_rate: pm.ttm_avg_rate ?? null,
+    cleaning_fee: pi.cleaning_fee ?? null,
+    minimum_stay: bs.min_nights ?? bs.minimum_nights ?? null,
+    instant_book: bs.instant_book ?? null,
 
-    avg_rating: listing.rating_overall ?? null,
-    total_reviews: listing.num_reviews ?? listing.review_count ?? listing.reviews ?? 0,
-    occupancy_rate: listing.ttm_occupancy ?? null,
-    annual_revenue: listing.ttm_revenue ?? null,
-    ttm_revenue: listing.ttm_revenue ?? null,
-    ttm_occupancy: listing.ttm_occupancy ?? null,
-    l90d_revenue: listing.l90d_revenue ?? null,
-    l90d_occupancy: listing.l90d_occupancy ?? null,
+    avg_rating: rat.rating_overall ?? null,
+    total_reviews: rat.num_reviews ?? rat.review_count ?? 0,
+    occupancy_rate: pm.ttm_occupancy ?? null,
+    annual_revenue: pm.ttm_revenue ?? null,
+    ttm_revenue: pm.ttm_revenue ?? null,
+    ttm_occupancy: pm.ttm_occupancy ?? null,
+    l90d_revenue: pm.l90d_revenue ?? null,
+    l90d_occupancy: pm.l90d_occupancy ?? null,
 
-    rating_cleanliness: listing.rating_cleanliness ?? null,
-    rating_accuracy: listing.rating_accuracy ?? null,
-    rating_communication: listing.rating_communication ?? null,
-    rating_location: listing.rating_location ?? null,
-    rating_checkin: listing.rating_checkin ?? null,
-    rating_value: listing.rating_value ?? null,
+    rating_cleanliness: rat.rating_cleanliness ?? null,
+    rating_accuracy: rat.rating_accuracy ?? null,
+    rating_communication: rat.rating_communication ?? null,
+    rating_location: rat.rating_location ?? null,
+    rating_checkin: rat.rating_checkin ?? null,
+    rating_value: rat.rating_value ?? null,
 
     market_avg_price: market?.average_daily_rate ?? null,
     market_avg_occupancy: market?.occupancy ?? null,
     market_avg_revenue: market?.revenue ?? null,
 
-    // Placeholders — filled after scoring
     revenue_potential_score: 0,
     pricing_opportunity_score: 0,
     listing_quality_score: 0,
@@ -193,14 +166,10 @@ function mapAirROIToEnriched(
     ai_confidence: null,
     ai_analyzed_at: null,
 
-    cover_image_url: listing.cover_photo_url ?? listing.cover_image_url ?? listing.thumbnail ?? null,
+    cover_image_url: li.cover_photo_url ?? null,
     raw_data: listing as unknown as Record<string, unknown>,
   }
-
-  return enriched
 }
-
-// ─── Route Handler ────────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
   try {
@@ -211,10 +180,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!process.env.AIRROI_API_KEY) {
-      return NextResponse.json(
-        { error: 'AIRROI_API_KEY not configured. Add it to environment variables.' },
-        { status: 503 }
-      )
+      return NextResponse.json({ error: 'AIRROI_API_KEY not configured.' }, { status: 503 })
     }
 
     const body = await request.json()
@@ -242,21 +208,15 @@ export async function POST(request: NextRequest) {
       offset?: number
     }
 
-    if (!campaignId) {
-      return NextResponse.json({ error: 'campaignId is required' }, { status: 400 })
-    }
+    if (!campaignId) return NextResponse.json({ error: 'campaignId is required' }, { status: 400 })
 
     const isRadiusSearch = latitude !== undefined && longitude !== undefined
     const isMarketSearch = country !== undefined || locality !== undefined
 
     if (!isRadiusSearch && !isMarketSearch) {
-      return NextResponse.json(
-        { error: 'Provide either (country/region/locality) for market search or (latitude/longitude) for radius search' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Provide market or coordinates' }, { status: 400 })
     }
 
-    // Get campaign
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: campaign, error: campaignError } = await (supabase as any)
       .from('campaigns')
@@ -265,116 +225,85 @@ export async function POST(request: NextRequest) {
       .eq('user_id', user.id)
       .single()
 
-    if (campaignError || !campaign) {
-      return NextResponse.json({ error: 'Campaign not found' }, { status: 404 })
-    }
+    if (campaignError || !campaign) return NextResponse.json({ error: 'Campaign not found' }, { status: 404 })
 
     const criteria = campaign.criteria as CampaignCriteria
 
-    // Minimal filter — cast wide net, let scoring engine rank results.
-    // AirROI room_type values: 'Entire home/apt', 'Private room', 'Shared room'
+    // Minimal filter — let scoring engine rank
     const filter: AirROIFilter = {}
+    if (criteria.host.superhost_required) filter.superhost = { eq: true }
+    if (criteria.property.required_amenities.length > 0) filter.amenities = { all: criteria.property.required_amenities }
 
-    // Only hard filters if explicitly set by user
-    if (criteria.host.superhost_required) {
-      filter.superhost = { eq: true }
-    }
-    if (criteria.property.required_amenities.length > 0) {
-      filter.amenities = { all: criteria.property.required_amenities }
-    }
-
-    const sort: AirROISort = { ttm_revenue: 'desc', rating_overall: 'desc' }
+    const sort: AirROISort = { ttm_revenue: 'desc' }
     const pagination = { page_size: Math.min(page_size, 10), offset }
 
-    // Fetch listings and market summary in parallel
     const marketParams = isMarketSearch
       ? { country: country!, ...(region && { region }), ...(locality && { locality }), ...(district && { district }) }
       : null
 
     const [result, marketSummary] = await Promise.allSettled([
       isRadiusSearch
-        ? searchListingsByRadius({
-            latitude: latitude!,
-            longitude: longitude!,
-            radius_miles: radius_miles ?? 5,
-            filter,
-            sort,
-            pagination,
-            currency: 'usd',
-          })
-        : searchListingsByMarket({
-            market: marketParams,
-            filter,
-            sort,
-            pagination,
-            currency: 'usd',
-          }),
+        ? searchListingsByRadius({ latitude: latitude!, longitude: longitude!, radius_miles: radius_miles ?? 5, filter, sort, pagination, currency: 'usd' })
+        : searchListingsByMarket({ market: marketParams, filter, sort, pagination, currency: 'usd' }),
       marketParams
         ? getMarketSummary({ market: marketParams, currency: 'usd' })
         : Promise.resolve(null),
     ])
 
     if (result.status === 'rejected') {
-      console.error('AirROI search rejected:', result.reason)
+      console.error('AirROI search error:', result.reason)
       throw new Error(result.reason instanceof Error ? result.reason.message : 'AirROI search failed')
     }
 
     const market = marketSummary.status === 'fulfilled' ? marketSummary.value : null
-    if (marketSummary.status === 'rejected') {
-      console.warn('Market summary failed (non-fatal):', marketSummary.reason)
-    }
-
     const rawListings = result.value.listings ?? []
-    console.log(`AirROI returned ${rawListings.length} raw listings`)
-    console.log('AirROI response keys:', Object.keys(result.value))
-    if (rawListings.length === 0) {
-      console.log('Full AirROI response:', JSON.stringify(result.value).slice(0, 500))
-    }
 
-    // Log first listing shape to debug field names
+    console.log(`AirROI returned ${rawListings.length} raw listings`)
     if (rawListings.length > 0) {
       console.log('First listing keys:', Object.keys(rawListings[0]))
-      console.log('First listing sample:', JSON.stringify(rawListings[0]).slice(0, 600))
     }
 
-    // Map to enriched format
+    // Map nested AirROI response → flat EnrichedListing
     let listings = rawListings.map((l: AirROIListing) => mapAirROIToEnriched(l, market))
 
-    // Log room types to understand AirROI's actual values
-    const roomTypes = [...new Set(listings.map(l => l.room_type))]
-    console.log('Room types in results:', roomTypes)
-
-    // Filter out professional operators (10+ listings) — keep null as unknown = include
-    // Note: not filtering by room_type yet until we know AirROI's exact values
-    listings = listings.filter(l =>
-      l.host_listing_count === null || l.host_listing_count <= 9
-    )
+    // Filter out professional operators (10+ listings) — host_listing_count is often null from search
+    listings = listings.filter(l => l.host_listing_count === null || l.host_listing_count <= 9)
 
     // Score every listing
     listings = listings.map(l => {
       const listingData: ListingData = {
-        ...l,
+        listing_id: l.listing_id,
+        listing_title: l.listing_title,
+        city: l.city,
+        state: l.state,
+        bedrooms: l.bedrooms,
+        bathrooms: l.bathrooms,
+        max_guests: l.max_guests,
+        room_type: l.room_type,
+        amenities: l.amenities,
+        amenities_count: l.amenities_count,
+        photo_count: l.photo_count,
         nightly_rate: l.nightly_rate,
         ttm_avg_rate: l.ttm_avg_rate,
+        avg_rating: l.avg_rating,
+        total_reviews: l.total_reviews,
         occupancy_rate: l.occupancy_rate,
         ttm_occupancy: l.ttm_occupancy,
         annual_revenue: l.annual_revenue,
         ttm_revenue: l.ttm_revenue,
+        host_listing_count: l.host_listing_count,
+        superhost: l.superhost,
+        rating_cleanliness: l.rating_cleanliness,
+        rating_communication: l.rating_communication,
         market_avg_price: l.market_avg_price,
         market_avg_occupancy: l.market_avg_occupancy,
         market_avg_revenue: l.market_avg_revenue,
       }
       const scores = scoreListing(listingData)
-      return {
-        ...l,
-        ...scores,
-        host_type: scores.host_type,
-        ai_bucket: scores.ai_bucket,
-        lead_tier: scores.lead_tier,
-      }
+      return { ...l, ...scores }
     })
 
-    // AI analysis on listings with revenue_potential_score >= 40 (if configured)
+    // AI analysis on score >= 40 listings
     if (process.env.OPENAI_API_KEY) {
       const marketData = {
         average_daily_rate: market?.average_daily_rate ?? null,
@@ -387,45 +316,32 @@ export async function POST(request: NextRequest) {
         .filter(l => l.revenue_potential_score >= 40 && !isAnalysisFresh(l.ai_analyzed_at))
         .map(async l => {
           try {
-            const listingData: ListingData = {
-              ...l,
-              nightly_rate: l.nightly_rate,
-              market_avg_price: l.market_avg_price,
-              market_avg_occupancy: l.market_avg_occupancy,
-              market_avg_revenue: l.market_avg_revenue,
-            }
-            const analysis = await analyzeListingWithAI(listingData, marketData)
+            const analysis = await analyzeListingWithAI(l as unknown as ListingData, marketData)
             return { listing_id: l.listing_id, analysis }
-          } catch (err) {
-            console.warn(`AI analysis failed for ${l.listing_id}:`, err)
+          } catch {
             return null
           }
         })
 
       const analysisResults = await Promise.all(analysisPromises)
-
-      // Merge AI analysis back into listings
-      const analysisMap = new Map(
-        analysisResults
-          .filter((r): r is NonNullable<typeof r> => r !== null)
-          .map(r => [r.listing_id, r.analysis])
-      )
+      const analysisMap = new Map(analysisResults.filter(Boolean).map(r => [r!.listing_id, r!.analysis]))
 
       listings = listings.map(l => {
         const analysis = analysisMap.get(l.listing_id)
         if (!analysis) return l
         return {
           ...l,
-          ai_lead_score: analysis.ai_lead_score,
-          opportunity_notes: analysis.opportunity_notes,
-          outreach_angle: analysis.outreach_angle,
-          ai_confidence: analysis.confidence,
-          ai_analyzed_at: analysis.ai_analyzed_at,
+          ai_lead_score: analysis.ai_lead_score ?? null,
+          ai_bucket: analysis.ai_bucket ?? l.ai_bucket,
+          opportunity_notes: analysis.opportunity_notes ?? null,
+          outreach_angle: analysis.outreach_angle ?? null,
+          ai_confidence: analysis.confidence ?? null,
+          ai_analyzed_at: new Date().toISOString(),
         }
       })
     }
 
-    // Sort by revenue_potential_score descending
+    // Sort by revenue_potential_score desc
     listings.sort((a, b) => b.revenue_potential_score - a.revenue_potential_score)
 
     // Audit log
@@ -436,34 +352,17 @@ export async function POST(request: NextRequest) {
       action: 'airroi_search',
       entity_type: 'campaign',
       entity_id: campaignId,
-      details: {
-        search_type: isRadiusSearch ? 'radius' : 'market',
-        results_count: listings.length,
-        market: isMarketSearch ? { country, region, locality, district } : null,
-        coordinates: isRadiusSearch ? { latitude, longitude, radius_miles } : null,
-        ai_analyzed: !!process.env.OPENAI_API_KEY,
-        market_avg_rate: market?.average_daily_rate ?? null,
-        market_avg_occupancy: market?.occupancy ?? null,
-      },
+      details: { results_count: listings.length, market: marketParams },
     })
 
     return NextResponse.json({
       listings,
       count: listings.length,
-      total: result.value.pagination?.total ?? listings.length,
+      market_summary: market,
       campaign: { id: campaign.id, name: campaign.name },
-      market: market
-        ? {
-            average_daily_rate: market.average_daily_rate,
-            occupancy: market.occupancy,
-            revenue: market.revenue,
-            active_listings_count: market.active_listings_count,
-          }
-        : null,
     })
   } catch (error) {
     console.error('AirROI search error:', error)
-    const message = error instanceof Error ? error.message : 'Search failed'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Search failed' }, { status: 500 })
   }
 }

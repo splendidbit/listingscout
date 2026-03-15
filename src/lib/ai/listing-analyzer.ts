@@ -8,6 +8,7 @@ import { ListingData, MarketData } from '@/lib/scoring/engine'
 
 export interface AIAnalysis {
   ai_lead_score: number        // 1-10
+  ai_bucket?: string           // e.g. 'strong_lead', 'pricing_opportunity'
   opportunity_notes: string    // Primary opportunity identified
   outreach_angle: string       // Specific personalized outreach message
   confidence: number           // 0-1
