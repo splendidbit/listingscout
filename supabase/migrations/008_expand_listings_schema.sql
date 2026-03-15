@@ -77,3 +77,7 @@ ALTER TABLE listings ADD COLUMN IF NOT EXISTS contact_method text;
 ALTER TABLE listings ADD COLUMN IF NOT EXISTS follow_up_date date;
 ALTER TABLE listings ADD COLUMN IF NOT EXISTS outreach_notes text;
 ALTER TABLE listings ADD COLUMN IF NOT EXISTS deal_value_estimate numeric;
+
+-- Add columns that were missing from original schema
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS annual_revenue numeric;
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS occupancy_rate numeric;

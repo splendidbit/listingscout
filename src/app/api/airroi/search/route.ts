@@ -331,6 +331,12 @@ export async function POST(request: NextRequest) {
       console.log('Full AirROI response:', JSON.stringify(result.value).slice(0, 500))
     }
 
+    // Log first listing shape to debug field names
+    if (rawListings.length > 0) {
+      console.log('First listing keys:', Object.keys(rawListings[0]))
+      console.log('First listing sample:', JSON.stringify(rawListings[0]).slice(0, 600))
+    }
+
     // Map to enriched format
     let listings = rawListings.map((l: AirROIListing) => mapAirROIToEnriched(l, market))
 
