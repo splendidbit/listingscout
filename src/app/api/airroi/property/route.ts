@@ -25,9 +25,18 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'id parameter is required' }, { status: 400 })
     }
 
-    const result = await getListing(Number(idParam), 'usd')
-    const mapped = mapAirROIListing(result.listing)
+    let result
+    try {
+      result = await getListing(Number(idParam), 'usd')
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : ''
+      if (msg.includes('404')) {
+        return NextResponse.json({ error: 'Listing not found in AirROI. Try searching by address or market instead.' }, { status: 404 })
+      }
+      throw err
+    }
 
+    const mapped = mapAirROIListing(result.listing)
     return NextResponse.json({ listing: mapped, raw: result.listing })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Lookup failed'

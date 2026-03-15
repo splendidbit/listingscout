@@ -24,7 +24,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'query must be at least 2 characters' }, { status: 400 })
     }
 
-    const result = await searchMarkets(query)
+    let result
+    try {
+      result = await searchMarkets(query)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : ''
+      if (msg.includes('404')) return NextResponse.json({ markets: [] })
+      throw err
+    }
     return NextResponse.json(result)
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Market search failed'
