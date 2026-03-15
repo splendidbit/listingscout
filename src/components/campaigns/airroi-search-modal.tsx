@@ -116,8 +116,8 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
   }
 
   const handleSearch = async () => {
-    if (!selectedMarket) {
-      toast.error('Select a market from the dropdown first')
+    if (!query.trim()) {
+      toast.error('Enter a market to search')
       return
     }
     setIsSearching(true)
@@ -125,16 +125,18 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
     setSelected(new Set())
     setSearched(false)
 
+    // Use selected market fields if available, otherwise parse the query string
+    const market = selectedMarket ?? { country: 'United States', locality: query.trim(), full_name: query.trim() }
+
     try {
       const res = await fetch('/api/airroi/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           campaignId,
-          country: selectedMarket.country,
-          region: selectedMarket.region,
-          locality: selectedMarket.locality,
-          district: selectedMarket.district,
+          country: market.country,
+          region: (market as Market).region,
+          locality: (market as Market).locality,
           page_size: 10,
         }),
       })
@@ -230,12 +232,12 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
 
         <Button
           onClick={handleSearch}
-          disabled={isSearching || !selectedMarket}
+          disabled={isSearching || !query.trim()}
           className="bg-[#6366F1] hover:bg-[#818CF8] w-full"
         >
           {isSearching
             ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Searching & analyzing…</>
-            : <><Search className="h-4 w-4 mr-2" />Search {selectedMarket ? selectedMarket.full_name : 'Market'}</>
+            : <><Search className="h-4 w-4 mr-2" />Search {query.trim() || 'Market'}</>
           }
         </Button>
 
