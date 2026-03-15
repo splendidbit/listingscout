@@ -65,15 +65,46 @@ export interface ListingRow {
 interface ListingsTableProps {
   data: ListingRow[]
   onRowClick?: (listing: ListingRow) => void
+  selectable?: boolean
+  selectedIds?: string[]
+  onSelectionChange?: (ids: string[]) => void
 }
 
-export function ListingsTable({ data, onRowClick }: ListingsTableProps) {
+export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], onSelectionChange }: ListingsTableProps) {
+  const toggleRow = (id: string) => {
+    if (!onSelectionChange) return
+    onSelectionChange(
+      selectedIds.includes(id) ? selectedIds.filter(x => x !== id) : [...selectedIds, id]
+    )
+  }
+  const toggleAll = () => {
+    if (!onSelectionChange) return
+    onSelectionChange(selectedIds.length === data.length ? [] : data.map(r => r.id))
+  }
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [globalFilter, setGlobalFilter] = useState('')
 
+  const selectColumn: ColumnDef<ListingRow> = {
+    id: 'select',
+    header: () => (
+      <input type="checkbox" checked={selectedIds.length === data.length && data.length > 0} onChange={toggleAll} className="rounded" />
+    ),
+    cell: ({ row }) => (
+      <input
+        type="checkbox"
+        checked={selectedIds.includes(row.original.id)}
+        onChange={() => toggleRow(row.original.id)}
+        onClick={e => e.stopPropagation()}
+        className="rounded"
+      />
+    ),
+    size: 40,
+  }
+
   const columns: ColumnDef<ListingRow>[] = [
+    ...(selectable ? [selectColumn] : []),
     {
       accessorKey: 'lead_score',
       header: 'Score',
