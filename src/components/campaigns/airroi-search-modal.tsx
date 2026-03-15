@@ -204,7 +204,15 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
         // Lookup by listing ID
         res = await fetch(`/api/airroi/property?id=${idMatch[1]}`)
         data = await res.json()
-        if (!res.ok) throw new Error(data.error || 'Lookup failed')
+        if (!res.ok) {
+          if (res.status === 404) {
+            toast.info('This listing isn\'t in AirROI\'s database yet. Try searching by address or market instead.')
+          } else {
+            throw new Error(data.error || 'Lookup failed')
+          }
+          setIsLooking(false)
+          return
+        }
         const listing = data.listing as EnrichedListing
         if (listing) {
           setResults([listing])
