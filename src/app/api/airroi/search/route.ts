@@ -232,7 +232,9 @@ export async function POST(request: NextRequest) {
     // Minimal filter — let scoring engine rank
     const filter: AirROIFilter = {}
     if (criteria.host.superhost_required) filter.superhost = { eq: true }
-    if (criteria.property.required_amenities.length > 0) filter.amenities = { all: criteria.property.required_amenities }
+    const VALID_AIRROI_AMENITIES = new Set(['wifi','pool','hot_tub','dedicated_workspace','kitchen','washer','dryer','free_parking_on_premises','air_conditioning','heating','indoor_fireplace','gym','ev_charger','pets_allowed','bbq_grill','patio_or_balcony','beach_access','waterfront','ski_in_ski_out','lake_access','sauna','fire_pit','bathtub','bikes','dishwasher','iron','refrigerator','tv','coffee_maker','microwave','oven','stove','private_entrance','luggage_dropoff_allowed'])
+    const validAmenities = criteria.property.required_amenities.filter(a => VALID_AIRROI_AMENITIES.has(a))
+    if (validAmenities.length > 0) filter.amenities = { all: validAmenities }
 
     const sort: AirROISort = { ttm_revenue: 'desc' }
     const pagination = { page_size: Math.min(page_size, 10), offset }
