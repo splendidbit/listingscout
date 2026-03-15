@@ -196,9 +196,12 @@ export default function CampaignSettingsPage() {
       const result = await deleteCampaign(id)
       if (result?.error) {
         toast.error(result.error)
+      } else {
+        toast.success('Campaign deleted')
+        router.push('/campaigns')
       }
-      // Redirect happens in the action
     } catch (error) {
+      console.error('Delete error:', error)
       toast.error('Failed to delete campaign')
     }
   }

@@ -170,7 +170,7 @@ export async function deleteCampaign(id: string) {
   })
 
   revalidatePath('/campaigns')
-  redirect('/campaigns')
+  return { success: true }
 }
 
 export async function getCampaign(id: string) {
