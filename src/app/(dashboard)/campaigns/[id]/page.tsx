@@ -11,15 +11,14 @@ import {
   Users, 
   AlertCircle,
   BarChart3,
-  FileDown,
-  Bot,
-  Settings,
-  ArrowRight
+  ArrowRight,
+  Settings
 } from 'lucide-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { CampaignCriteria } from '@/lib/types/criteria'
 import { Database } from '@/types/database'
+import { CampaignActions } from '@/components/campaigns/campaign-actions'
 
 type CampaignDbRow = Database['public']['Tables']['campaigns']['Row']
 type ListingDbRow = Database['public']['Tables']['listings']['Row']
@@ -117,22 +116,7 @@ export default async function CampaignDetailPage({ params }: CampaignPageProps) 
           >
             {campaign.status}
           </Badge>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" asChild>
-              <Link href={`/campaigns/${id}/settings`}>
-                <Settings className="h-4 w-4 mr-2" />
-                Settings
-              </Link>
-            </Button>
-            <Button variant="outline" size="sm">
-              <FileDown className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-            <Button size="sm" className="bg-[#6366F1] hover:bg-[#818CF8]">
-              <Bot className="h-4 w-4 mr-2" />
-              Research with AI
-            </Button>
-          </div>
+          <CampaignActions campaignId={id} />
         </div>
 
         {/* Stats Grid */}
