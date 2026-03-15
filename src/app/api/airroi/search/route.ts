@@ -332,11 +332,21 @@ export async function POST(request: NextRequest) {
     ])
 
     if (result.status === 'rejected') {
+      console.error('AirROI search rejected:', result.reason)
       throw new Error(result.reason instanceof Error ? result.reason.message : 'AirROI search failed')
     }
 
     const market = marketSummary.status === 'fulfilled' ? marketSummary.value : null
+    if (marketSummary.status === 'rejected') {
+      console.warn('Market summary failed (non-fatal):', marketSummary.reason)
+    }
+
     const rawListings = result.value.listings ?? []
+    console.log(`AirROI returned ${rawListings.length} raw listings`)
+    console.log('AirROI response keys:', Object.keys(result.value))
+    if (rawListings.length === 0) {
+      console.log('Full AirROI response:', JSON.stringify(result.value).slice(0, 500))
+    }
 
     // Map to enriched format
     let listings = rawListings.map((l: AirROIListing) => mapAirROIToEnriched(l, market))

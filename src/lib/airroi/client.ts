@@ -38,7 +38,7 @@ async function fetchAirROI<T>(
       Accept: 'application/json',
     },
     body: body ? JSON.stringify(body) : undefined,
-    next: { revalidate: 3600 },
+    next: { revalidate: 0 }, // no cache during debugging
   })
 
   if (!res.ok) {
@@ -46,7 +46,26 @@ async function fetchAirROI<T>(
     throw new Error(`AirROI API ${res.status}: ${text}`)
   }
 
-  return res.json() as Promise<T>
+  const json = await res.json()
+  
+  // Normalize: AirROI may return results under different keys
+  // Log top-level keys to help debug
+  if (process.env.NODE_ENV !== 'production' || path.includes('search')) {
+    console.log(`AirROI ${method} ${path} → keys:`, Object.keys(json))
+  }
+
+  // If it's a search endpoint and has no 'listings' key, try to find the array
+  if (path.includes('search') && !json.listings) {
+    const arrayKey = Object.keys(json).find(k => Array.isArray(json[k]))
+    if (arrayKey) {
+      console.log(`AirROI: remapping '${arrayKey}' → 'listings'`)
+      json.listings = json[arrayKey]
+    } else {
+      json.listings = []
+    }
+  }
+
+  return json as T
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
