@@ -49,27 +49,27 @@ export interface MappedListing {
 
 export function mapAirROIListing(listing: AirROIListing): MappedListing {
   return {
-    listing_id: String(listing.listing_id),
-    listing_url: listing.url,
-    listing_title: listing.title,
+    listing_id: String(listing.listing_id ?? listing.id ?? Math.random()),
+    listing_url: listing.url ?? listing.listing_url ?? `https://www.airbnb.com/rooms/${listing.listing_id ?? listing.id}`,
+    listing_title: listing.title ?? listing.name ?? listing.listing_title ?? 'Untitled Listing',
     collection_source: 'airroi',
 
-    property_type: listing.listing_type ?? listing.room_type,
-    room_type: listing.room_type,
-    bedrooms: listing.bedrooms,
-    bathrooms: listing.baths,
-    max_guests: listing.guests,
+    property_type: listing.listing_type ?? listing.room_type ?? 'unknown',
+    room_type: listing.room_type ?? listing.listing_type ?? 'unknown',
+    bedrooms: listing.bedrooms ?? 0,
+    bathrooms: listing.baths ?? listing.bathrooms ?? 0,
+    max_guests: listing.guests ?? listing.accommodates ?? 0,
     amenities: listing.amenities ?? null,
 
-    city: listing.locality ?? '',
-    state: listing.region ?? '',
+    city: listing.locality ?? listing.city ?? '',
+    state: listing.region ?? listing.state ?? '',
     country: listing.country ?? null,
     neighborhood: listing.district ?? null,
     latitude: listing.latitude ?? null,
     longitude: listing.longitude ?? null,
 
     avg_rating: listing.rating_overall ?? null,
-    total_reviews: listing.num_reviews ?? 0,
+    total_reviews: listing.num_reviews ?? listing.review_count ?? listing.reviews ?? 0,
     nightly_rate: listing.price_nightly ?? listing.ttm_avg_rate ?? null,
     annual_revenue: listing.ttm_revenue ?? null,
     occupancy_rate: listing.ttm_occupancy ?? null,
@@ -79,7 +79,7 @@ export function mapAirROIListing(listing: AirROIListing): MappedListing {
     superhost: listing.superhost ?? false,
     response_rate: null, // AirROI doesn't expose this field
 
-    cover_image_url: listing.cover_photo_url ?? null,
+    cover_image_url: listing.cover_photo_url ?? listing.cover_image_url ?? listing.thumbnail ?? null,
 
     ttm_revenue: listing.ttm_revenue ?? null,
     ttm_occupancy: listing.ttm_occupancy ?? null,

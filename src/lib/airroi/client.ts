@@ -79,35 +79,51 @@ async function fetchAirROI<T>(
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface AirROIListing {
-  listing_id: number
-  listing_type: string
-  room_type: string
-  title: string
-  url: string
-  latitude: number
-  longitude: number
-  country: string
-  region: string
-  locality: string
+  // ID — may be listing_id or id
+  listing_id?: number
+  id?: number
+  // URL — may be url, listing_url, airbnb_url
+  url?: string
+  listing_url?: string
+  airbnb_url?: string
+  // Title — may be title, name, listing_title
+  title?: string
+  name?: string
+  listing_title?: string
+  // Type
+  listing_type?: string
+  room_type?: string
+  // Location
+  latitude?: number
+  longitude?: number
+  country?: string
+  region?: string
+  locality?: string
   district?: string
+  city?: string
+  state?: string
   // Property
-  bedrooms: number
-  beds: number
-  baths: number
-  guests: number
-  amenities: string[]
+  bedrooms?: number
+  beds?: number
+  baths?: number
+  bathrooms?: number
+  guests?: number
+  accommodates?: number
+  amenities?: string[]
   photos_count?: number
   // Host
-  host_id: number
-  host_name: string
-  superhost: boolean
+  host_id?: number
+  host_name?: string
+  superhost?: boolean
   professional_management?: boolean
   // Pricing
   price_nightly?: number
+  nightly_rate?: number
   cleaning_fee?: number
   extra_guest_fee?: number
   instant_book?: boolean
   min_nights?: number
+  minimum_nights?: number
   // Ratings
   rating_overall?: number
   rating_accuracy?: number
@@ -116,8 +132,10 @@ export interface AirROIListing {
   rating_communication?: number
   rating_location?: number
   rating_value?: number
-  num_reviews: number
-  // TTM Performance (Trailing Twelve Months)
+  num_reviews?: number
+  review_count?: number
+  reviews?: number
+  // TTM Performance
   ttm_revenue?: number
   ttm_occupancy?: number
   ttm_avg_rate?: number
@@ -126,7 +144,7 @@ export interface AirROIListing {
   ttm_adjusted_revpar?: number
   ttm_days_booked?: number
   ttm_available_days?: number
-  // L90D Performance (Last 90 Days)
+  // L90D Performance
   l90d_revenue?: number
   l90d_occupancy?: number
   l90d_avg_rate?: number
@@ -135,6 +153,10 @@ export interface AirROIListing {
   l90d_available_days?: number
   // Image
   cover_photo_url?: string
+  cover_image_url?: string
+  thumbnail?: string
+  // Allow any other fields
+  [key: string]: unknown
 }
 
 export interface AirROIMarket {
