@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Loader2, Search, Download, ExternalLink, Star, DollarSign, TrendingUp, MapPin, Link as LinkIcon, Hash } from 'lucide-react'
+import { Loader2, Search, Download, ExternalLink, Star, DollarSign, TrendingUp, MapPin, Link as LinkIcon, Hash, ChevronDown, ChevronUp, Info } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface Market {
@@ -41,15 +41,20 @@ interface EnrichedListing {
   host_name: string | null
   host_listing_count: number | null
   host_type: string
+  photo_count: number | null
+  amenities_count: number | null
   revenue_potential_score: number
   pricing_opportunity_score: number
   listing_quality_score: number
+  review_momentum_score: number
+  competition_pressure_score: number
   ai_lead_score: number | null
   ai_bucket: string
   opportunity_notes: string | null
   outreach_angle: string | null
   lead_tier: string
   market_avg_price: number | null
+  market_avg_occupancy: number | null
   market_avg_revenue: number | null
 }
 
@@ -84,6 +89,7 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
   const [results, setResults] = useState<EnrichedListing[]>([])
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [searched, setSearched] = useState(false)
+  const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -378,85 +384,128 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
                   ? Math.round(listing.market_avg_price - listing.ttm_avg_rate)
                   : null
 
+                const isExpanded = expanded.has(listing.listing_id)
                 return (
-                  <div
-                    key={listing.listing_id}
-                    onClick={() => toggleSelect(listing.listing_id)}
-                    className={`p-3 rounded-lg border cursor-pointer transition-colors ${
-                      selected.has(listing.listing_id)
-                        ? 'border-[#6366F1] bg-[#6366F1]/10'
-                        : 'border-[#2A2A3C] bg-[#1A1A26] hover:border-[#3A3A52]'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="text-sm font-medium text-[#F0F0F5] truncate">{listing.listing_title}</p>
-                          {listing.superhost && <Badge className="bg-[#F59E0B]/10 text-[#F59E0B] text-[10px] px-1 py-0 shrink-0 border-0">Superhost</Badge>}
+                  <div key={listing.listing_id} className={`rounded-lg border transition-colors ${selected.has(listing.listing_id) ? 'border-[#6366F1] bg-[#6366F1]/10' : 'border-[#2A2A3C] bg-[#1A1A26]'}`}>
+                    {/* Main row */}
+                    <div className="p-3 cursor-pointer hover:bg-white/[0.02]" onClick={() => toggleSelect(listing.listing_id)}>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="text-sm font-medium text-[#F0F0F5] truncate">{listing.listing_title}</p>
+                            {listing.superhost && <Badge className="bg-[#F59E0B]/10 text-[#F59E0B] text-[10px] px-1 py-0 shrink-0 border-0">Superhost</Badge>}
+                          </div>
+                          <p className="text-xs text-[#9494A8] mt-0.5">
+                            {[listing.neighborhood, listing.city, listing.state].filter(Boolean).join(', ')}
+                            {' · '}{listing.bedrooms}bd {listing.bathrooms}ba · {listing.max_guests} guests
+                          </p>
+                          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                            <ScoreBadge score={listing.revenue_potential_score} />
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded border ${bucket.color}`}>{bucket.emoji} {bucket.label}</span>
+                            <span className="text-[10px] text-[#9494A8]">
+                              {listing.host_type === 'diy' ? '🏠 DIY' : listing.host_type === 'scaling' ? '📈 Scaling' : '🏢 Pro'}
+                              {listing.host_listing_count ? ` · ${listing.host_listing_count} listing${listing.host_listing_count > 1 ? 's' : ''}` : ''}
+                            </span>
+                            {pricingGap && pricingGap > 5 && <span className="text-[10px] text-orange-400">↑ ${pricingGap} below mkt</span>}
+                          </div>
                         </div>
-                        <p className="text-xs text-[#9494A8] mt-0.5">
-                          {[listing.neighborhood, listing.city, listing.state].filter(Boolean).join(', ')}
-                          {' · '}{listing.bedrooms}bd {listing.bathrooms}ba · {listing.max_guests} guests
-                        </p>
-
-                        {/* AI opportunity notes */}
-                        {listing.opportunity_notes && (
-                          <p className="text-xs text-[#9494A8] mt-1 italic line-clamp-1">{listing.opportunity_notes}</p>
-                        )}
-
-                        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                          {/* Score */}
-                          <ScoreBadge score={listing.revenue_potential_score} />
-
-                          {/* Bucket */}
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded border ${bucket.color}`}>
-                            {bucket.emoji} {bucket.label}
-                          </span>
-
-                          {/* Host type */}
-                          <span className="text-[10px] text-[#9494A8]">
-                            {listing.host_type === 'diy' ? '🏠 DIY' : listing.host_type === 'scaling' ? '📈 Scaling' : '🏢 Pro'}
-                            {listing.host_listing_count ? ` · ${listing.host_listing_count} listing${listing.host_listing_count > 1 ? 's' : ''}` : ''}
-                          </span>
-
-                          {/* Pricing gap */}
-                          {pricingGap && pricingGap > 5 && (
-                            <span className="text-[10px] text-orange-400">↑ ${pricingGap} below mkt</span>
-                          )}
+                        <div className="flex flex-col items-end gap-1 shrink-0 text-xs">
+                          {listing.avg_rating && <div className="flex items-center gap-1 text-[#F59E0B]"><Star className="h-3 w-3" /><span>{listing.avg_rating.toFixed(1)}</span><span className="text-[#5C5C72]">({listing.total_reviews})</span></div>}
+                          {listing.ttm_avg_rate && <div className="flex items-center gap-1 text-[#9494A8]"><DollarSign className="h-3 w-3" /><span>${Math.round(listing.ttm_avg_rate)}/night</span></div>}
+                          {listing.ttm_revenue && <div className="flex items-center gap-1 text-[#22C55E]"><TrendingUp className="h-3 w-3" /><span>${Math.round(listing.ttm_revenue / 1000)}k/yr</span></div>}
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <a href={listing.listing_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-[#6366F1] hover:text-[#818CF8]"><ExternalLink className="h-3 w-3" /></a>
+                            <button onClick={e => { e.stopPropagation(); setExpanded(prev => { const n = new Set(prev); n.has(listing.listing_id) ? n.delete(listing.listing_id) : n.add(listing.listing_id); return n }) }} className="text-[#5C5C72] hover:text-[#9494A8]">
+                              {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                            </button>
+                          </div>
                         </div>
-                      </div>
-
-                      <div className="flex flex-col items-end gap-1 shrink-0 text-xs">
-                        {listing.avg_rating && (
-                          <div className="flex items-center gap-1 text-[#F59E0B]">
-                            <Star className="h-3 w-3" />
-                            <span>{listing.avg_rating.toFixed(1)}</span>
-                            <span className="text-[#5C5C72]">({listing.total_reviews})</span>
-                          </div>
-                        )}
-                        {listing.ttm_avg_rate && (
-                          <div className="flex items-center gap-1 text-[#9494A8]">
-                            <DollarSign className="h-3 w-3" />
-                            <span>${Math.round(listing.ttm_avg_rate)}/night</span>
-                          </div>
-                        )}
-                        {listing.ttm_revenue && (
-                          <div className="flex items-center gap-1 text-[#22C55E]">
-                            <TrendingUp className="h-3 w-3" />
-                            <span>${Math.round(listing.ttm_revenue / 1000)}k/yr</span>
-                          </div>
-                        )}
-                        <a
-                          href={listing.listing_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={e => e.stopPropagation()}
-                          className="text-[#6366F1] hover:text-[#818CF8]"
-                        >
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
                       </div>
                     </div>
+
+                    {/* Expanded detail panel */}
+                    {isExpanded && (
+                      <div className="border-t border-[#2A2A3C] px-3 py-3 space-y-3 text-xs">
+                        {/* Score breakdown */}
+                        <div>
+                          <p className="text-[#9494A8] font-medium mb-2">📊 How this score was calculated</p>
+                          <div className="grid grid-cols-2 gap-2">
+                            {[
+                              {
+                                label: 'Pricing Gap',
+                                value: listing.pricing_opportunity_score,
+                                desc: listing.market_avg_price && listing.ttm_avg_rate
+                                  ? `This listing charges $${Math.round(listing.ttm_avg_rate)}/night. Market average is $${Math.round(listing.market_avg_price)}/night — ${listing.ttm_avg_rate < listing.market_avg_price ? `$${Math.round(listing.market_avg_price - listing.ttm_avg_rate)} below market avg` : 'at or above market rate'}`
+                                  : 'Market pricing data unavailable for this area.',
+                              },
+                              {
+                                label: 'Listing Quality Gap',
+                                value: listing.listing_quality_score,
+                                desc: `${listing.photo_count ?? 'Unknown'} photos · ${listing.amenities_count ?? 'Unknown'} amenities listed. ${(listing.photo_count ?? 0) < 15 ? 'Low photo count - strong optimization opportunity.' : 'Photo count looks adequate.'} ${(listing.amenities_count ?? 0) < 8 ? 'Few amenities listed - may be missing important features.' : ''}`.trim(),
+                              },
+                              {
+                                label: 'Review Momentum',
+                                value: listing.review_momentum_score,
+                                desc: `${listing.total_reviews} total reviews · ${listing.avg_rating?.toFixed(1) ?? 'No'} star rating. ${listing.total_reviews < 80 ? 'Under 80 reviews - still building momentum, strong upside.' : 'Well-established review history.'} ${listing.avg_rating && listing.avg_rating >= 4.4 && listing.avg_rating <= 4.8 ? 'Rating in the 4.4–4.8 sweet spot - good but improvable.' : listing.avg_rating && listing.avg_rating < 4.4 ? 'Below 4.4 rating - significant improvement opportunity.' : ''}`.trim(),
+                              },
+                              {
+                                label: 'Host Profile',
+                                value: null,
+                                desc: listing.host_type === 'diy'
+                                  ? `DIY host${listing.host_listing_count ? ` with ${listing.host_listing_count} listing${listing.host_listing_count > 1 ? 's' : ''}` : ''}. Likely self-managing — prime consulting target.`
+                                  : listing.host_type === 'scaling'
+                                  ? `Scaling host with ${listing.host_listing_count} listings. Growing operator who may want professional help.`
+                                  : 'Professional operator — less likely to need consulting.',
+                              },
+                              {
+                                label: 'Market Demand',
+                                value: null,
+                                desc: listing.market_avg_occupancy
+                                  ? `Market average occupancy: ${Math.round(listing.market_avg_occupancy * 100)}%. ${listing.market_avg_occupancy >= 0.65 ? 'Strong demand market — good conditions for revenue growth.' : 'Moderate demand — opportunity depends on positioning.'}`
+                                  : 'Market occupancy data unavailable.',
+                              },
+                              {
+                                label: 'Annual Revenue vs Market',
+                                value: null,
+                                desc: listing.ttm_revenue && listing.market_avg_revenue
+                                  ? `This listing earned $${Math.round(listing.ttm_revenue / 1000)}k last 12 months. Market average is $${Math.round(listing.market_avg_revenue / 1000)}k/year. ${listing.ttm_revenue < listing.market_avg_revenue ? `$${Math.round((listing.market_avg_revenue - listing.ttm_revenue) / 1000)}k below market — clear revenue upside.` : 'At or above market average.'}`
+                                  : listing.ttm_revenue ? `Earned $${Math.round(listing.ttm_revenue / 1000)}k last 12 months. No market comparison available.` : 'Revenue data unavailable.',
+                              },
+                            ].map(item => (
+                              <div key={item.label} className="bg-[#0A0A0F] rounded p-2.5">
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className="text-[#9494A8] font-medium">{item.label}</span>
+                                  {item.value !== null && item.value !== undefined && (
+                                    <span className={`font-mono font-bold text-sm ${item.value >= 65 ? 'text-green-400' : item.value >= 40 ? 'text-yellow-400' : 'text-red-400'}`}>{item.value}</span>
+                                  )}
+                                </div>
+                                <p className="text-[#9494A8] leading-relaxed">{item.desc}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* AI analysis */}
+                        {(listing.opportunity_notes || listing.outreach_angle) ? (
+                          <div className="space-y-2">
+                            {listing.opportunity_notes && (
+                              <div className="bg-[#0A0A0F] rounded p-2.5">
+                                <p className="text-[#6366F1] font-medium mb-1">💡 Primary Opportunity</p>
+                                <p className="text-[#F0F0F5] leading-relaxed">{listing.opportunity_notes}</p>
+                              </div>
+                            )}
+                            {listing.outreach_angle && (
+                              <div className="bg-[#6366F1]/10 border border-[#6366F1]/20 rounded p-2.5">
+                                <p className="text-[#6366F1] font-medium mb-1">✉️ Suggested Outreach</p>
+                                <p className="text-[#F0F0F5] leading-relaxed italic">&ldquo;{listing.outreach_angle}&rdquo;</p>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <p className="text-[#5C5C72] text-center italic py-1">AI analysis available for listings with score ≥ 40 when OpenAI is configured.</p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )
               })}
