@@ -271,31 +271,14 @@ export async function POST(request: NextRequest) {
 
     const criteria = campaign.criteria as CampaignCriteria
 
-    // Build AirROI filter — keep loose so our scoring engine does the ranking.
-    // Only apply hard filters for entire_home and explicit user-set criteria.
-    const filter: AirROIFilter = {
-      room_type: { eq: 'entire_home' },
-    }
+    // Minimal filter — cast wide net, let scoring engine rank results.
+    // AirROI room_type values: 'Entire home/apt', 'Private room', 'Shared room'
+    const filter: AirROIFilter = {}
 
-    // Only filter bedrooms if user explicitly set > 1
-    if (criteria.property.min_bedrooms > 1) {
-      filter.bedrooms = { gte: criteria.property.min_bedrooms }
-    }
-
-    // Only filter ADR if user set a non-default range (not 0-1000)
-    if (criteria.performance.nightly_rate_min > 0 && criteria.performance.nightly_rate_max < 1000) {
-      filter.ttm_avg_rate = {
-        gte: criteria.performance.nightly_rate_min,
-        lte: criteria.performance.nightly_rate_max,
-      }
-    }
-
-    // Only hard-require superhost if explicitly required
+    // Only hard filters if explicitly set by user
     if (criteria.host.superhost_required) {
       filter.superhost = { eq: true }
     }
-
-    // Only hard-require amenities if explicitly set
     if (criteria.property.required_amenities.length > 0) {
       filter.amenities = { all: criteria.property.required_amenities }
     }
