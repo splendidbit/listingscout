@@ -1,15 +1,23 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, Search, Download, ExternalLink, Star, DollarSign, TrendingUp, Users, BarChart2 } from 'lucide-react'
+import { Loader2, Search, Download, ExternalLink, Star, DollarSign, TrendingUp, MapPin } from 'lucide-react'
 import { toast } from 'sonner'
 
-// Matches the EnrichedListing shape from the search route
+interface Market {
+  full_name: string
+  country: string
+  region?: string
+  locality?: string
+  district?: string
+  active_listings_count?: number
+}
+
 interface EnrichedListing {
   listing_id: string
   listing_url: string
@@ -21,7 +29,6 @@ interface EnrichedListing {
   bedrooms: number
   bathrooms: number
   max_guests: number
-  room_type: string
   avg_rating: number | null
   total_reviews: number
   nightly_rate: number | null
@@ -29,32 +36,20 @@ interface EnrichedListing {
   annual_revenue: number | null
   ttm_revenue: number | null
   ttm_occupancy: number | null
-  occupancy_rate: number | null
   superhost: boolean
+  host_name: string | null
   host_listing_count: number | null
   host_type: string
-  // Market
-  market_avg_price: number | null
-  market_avg_revenue: number | null
-  market_avg_occupancy: number | null
-  // Scores
   revenue_potential_score: number
   pricing_opportunity_score: number
   listing_quality_score: number
-  lead_tier: string
-  ai_bucket: string
-  // AI
   ai_lead_score: number | null
+  ai_bucket: string
   opportunity_notes: string | null
   outreach_angle: string | null
-  cover_image_url: string | null
-}
-
-interface MarketSummary {
-  average_daily_rate: number | null
-  occupancy: number | null
-  revenue: number | null
-  active_listings_count: number | null
+  lead_tier: string
+  market_avg_price: number | null
+  market_avg_revenue: number | null
 }
 
 interface AirROISearchModalProps {
@@ -64,129 +59,71 @@ interface AirROISearchModalProps {
   onImported: () => void
 }
 
-// ─── Score Badge ──────────────────────────────────────────────────────────────
+const bucketConfig: Record<string, { emoji: string; label: string; color: string }> = {
+  strong_lead:             { emoji: '⚡', label: 'Strong Lead',          color: 'bg-green-500/10 text-green-400 border-green-500/20' },
+  pricing_opportunity:     { emoji: '💰', label: 'Pricing Opportunity',  color: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' },
+  optimization_opportunity:{ emoji: '📸', label: 'Needs Optimization',   color: 'bg-orange-500/10 text-orange-400 border-orange-500/20' },
+  multi_listing_host:      { emoji: '🔄', label: 'Scaling Host',         color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
+  weak_lead:               { emoji: '❌', label: 'Weak Lead',            color: 'bg-red-500/10 text-red-400 border-red-500/20' },
+}
 
 function ScoreBadge({ score }: { score: number }) {
-  const color =
-    score >= 70 ? 'bg-[#22C55E]/10 text-[#22C55E] border-[#22C55E]/30' :
-    score >= 40 ? 'bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/30' :
-    'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/30'
-
-  return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border ${color}`}>
-      {score}
-    </span>
-  )
+  const color = score >= 65 ? 'bg-green-500/10 text-green-400' : score >= 40 ? 'bg-yellow-500/10 text-yellow-400' : 'bg-red-500/10 text-red-400'
+  return <span className={`text-xs font-mono px-2 py-0.5 rounded ${color}`}>{score}</span>
 }
-
-// ─── Bucket Label ─────────────────────────────────────────────────────────────
-
-function BucketLabel({ bucket }: { bucket: string }) {
-  const config: Record<string, { emoji: string; label: string; color: string }> = {
-    strong_lead:              { emoji: '⚡', label: 'Strong Lead',            color: 'text-[#22C55E]' },
-    pricing_opportunity:      { emoji: '💰', label: 'Pricing Opportunity',    color: 'text-[#F59E0B]' },
-    optimization_opportunity: { emoji: '📸', label: 'Optimization',           color: 'text-[#F97316]' },
-    multi_listing_host:       { emoji: '🏠', label: 'Multi-Listing Host',     color: 'text-[#6366F1]' },
-    weak_lead:                { emoji: '⬇️', label: 'Weak Lead',              color: 'text-[#9494A8]' },
-  }
-
-  const c = config[bucket] ?? { emoji: '❓', label: bucket, color: 'text-[#9494A8]' }
-  return (
-    <span className={`text-xs font-medium ${c.color}`}>
-      {c.emoji} {c.label}
-    </span>
-  )
-}
-
-// ─── Host Type Badge ──────────────────────────────────────────────────────────
-
-function HostTypeBadge({ listing }: { listing: EnrichedListing }) {
-  const count = listing.host_listing_count
-  if (count === null) return null
-
-  const label = count === 1
-    ? `DIY Host · 1 listing`
-    : count <= 3
-    ? `DIY Host · ${count} listings`
-    : count <= 9
-    ? `Scaling · ${count} listings`
-    : `Professional · ${count}+ listings`
-
-  const color = count <= 3
-    ? 'bg-[#22C55E]/10 text-[#22C55E]'
-    : count <= 9
-    ? 'bg-[#F59E0B]/10 text-[#F59E0B]'
-    : 'bg-[#9494A8]/10 text-[#9494A8]'
-
-  return (
-    <Badge className={`${color} text-[10px] px-1.5 py-0 border-0 shrink-0`}>
-      <Users className="h-2.5 w-2.5 mr-1 inline" />
-      {label}
-    </Badge>
-  )
-}
-
-// ─── Pricing Gap ──────────────────────────────────────────────────────────────
-
-function PricingGap({ listing }: { listing: EnrichedListing }) {
-  const rate = listing.nightly_rate ?? listing.ttm_avg_rate
-  const market = listing.market_avg_price
-
-  if (!rate || !market || market <= rate) return null
-
-  const gap = Math.round(market - rate)
-  return (
-    <span className="text-xs text-[#F59E0B]">
-      ${gap} below market
-    </span>
-  )
-}
-
-// ─── Market Context ───────────────────────────────────────────────────────────
-
-function MarketContext({ market }: { market: MarketSummary | null }) {
-  if (!market || (!market.average_daily_rate && !market.revenue)) return null
-
-  return (
-    <div className="flex items-center gap-3 text-xs text-[#5C5C72] bg-[#12121A] rounded px-2 py-1.5 border border-[#2A2A3C]">
-      <BarChart2 className="h-3 w-3 text-[#6366F1] shrink-0" />
-      <span>Market avg:</span>
-      {market.average_daily_rate && (
-        <span className="text-[#9494A8]">${Math.round(market.average_daily_rate)}/night</span>
-      )}
-      {market.occupancy && (
-        <span className="text-[#9494A8]">{Math.round(market.occupancy * 100)}% occ</span>
-      )}
-      {market.revenue && (
-        <span className="text-[#9494A8]">${Math.round(market.revenue / 1000)}k/yr</span>
-      )}
-    </div>
-  )
-}
-
-// ─── Main Modal ───────────────────────────────────────────────────────────────
 
 export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }: AirROISearchModalProps) {
-  const [locality, setLocality] = useState('')
-  const [region, setRegion] = useState('')
-  const [country, setCountry] = useState('United States')
+  const [query, setQuery] = useState('')
+  const [markets, setMarkets] = useState<Market[]>([])
+  const [selectedMarket, setSelectedMarket] = useState<Market | null>(null)
+  const [isLoadingMarkets, setIsLoadingMarkets] = useState(false)
+  const [showDropdown, setShowDropdown] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
   const [isImporting, setIsImporting] = useState(false)
   const [results, setResults] = useState<EnrichedListing[]>([])
-  const [market, setMarket] = useState<MarketSummary | null>(null)
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [searched, setSearched] = useState(false)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Market typeahead
+  useEffect(() => {
+    if (query.length < 2) { setMarkets([]); setShowDropdown(false); return }
+    if (selectedMarket && query === selectedMarket.full_name) return
+
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(async () => {
+      setIsLoadingMarkets(true)
+      try {
+        const res = await fetch(`/api/airroi/markets?query=${encodeURIComponent(query)}`)
+        const data = await res.json()
+        const list: Market[] = data.markets ?? []
+        setMarkets(list)
+        setShowDropdown(list.length > 0)
+      } catch {
+        setMarkets([])
+      } finally {
+        setIsLoadingMarkets(false)
+      }
+    }, 300)
+  }, [query, selectedMarket])
+
+  const selectMarket = (market: Market) => {
+    setSelectedMarket(market)
+    setQuery(market.full_name)
+    setShowDropdown(false)
+    setMarkets([])
+  }
 
   const handleSearch = async () => {
-    if (!locality.trim() && !region.trim()) {
-      toast.error('Enter at least a city or state to search')
+    if (!selectedMarket) {
+      toast.error('Select a market from the dropdown first')
       return
     }
     setIsSearching(true)
     setResults([])
     setSelected(new Set())
     setSearched(false)
-    setMarket(null)
 
     try {
       const res = await fetch('/api/airroi/search', {
@@ -194,33 +131,25 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           campaignId,
-          country: country || 'United States',
-          region: region || undefined,
-          locality: locality || undefined,
+          country: selectedMarket.country,
+          region: selectedMarket.region,
+          locality: selectedMarket.locality,
+          district: selectedMarket.district,
           page_size: 10,
         }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Search failed')
 
-      const listings: EnrichedListing[] = data.listings || []
+      const listings: EnrichedListing[] = data.listings ?? []
       setResults(listings)
-      setMarket(data.market ?? null)
       setSearched(true)
 
-      // Auto-select strong leads (score >= 65)
-      const autoSelected = new Set(
-        listings
-          .filter(l => l.revenue_potential_score >= 65)
-          .map(l => l.listing_id)
-      )
+      // Auto-select strong leads
+      const autoSelected = new Set(listings.filter(l => l.revenue_potential_score >= 65).map(l => l.listing_id))
       setSelected(autoSelected)
 
-      if (listings.length === 0) {
-        toast.info('No listings found. Try broadening your search.')
-      } else if (autoSelected.size > 0) {
-        toast.success(`Found ${listings.length} listings — ${autoSelected.size} strong leads auto-selected.`)
-      }
+      if (listings.length === 0) toast.info('No listings found for this market.')
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Search failed')
     } finally {
@@ -229,21 +158,11 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
   }
 
   const toggleSelect = (id: string) => {
-    setSelected(prev => {
-      const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
-      return next
-    })
+    setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
   }
 
-  const selectAll = () => setSelected(new Set(results.map(l => l.listing_id)))
-  const clearAll = () => setSelected(new Set())
-
   const handleImport = async () => {
-    if (selected.size === 0) {
-      toast.error('Select at least one listing to import')
-      return
-    }
+    if (selected.size === 0) { toast.error('Select at least one listing'); return }
     setIsImporting(true)
     try {
       const toImport = results.filter(l => selected.has(l.listing_id))
@@ -254,7 +173,7 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Import failed')
-      toast.success(data.message || `Imported ${data.inserted} listings`)
+      toast.success(data.message)
       onImported()
       onOpenChange(false)
     } catch (err) {
@@ -270,89 +189,94 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
         <DialogHeader>
           <DialogTitle className="text-[#F0F0F5]">Search AirROI Listings</DialogTitle>
           <DialogDescription className="text-[#9494A8]">
-            Search 20M+ STR listings. Results are scored for consulting lead potential — entire home listings only.
+            Search 20M+ entire-home STR listings. Type a city, region, or country to get started.
           </DialogDescription>
         </DialogHeader>
 
-        {/* Search Form */}
-        <div className="grid grid-cols-3 gap-3 pt-2">
-          <div>
-            <Label className="text-[#9494A8] text-xs mb-1 block">City</Label>
+        {/* Market Search */}
+        <div className="relative" ref={dropdownRef}>
+          <Label className="text-[#9494A8] text-xs mb-1 block">Market</Label>
+          <div className="relative">
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#5C5C72]" />
             <Input
-              placeholder="e.g. Austin"
-              value={locality}
-              onChange={e => setLocality(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSearch()}
-              className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5]"
+              placeholder="Type a city, state, or country… e.g. Austin"
+              value={query}
+              onChange={e => { setQuery(e.target.value); setSelectedMarket(null) }}
+              onKeyDown={e => e.key === 'Enter' && !showDropdown && selectedMarket && handleSearch()}
+              className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5] pl-9"
             />
+            {isLoadingMarkets && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-[#5C5C72]" />}
           </div>
-          <div>
-            <Label className="text-[#9494A8] text-xs mb-1 block">State / Region</Label>
-            <Input
-              placeholder="e.g. Texas"
-              value={region}
-              onChange={e => setRegion(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSearch()}
-              className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5]"
-            />
-          </div>
-          <div>
-            <Label className="text-[#9494A8] text-xs mb-1 block">Country</Label>
-            <Input
-              placeholder="e.g. United States"
-              value={country}
-              onChange={e => setCountry(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSearch()}
-              className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5]"
-            />
-          </div>
+
+          {showDropdown && (
+            <div className="absolute z-50 w-full mt-1 bg-[#1A1A26] border border-[#2A2A3C] rounded-lg shadow-xl overflow-hidden">
+              {markets.slice(0, 8).map((market, i) => (
+                <button
+                  key={i}
+                  onClick={() => selectMarket(market)}
+                  className="w-full text-left px-4 py-2.5 hover:bg-[#2A2A3C] transition-colors flex items-center justify-between"
+                >
+                  <div>
+                    <span className="text-sm text-[#F0F0F5]">{market.full_name}</span>
+                  </div>
+                  {market.active_listings_count && (
+                    <span className="text-xs text-[#5C5C72]">{market.active_listings_count.toLocaleString()} listings</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <Button
           onClick={handleSearch}
-          disabled={isSearching}
+          disabled={isSearching || !selectedMarket}
           className="bg-[#6366F1] hover:bg-[#818CF8] w-full"
         >
-          {isSearching ? (
-            <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Searching &amp; Scoring...</>
-          ) : (
-            <><Search className="h-4 w-4 mr-2" />Search Listings</>
-          )}
+          {isSearching
+            ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Searching & analyzing…</>
+            : <><Search className="h-4 w-4 mr-2" />Search {selectedMarket ? selectedMarket.full_name : 'Market'}</>
+          }
         </Button>
 
         {/* Results */}
         {searched && (
           <div className="flex-1 overflow-hidden flex flex-col min-h-0">
-            {/* Market context bar */}
-            <MarketContext market={market} />
-
-            <div className="flex items-center justify-between py-2 mt-1">
+            <div className="flex items-center justify-between py-2">
               <span className="text-sm text-[#9494A8]">
-                {results.length} listings
-                {selected.size > 0 && <span className="ml-2 text-[#6366F1]">· {selected.size} selected</span>}
+                {results.length} listings · {selected.size} selected
               </span>
               <div className="flex gap-2">
-                <Button variant="ghost" size="sm" onClick={selectAll} className="text-xs text-[#9494A8]">Select All</Button>
-                <Button variant="ghost" size="sm" onClick={clearAll} className="text-xs text-[#9494A8]">Clear</Button>
+                <Button variant="ghost" size="sm" onClick={() => setSelected(new Set(results.map(l => l.listing_id)))} className="text-xs text-[#9494A8]">All</Button>
+                <Button variant="ghost" size="sm" onClick={() => setSelected(new Set())} className="text-xs text-[#9494A8]">None</Button>
                 <Button
                   size="sm"
                   onClick={handleImport}
                   disabled={isImporting || selected.size === 0}
                   className="bg-[#22C55E] hover:bg-[#16A34A] text-white"
                 >
-                  {isImporting ? (
-                    <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Importing...</>
-                  ) : (
-                    <><Download className="h-4 w-4 mr-1" />Import {selected.size > 0 ? `(${selected.size})` : ''}</>
-                  )}
+                  {isImporting
+                    ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Importing…</>
+                    : <><Download className="h-4 w-4 mr-1" />Import ({selected.size})</>
+                  }
                 </Button>
               </div>
             </div>
 
+            {/* Market avg context */}
+            {results[0]?.market_avg_price && (
+              <div className="flex gap-4 text-xs text-[#9494A8] bg-[#1A1A26] rounded-lg px-3 py-2 mb-2">
+                <span>Market avg: <span className="text-[#F0F0F5] font-mono">${Math.round(results[0].market_avg_price)}/night</span></span>
+                {results[0].market_avg_revenue && <span>Market avg revenue: <span className="text-[#F0F0F5] font-mono">${Math.round(results[0].market_avg_revenue / 1000)}k/yr</span></span>}
+              </div>
+            )}
+
             <div className="overflow-y-auto flex-1 space-y-2 pr-1">
               {results.map(listing => {
-                const rate = listing.nightly_rate ?? listing.ttm_avg_rate
-                const revenue = listing.ttm_revenue ?? listing.annual_revenue
+                const bucket = bucketConfig[listing.ai_bucket] ?? bucketConfig.weak_lead
+                const pricingGap = listing.market_avg_price && listing.ttm_avg_rate
+                  ? Math.round(listing.market_avg_price - listing.ttm_avg_rate)
+                  : null
 
                 return (
                   <div
@@ -364,24 +288,45 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
                         : 'border-[#2A2A3C] bg-[#1A1A26] hover:border-[#3A3A52]'
                     }`}
                   >
-                    {/* Row 1: Title + Score + Bucket */}
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <p className="text-sm font-medium text-[#F0F0F5] truncate">{listing.listing_title}</p>
-                          <ScoreBadge score={listing.revenue_potential_score} />
-                          <BucketLabel bucket={listing.ai_bucket} />
+                          {listing.superhost && <Badge className="bg-[#F59E0B]/10 text-[#F59E0B] text-[10px] px-1 py-0 shrink-0 border-0">Superhost</Badge>}
                         </div>
-
-                        {/* Row 2: Location + Property */}
                         <p className="text-xs text-[#9494A8] mt-0.5">
                           {[listing.neighborhood, listing.city, listing.state].filter(Boolean).join(', ')}
                           {' · '}{listing.bedrooms}bd {listing.bathrooms}ba · {listing.max_guests} guests
                         </p>
+
+                        {/* AI opportunity notes */}
+                        {listing.opportunity_notes && (
+                          <p className="text-xs text-[#9494A8] mt-1 italic line-clamp-1">{listing.opportunity_notes}</p>
+                        )}
+
+                        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                          {/* Score */}
+                          <ScoreBadge score={listing.revenue_potential_score} />
+
+                          {/* Bucket */}
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded border ${bucket.color}`}>
+                            {bucket.emoji} {bucket.label}
+                          </span>
+
+                          {/* Host type */}
+                          <span className="text-[10px] text-[#9494A8]">
+                            {listing.host_type === 'diy' ? '🏠 DIY' : listing.host_type === 'scaling' ? '📈 Scaling' : '🏢 Pro'}
+                            {listing.host_listing_count ? ` · ${listing.host_listing_count} listing${listing.host_listing_count > 1 ? 's' : ''}` : ''}
+                          </span>
+
+                          {/* Pricing gap */}
+                          {pricingGap && pricingGap > 5 && (
+                            <span className="text-[10px] text-orange-400">↑ ${pricingGap} below mkt</span>
+                          )}
+                        </div>
                       </div>
 
-                      {/* Right-side stats */}
-                      <div className="flex items-center gap-3 shrink-0 text-xs">
+                      <div className="flex flex-col items-end gap-1 shrink-0 text-xs">
                         {listing.avg_rating && (
                           <div className="flex items-center gap-1 text-[#F59E0B]">
                             <Star className="h-3 w-3" />
@@ -389,16 +334,16 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
                             <span className="text-[#5C5C72]">({listing.total_reviews})</span>
                           </div>
                         )}
-                        {rate && (
+                        {listing.ttm_avg_rate && (
                           <div className="flex items-center gap-1 text-[#9494A8]">
                             <DollarSign className="h-3 w-3" />
-                            <span>${Math.round(rate)}/night</span>
+                            <span>${Math.round(listing.ttm_avg_rate)}/night</span>
                           </div>
                         )}
-                        {revenue && (
+                        {listing.ttm_revenue && (
                           <div className="flex items-center gap-1 text-[#22C55E]">
                             <TrendingUp className="h-3 w-3" />
-                            <span>${Math.round(revenue / 1000)}k/yr</span>
+                            <span>${Math.round(listing.ttm_revenue / 1000)}k/yr</span>
                           </div>
                         )}
                         <a
@@ -412,28 +357,6 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
                         </a>
                       </div>
                     </div>
-
-                    {/* Row 3: Host type + Pricing gap + Market avg */}
-                    <div className="flex items-center gap-3 mt-1.5 flex-wrap">
-                      <HostTypeBadge listing={listing} />
-                      <PricingGap listing={listing} />
-                      {listing.market_avg_price && (
-                        <span className="text-xs text-[#5C5C72]">
-                          Market avg: ${Math.round(listing.market_avg_price)}/night
-                          {listing.market_avg_revenue && `, $${Math.round(listing.market_avg_revenue / 1000)}k/yr`}
-                        </span>
-                      )}
-                      {listing.superhost && (
-                        <Badge className="bg-[#F59E0B]/10 text-[#F59E0B] text-[10px] px-1 py-0 border-0">Superhost</Badge>
-                      )}
-                    </div>
-
-                    {/* Row 4: Opportunity notes snippet */}
-                    {listing.opportunity_notes && (
-                      <p className="text-xs text-[#7C7C92] mt-1.5 italic line-clamp-2">
-                        {listing.opportunity_notes}
-                      </p>
-                    )}
                   </div>
                 )
               })}
