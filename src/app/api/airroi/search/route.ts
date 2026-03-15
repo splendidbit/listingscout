@@ -238,30 +238,43 @@ export async function POST(request: NextRequest) {
 
     // Sort ascending by revenue to surface underperformers — hosts leaving money on the table
     const sort: AirROISort = { ttm_revenue: 'asc', ttm_occupancy: 'asc' }
-    const pagination = { page_size: Math.min(page_size, 10), offset }
+    const desiredCount = Math.min(page_size, 50) // fetch up to 50 (5 pages of 10)
+    const pages = Math.ceil(desiredCount / 10)
 
     const marketParams = isMarketSearch
       ? { country: country!, ...(region && { region }), ...(locality && { locality }), ...(district && { district }) }
       : null
 
-    const [result, marketSummary] = await Promise.allSettled([
+    // Fetch multiple pages in parallel + market summary
+    const pagePromises = Array.from({ length: pages }, (_, i) =>
       isRadiusSearch
-        ? searchListingsByRadius({ latitude: latitude!, longitude: longitude!, radius_miles: radius_miles ?? 5, filter, sort, pagination, currency: 'usd' })
-        : searchListingsByMarket({ market: marketParams, filter, sort, pagination, currency: 'usd' }),
-      marketParams
-        ? getMarketSummary({ market: marketParams, currency: 'usd' })
-        : Promise.resolve(null),
+        ? searchListingsByRadius({ latitude: latitude!, longitude: longitude!, radius_miles: radius_miles ?? 5, filter, sort, pagination: { page_size: 10, offset: i * 10 }, currency: 'usd' })
+        : searchListingsByMarket({ market: marketParams, filter, sort, pagination: { page_size: 10, offset: i * 10 }, currency: 'usd' })
+    )
+
+    const [marketSummary, ...pageResults] = await Promise.allSettled([
+      marketParams ? getMarketSummary({ market: marketParams, currency: 'usd' }) : Promise.resolve(null),
+      ...pagePromises,
     ])
 
-    if (result.status === 'rejected') {
-      console.error('AirROI search error:', result.reason)
-      throw new Error(result.reason instanceof Error ? result.reason.message : 'AirROI search failed')
+    const market = marketSummary.status === 'fulfilled' ? marketSummary.value : null
+
+    // Merge all pages, deduplicate by listing_id
+    const seen = new Set<number>()
+    const rawListings: AirROIListing[] = []
+    for (const pageResult of pageResults) {
+      if (pageResult.status === 'fulfilled') {
+        for (const l of pageResult.value.listings ?? []) {
+          const id = l.listing_info?.listing_id
+          if (id && !seen.has(id)) {
+            seen.add(id)
+            rawListings.push(l)
+          }
+        }
+      }
     }
 
-    const market = marketSummary.status === 'fulfilled' ? marketSummary.value : null
-    const rawListings = result.value.listings ?? []
-
-    console.log(`AirROI returned ${rawListings.length} raw listings`)
+    console.log(`AirROI returned ${rawListings.length} raw listings (${pages} pages)`)
     if (rawListings.length > 0) {
       console.log('First listing keys:', Object.keys(rawListings[0]))
     }
