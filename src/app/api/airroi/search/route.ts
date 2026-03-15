@@ -307,6 +307,9 @@ export async function POST(request: NextRequest) {
 
     // Minimal filter — let scoring engine rank
     const filter: AirROIFilter = {}
+    // Minimum quality: at least 3 reviews, rating >= 3.0 if available
+    filter.num_reviews = { gte: 3 }
+    filter.rating_overall = { gte: 3.0 }
     if (criteria.host.superhost_required) filter.superhost = { eq: true }
     const VALID_AIRROI_AMENITIES = new Set(['wifi','pool','hot_tub','dedicated_workspace','kitchen','washer','dryer','free_parking_on_premises','air_conditioning','heating','indoor_fireplace','gym','ev_charger','pets_allowed','bbq_grill','patio_or_balcony','beach_access','waterfront','ski_in_ski_out','lake_access','sauna','fire_pit','bathtub','bikes','dishwasher','iron','refrigerator','tv','coffee_maker','microwave','oven','stove','private_entrance','luggage_dropoff_allowed'])
     const validAmenities = criteria.property.required_amenities.filter(a => VALID_AIRROI_AMENITIES.has(a))
@@ -334,10 +337,11 @@ export async function POST(request: NextRequest) {
     ])
 
     const market = marketSummary.status === 'fulfilled' ? marketSummary.value : null
+    console.log("Market summary:", JSON.stringify(market, null, 2))
 
     // Merge all pages, deduplicate by listing_id
     const seen = new Set<number>()
-    const rawListings: AirROIListing[] = []
+    let rawListings: AirROIListing[] = []
     for (const pageResult of pageResults) {
       if (pageResult.status === 'fulfilled') {
         for (const l of pageResult.value.listings ?? []) {
@@ -349,6 +353,12 @@ export async function POST(request: NextRequest) {
         }
       }
     }
+
+    // Post-fetch quality filter: remove listings with fewer than 3 reviews
+    rawListings = rawListings.filter(l => {
+      const reviews = l.ratings?.num_reviews ?? l.ratings?.review_count ?? 0
+      return reviews >= 3
+    })
 
     console.log(`AirROI returned ${rawListings.length} raw listings (${pages} pages)`)
     if (rawListings.length > 0) {
