@@ -60,7 +60,7 @@ export async function createCampaign(input: CreateCampaignInput) {
   })
 
   revalidatePath('/campaigns')
-  redirect(`/campaigns/${campaign.id}`)
+  return { campaignId: campaign.id }
 }
 
 export async function updateCampaign(input: UpdateCampaignInput) {

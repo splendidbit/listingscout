@@ -153,10 +153,14 @@ export function CampaignWizard() {
 
       if (result?.error) {
         toast.error(result.error)
+      } else if (result?.campaignId) {
+        toast.success('Campaign created!')
+        router.push(`/campaigns/${result.campaignId}`)
+        return
       }
-      // If successful, the action will redirect
     } catch (error) {
-      toast.error('Failed to create campaign')
+      console.error('Campaign creation error:', error)
+      toast.error('Failed to create campaign. Check console for details.')
     } finally {
       setIsSubmitting(false)
     }
