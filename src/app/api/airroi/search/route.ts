@@ -334,10 +334,14 @@ export async function POST(request: NextRequest) {
     // Map to enriched format
     let listings = rawListings.map((l: AirROIListing) => mapAirROIToEnriched(l, market))
 
-    // Filter: entire_home only, exclude professional operators (10+ listings)
+    // Log room types to understand AirROI's actual values
+    const roomTypes = [...new Set(listings.map(l => l.room_type))]
+    console.log('Room types in results:', roomTypes)
+
+    // Filter out professional operators (10+ listings) — keep null as unknown = include
+    // Note: not filtering by room_type yet until we know AirROI's exact values
     listings = listings.filter(l =>
-      l.room_type?.toLowerCase().includes('entire') &&
-      (l.host_listing_count === null || l.host_listing_count <= 9)
+      l.host_listing_count === null || l.host_listing_count <= 9
     )
 
     // Score every listing
