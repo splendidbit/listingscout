@@ -175,7 +175,7 @@ export function CampaignWizard() {
           value={state.name}
           onChange={e => setState(prev => ({ ...prev, name: e.target.value }))}
           placeholder="e.g., Austin STR Acquisitions Q1"
-          className="bg-[#161822] border-[#2A2D42] text-[#EEEEF4]"
+          className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
         />
       </div>
       <div className="space-y-2">
@@ -186,7 +186,7 @@ export function CampaignWizard() {
           onChange={e => setState(prev => ({ ...prev, description: e.target.value }))}
           placeholder="Describe your campaign objectives..."
           rows={3}
-          className="bg-[#161822] border-[#2A2D42] text-[#EEEEF4]"
+          className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
         />
       </div>
     </div>
@@ -201,7 +201,7 @@ export function CampaignWizard() {
             value={marketInput}
             onChange={e => setMarketInput(e.target.value)}
             placeholder="e.g., Austin, TX"
-            className="bg-[#161822] border-[#2A2D42] text-[#EEEEF4]"
+            className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
             onKeyDown={e => {
               if (e.key === 'Enter') {
                 e.preventDefault()
@@ -240,7 +240,7 @@ export function CampaignWizard() {
             value={neighborhoodInput}
             onChange={e => setNeighborhoodInput(e.target.value)}
             placeholder="e.g., Downtown, East Austin"
-            className="bg-[#161822] border-[#2A2D42] text-[#EEEEF4]"
+            className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
             onKeyDown={e => {
               if (e.key === 'Enter') {
                 e.preventDefault()
@@ -279,7 +279,7 @@ export function CampaignWizard() {
             value={excludeInput}
             onChange={e => setExcludeInput(e.target.value)}
             placeholder="e.g., Rural areas"
-            className="bg-[#161822] border-[#2A2D42] text-[#EEEEF4]"
+            className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
             onKeyDown={e => {
               if (e.key === 'Enter') {
                 e.preventDefault()
@@ -322,7 +322,7 @@ export function CampaignWizard() {
             step={1}
             className="flex-1"
           />
-          <span className="text-sm font-mono text-[#EEEEF4] w-12">
+          <span className="text-sm font-mono text-[#f0f0f6] w-12">
             {state.criteria.location.radius_miles} mi
           </span>
         </div>
@@ -341,7 +341,7 @@ export function CampaignWizard() {
               className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${
                 state.criteria.property.types.includes(type.value)
                   ? 'border-[#6366F1] bg-[#6366F1]/10'
-                  : 'border-[#2A2D42] bg-[#161822] hover:border-[#3A3D58]'
+                  : 'border-[#363a4f] bg-[#1c1d2b] hover:border-[#4a4d65]'
               }`}
             >
               <Checkbox
@@ -354,7 +354,7 @@ export function CampaignWizard() {
                   updateCriteria('property', { ...state.criteria.property, types: updated })
                 }}
               />
-              <span className="text-sm text-[#EEEEF4]">{type.label}</span>
+              <span className="text-sm text-[#f0f0f6]">{type.label}</span>
             </label>
           ))}
         </div>
@@ -367,7 +367,7 @@ export function CampaignWizard() {
             value={String(state.criteria.property.min_bedrooms)}
             onValueChange={v => updateCriteria('property', { ...state.criteria.property, min_bedrooms: parseInt(v || "0") })}
           >
-            <SelectTrigger className="bg-[#161822] border-[#2A2D42]">
+            <SelectTrigger className="bg-[#1c1d2b] border-[#363a4f]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -383,7 +383,7 @@ export function CampaignWizard() {
             value={String(state.criteria.property.min_bathrooms)}
             onValueChange={v => updateCriteria('property', { ...state.criteria.property, min_bathrooms: parseFloat(v || "0") })}
           >
-            <SelectTrigger className="bg-[#161822] border-[#2A2D42]">
+            <SelectTrigger className="bg-[#1c1d2b] border-[#363a4f]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -399,7 +399,7 @@ export function CampaignWizard() {
             value={String(state.criteria.property.min_guests)}
             onValueChange={v => updateCriteria('property', { ...state.criteria.property, min_guests: parseInt(v || "0") })}
           >
-            <SelectTrigger className="bg-[#161822] border-[#2A2D42]">
+            <SelectTrigger className="bg-[#1c1d2b] border-[#363a4f]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -420,14 +420,14 @@ export function CampaignWizard() {
               className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-colors ${
                 state.criteria.property.required_amenities.includes(amenity.value)
                   ? 'border-[#6366F1] bg-[#6366F1]/10'
-                  : 'border-[#2A2D42] bg-[#161822] hover:border-[#3A3D58]'
+                  : 'border-[#363a4f] bg-[#1c1d2b] hover:border-[#4a4d65]'
               }`}
             >
               <Checkbox
                 checked={state.criteria.property.required_amenities.includes(amenity.value)}
                 onCheckedChange={() => toggleAmenity('required_amenities', amenity.value)}
               />
-              <span className="text-xs text-[#EEEEF4]">{amenity.label}</span>
+              <span className="text-xs text-[#f0f0f6]">{amenity.label}</span>
             </label>
           ))}
         </div>
@@ -442,14 +442,14 @@ export function CampaignWizard() {
               className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-colors ${
                 state.criteria.property.preferred_amenities.includes(amenity.value)
                   ? 'border-[#22C55E] bg-[#22C55E]/10'
-                  : 'border-[#2A2D42] bg-[#161822] hover:border-[#3A3D58]'
+                  : 'border-[#363a4f] bg-[#1c1d2b] hover:border-[#4a4d65]'
               }`}
             >
               <Checkbox
                 checked={state.criteria.property.preferred_amenities.includes(amenity.value)}
                 onCheckedChange={() => toggleAmenity('preferred_amenities', amenity.value)}
               />
-              <span className="text-xs text-[#EEEEF4]">{amenity.label}</span>
+              <span className="text-xs text-[#f0f0f6]">{amenity.label}</span>
             </label>
           ))}
         </div>
@@ -462,23 +462,23 @@ export function CampaignWizard() {
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>Maximum Reviews</Label>
-          <p className="text-xs text-[#B0B0C0]">Target hosts still gaining traction (sweet spot: under 80)</p>
+          <p className="text-xs text-[#c4c5d6]">Target hosts still gaining traction (sweet spot: under 80)</p>
           <Input
             type="number"
             value={state.criteria.performance.min_reviews}
             onChange={e => updateCriteria('performance', { ...state.criteria.performance, min_reviews: parseInt(e.target.value) || 0 })}
             placeholder="e.g. 80"
-            className="bg-[#161822] border-[#2A2D42] text-[#EEEEF4]"
+            className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
           />
         </div>
         <div className="space-y-2">
           <Label>Maximum Rating</Label>
-          <p className="text-xs text-[#B0B0C0]">Hosts below 4.8 have room to improve (sweet spot: 4.4–4.8)</p>
+          <p className="text-xs text-[#c4c5d6]">Hosts below 4.8 have room to improve (sweet spot: 4.4–4.8)</p>
           <Select
             value={String(state.criteria.performance.min_rating)}
             onValueChange={v => updateCriteria('performance', { ...state.criteria.performance, min_rating: parseFloat(v || "0") })}
           >
-            <SelectTrigger className="bg-[#161822] border-[#2A2D42]">
+            <SelectTrigger className="bg-[#1c1d2b] border-[#363a4f]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -498,14 +498,14 @@ export function CampaignWizard() {
             value={state.criteria.performance.nightly_rate_min}
             onChange={e => updateCriteria('performance', { ...state.criteria.performance, nightly_rate_min: parseInt(e.target.value) || 0 })}
             placeholder="Min"
-            className="bg-[#161822] border-[#2A2D42] text-[#EEEEF4]"
+            className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
           />
           <Input
             type="number"
             value={state.criteria.performance.nightly_rate_max}
             onChange={e => updateCriteria('performance', { ...state.criteria.performance, nightly_rate_max: parseInt(e.target.value) || 0 })}
             placeholder="Max"
-            className="bg-[#161822] border-[#2A2D42] text-[#EEEEF4]"
+            className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
           />
         </div>
       </div>
@@ -521,7 +521,7 @@ export function CampaignWizard() {
             step={5}
             className="flex-1"
           />
-          <span className="text-sm font-mono text-[#EEEEF4] w-12">
+          <span className="text-sm font-mono text-[#f0f0f6] w-12">
             {state.criteria.performance.min_occupancy_pct}%
           </span>
         </div>
@@ -537,7 +537,7 @@ export function CampaignWizard() {
           value={state.criteria.host.preferred_type}
           onValueChange={v => updateCriteria('host', { ...state.criteria.host, preferred_type: v as 'individual' | 'business' | 'any' })}
         >
-          <SelectTrigger className="bg-[#161822] border-[#2A2D42]">
+          <SelectTrigger className="bg-[#1c1d2b] border-[#363a4f]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -554,14 +554,14 @@ export function CampaignWizard() {
             checked={state.criteria.host.superhost_required}
             onCheckedChange={checked => updateCriteria('host', { ...state.criteria.host, superhost_required: !!checked })}
           />
-          <span className="text-sm text-[#EEEEF4]">Superhost required</span>
+          <span className="text-sm text-[#f0f0f6]">Superhost required</span>
         </label>
         <label className="flex items-center gap-3 cursor-pointer">
           <Checkbox
             checked={state.criteria.host.superhost_preferred}
             onCheckedChange={checked => updateCriteria('host', { ...state.criteria.host, superhost_preferred: !!checked })}
           />
-          <span className="text-sm text-[#EEEEF4]">Superhost preferred (bonus points)</span>
+          <span className="text-sm text-[#f0f0f6]">Superhost preferred (bonus points)</span>
         </label>
       </div>
 
@@ -572,7 +572,7 @@ export function CampaignWizard() {
             type="number"
             value={state.criteria.host.min_listings}
             onChange={e => updateCriteria('host', { ...state.criteria.host, min_listings: parseInt(e.target.value) || 1 })}
-            className="bg-[#161822] border-[#2A2D42] text-[#EEEEF4]"
+            className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
           />
         </div>
         <div className="space-y-2">
@@ -581,7 +581,7 @@ export function CampaignWizard() {
             type="number"
             value={state.criteria.host.max_listings}
             onChange={e => updateCriteria('host', { ...state.criteria.host, max_listings: parseInt(e.target.value) || 50 })}
-            className="bg-[#161822] border-[#2A2D42] text-[#EEEEF4]"
+            className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
           />
         </div>
       </div>
@@ -592,7 +592,7 @@ export function CampaignWizard() {
           value={String(state.criteria.host.min_years_hosting)}
           onValueChange={v => updateCriteria('host', { ...state.criteria.host, min_years_hosting: parseInt(v || "0") })}
         >
-          <SelectTrigger className="bg-[#161822] border-[#2A2D42]">
+          <SelectTrigger className="bg-[#1c1d2b] border-[#363a4f]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -609,7 +609,7 @@ export function CampaignWizard() {
           value={state.criteria.deal.objective}
           onValueChange={v => updateCriteria('deal', { ...state.criteria.deal, objective: v as 'acquisition' | 'partnership' | 'research' })}
         >
-          <SelectTrigger className="bg-[#161822] border-[#2A2D42]">
+          <SelectTrigger className="bg-[#1c1d2b] border-[#363a4f]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -629,14 +629,14 @@ export function CampaignWizard() {
               value={state.criteria.deal.budget_min}
               onChange={e => updateCriteria('deal', { ...state.criteria.deal, budget_min: parseInt(e.target.value) || 0 })}
               placeholder="Min"
-              className="bg-[#161822] border-[#2A2D42] text-[#EEEEF4]"
+              className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
             />
             <Input
               type="number"
               value={state.criteria.deal.budget_max}
               onChange={e => updateCriteria('deal', { ...state.criteria.deal, budget_max: parseInt(e.target.value) || 0 })}
               placeholder="Max"
-              className="bg-[#161822] border-[#2A2D42] text-[#EEEEF4]"
+              className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
             />
           </div>
         </div>
@@ -650,7 +650,7 @@ export function CampaignWizard() {
 
     return (
       <div className="space-y-6">
-        <p className="text-sm text-[#B0B0C0]">
+        <p className="text-sm text-[#c4c5d6]">
           Adjust the weight of each category in the overall score. Weights should total 100%.
         </p>
 
@@ -658,7 +658,7 @@ export function CampaignWizard() {
           <div key={key} className="space-y-2">
             <div className="flex items-center justify-between">
               <Label className="capitalize">{key}</Label>
-              <span className="text-sm font-mono text-[#EEEEF4]">{value}%</span>
+              <span className="text-sm font-mono text-[#f0f0f6]">{value}%</span>
             </div>
             <Slider
               value={[value]}
@@ -679,8 +679,8 @@ export function CampaignWizard() {
           </p>
         </div>
 
-        <div className="border-t border-[#2A2D42] pt-6 space-y-4">
-          <h4 className="font-medium text-[#EEEEF4]">Tier Thresholds</h4>
+        <div className="border-t border-[#363a4f] pt-6 space-y-4">
+          <h4 className="font-medium text-[#f0f0f6]">Tier Thresholds</h4>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Strong Lead Minimum</Label>
@@ -688,7 +688,7 @@ export function CampaignWizard() {
                 type="number"
                 value={state.criteria.tier_thresholds.strong_min}
                 onChange={e => updateCriteria('tier_thresholds', { ...state.criteria.tier_thresholds, strong_min: parseInt(e.target.value) || 70 })}
-                className="bg-[#161822] border-[#2A2D42] text-[#EEEEF4]"
+                className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
               />
             </div>
             <div className="space-y-2">
@@ -697,7 +697,7 @@ export function CampaignWizard() {
                 type="number"
                 value={state.criteria.tier_thresholds.weak_max}
                 onChange={e => updateCriteria('tier_thresholds', { ...state.criteria.tier_thresholds, weak_max: parseInt(e.target.value) || 39 })}
-                className="bg-[#161822] border-[#2A2D42] text-[#EEEEF4]"
+                className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
               />
             </div>
           </div>
@@ -709,71 +709,71 @@ export function CampaignWizard() {
   const renderReviewStep = () => (
     <div className="space-y-6">
       <div className="grid gap-4">
-        <div className="bg-[#161822] rounded-lg p-4">
-          <h4 className="text-sm font-medium text-[#B0B0C0] mb-1">Campaign Name</h4>
-          <p className="text-[#EEEEF4]">{state.name || '—'}</p>
+        <div className="bg-[#1c1d2b] rounded-lg p-4">
+          <h4 className="text-sm font-medium text-[#c4c5d6] mb-1">Campaign Name</h4>
+          <p className="text-[#f0f0f6]">{state.name || '—'}</p>
         </div>
 
         {state.description && (
-          <div className="bg-[#161822] rounded-lg p-4">
-            <h4 className="text-sm font-medium text-[#B0B0C0] mb-1">Description</h4>
-            <p className="text-[#EEEEF4]">{state.description}</p>
+          <div className="bg-[#1c1d2b] rounded-lg p-4">
+            <h4 className="text-sm font-medium text-[#c4c5d6] mb-1">Description</h4>
+            <p className="text-[#f0f0f6]">{state.description}</p>
           </div>
         )}
 
-        <div className="bg-[#161822] rounded-lg p-4">
-          <h4 className="text-sm font-medium text-[#B0B0C0] mb-2">Location</h4>
+        <div className="bg-[#1c1d2b] rounded-lg p-4">
+          <h4 className="text-sm font-medium text-[#c4c5d6] mb-2">Location</h4>
           <div className="flex flex-wrap gap-2">
             {state.criteria.location.target_markets.length > 0 ? (
               state.criteria.location.target_markets.map(m => (
                 <Badge key={m} variant="secondary" className="bg-[#6366F1]/10 text-[#6366F1]">{m}</Badge>
               ))
             ) : (
-              <span className="text-[#7A7A90]">No target markets set</span>
+              <span className="text-[#9395a8]">No target markets set</span>
             )}
           </div>
         </div>
 
-        <div className="bg-[#161822] rounded-lg p-4">
-          <h4 className="text-sm font-medium text-[#B0B0C0] mb-2">Property</h4>
+        <div className="bg-[#1c1d2b] rounded-lg p-4">
+          <h4 className="text-sm font-medium text-[#c4c5d6] mb-2">Property</h4>
           <div className="grid grid-cols-3 gap-4 text-sm">
             <div>
-              <span className="text-[#7A7A90]">Types:</span>
-              <p className="text-[#EEEEF4]">{state.criteria.property.types.join(', ') || 'Any'}</p>
+              <span className="text-[#9395a8]">Types:</span>
+              <p className="text-[#f0f0f6]">{state.criteria.property.types.join(', ') || 'Any'}</p>
             </div>
             <div>
-              <span className="text-[#7A7A90]">Min Beds:</span>
-              <p className="text-[#EEEEF4]">{state.criteria.property.min_bedrooms}+</p>
+              <span className="text-[#9395a8]">Min Beds:</span>
+              <p className="text-[#f0f0f6]">{state.criteria.property.min_bedrooms}+</p>
             </div>
             <div>
-              <span className="text-[#7A7A90]">Min Guests:</span>
-              <p className="text-[#EEEEF4]">{state.criteria.property.min_guests}+</p>
+              <span className="text-[#9395a8]">Min Guests:</span>
+              <p className="text-[#f0f0f6]">{state.criteria.property.min_guests}+</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-[#161822] rounded-lg p-4">
-          <h4 className="text-sm font-medium text-[#B0B0C0] mb-2">Performance</h4>
+        <div className="bg-[#1c1d2b] rounded-lg p-4">
+          <h4 className="text-sm font-medium text-[#c4c5d6] mb-2">Performance</h4>
           <div className="grid grid-cols-3 gap-4 text-sm">
             <div>
-              <span className="text-[#7A7A90]">Max Reviews:</span>
-              <p className="text-[#EEEEF4]">Under {state.criteria.performance.min_reviews || '—'}</p>
+              <span className="text-[#9395a8]">Max Reviews:</span>
+              <p className="text-[#f0f0f6]">Under {state.criteria.performance.min_reviews || '—'}</p>
             </div>
             <div>
-              <span className="text-[#7A7A90]">Max Rating:</span>
-              <p className="text-[#EEEEF4]">Under {state.criteria.performance.min_rating || '—'}</p>
+              <span className="text-[#9395a8]">Max Rating:</span>
+              <p className="text-[#f0f0f6]">Under {state.criteria.performance.min_rating || '—'}</p>
             </div>
             <div>
-              <span className="text-[#7A7A90]">Rate Range:</span>
-              <p className="text-[#EEEEF4]">
+              <span className="text-[#9395a8]">Rate Range:</span>
+              <p className="text-[#f0f0f6]">
                 ${state.criteria.performance.nightly_rate_min} - ${state.criteria.performance.nightly_rate_max}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="bg-[#161822] rounded-lg p-4">
-          <h4 className="text-sm font-medium text-[#B0B0C0] mb-2">Scoring Weights</h4>
+        <div className="bg-[#1c1d2b] rounded-lg p-4">
+          <h4 className="text-sm font-medium text-[#c4c5d6] mb-2">Scoring Weights</h4>
           <div className="flex items-center gap-1">
             {Object.entries(state.criteria.scoring_weights).map(([key, value]) => (
               <div
@@ -783,8 +783,8 @@ export function CampaignWizard() {
                   backgroundColor: `hsla(${key === 'location' ? 240 : key === 'property' ? 260 : key === 'performance' ? 280 : key === 'host' ? 300 : key === 'contact' ? 320 : 340}, 70%, 50%, 0.2)`,
                 }}
               >
-                <span className="text-[#EEEEF4] font-medium">{value}%</span>
-                <p className="text-[#B0B0C0] capitalize">{key}</p>
+                <span className="text-[#f0f0f6] font-medium">{value}%</span>
+                <p className="text-[#c4c5d6] capitalize">{key}</p>
               </div>
             ))}
           </div>
@@ -831,20 +831,20 @@ export function CampaignWizard() {
                         ? 'bg-[#22C55E] text-white'
                         : isActive
                         ? 'bg-[#6366F1] text-white'
-                        : 'bg-[#161822] text-[#7A7A90]'
+                        : 'bg-[#1c1d2b] text-[#9395a8]'
                     }`}
                   >
                     {isCompleted ? <Check className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
                   </div>
                   <span className={`text-xs mt-2 hidden md:block ${
-                    isActive ? 'text-[#EEEEF4]' : 'text-[#7A7A90]'
+                    isActive ? 'text-[#f0f0f6]' : 'text-[#9395a8]'
                   }`}>
                     {step.title}
                   </span>
                 </button>
                 {index < STEPS.length - 1 && (
                   <div className={`w-12 h-0.5 mx-2 ${
-                    index < currentStep ? 'bg-[#22C55E]' : 'bg-[#2A2D42]'
+                    index < currentStep ? 'bg-[#22C55E]' : 'bg-[#363a4f]'
                   }`} />
                 )}
               </div>
@@ -854,10 +854,10 @@ export function CampaignWizard() {
       </div>
 
       {/* Step Content */}
-      <Card className="bg-[#0F1117] border-[#2A2D42]">
+      <Card className="bg-[#13141c] border-[#363a4f]">
         <CardHeader>
-          <CardTitle className="text-[#EEEEF4]">{STEPS[currentStep].title}</CardTitle>
-          <CardDescription className="text-[#B0B0C0]">
+          <CardTitle className="text-[#f0f0f6]">{STEPS[currentStep].title}</CardTitle>
+          <CardDescription className="text-[#c4c5d6]">
             {STEPS[currentStep].description}
           </CardDescription>
         </CardHeader>
@@ -872,7 +872,7 @@ export function CampaignWizard() {
           variant="ghost"
           onClick={handleBack}
           disabled={currentStep === 0}
-          className="text-[#B0B0C0] hover:text-[#EEEEF4]"
+          className="text-[#c4c5d6] hover:text-[#f0f0f6]"
         >
           <ChevronLeft className="mr-2 h-4 w-4" />
           Back

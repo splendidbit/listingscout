@@ -31,7 +31,7 @@ export function ResearchStatusBadge({ status, progress, message, compact = false
         return {
           icon: Clock,
           label: 'Pending',
-          className: 'bg-[#7A7A90]/10 text-[#B0B0C0]',
+          className: 'bg-[#9395a8]/10 text-[#c4c5d6]',
         }
       case 'researching':
         return {
@@ -62,7 +62,7 @@ export function ResearchStatusBadge({ status, progress, message, compact = false
         return {
           icon: Clock,
           label: 'Unknown',
-          className: 'bg-[#7A7A90]/10 text-[#B0B0C0]',
+          className: 'bg-[#9395a8]/10 text-[#c4c5d6]',
         }
     }
   }
@@ -89,7 +89,7 @@ export function ResearchStatusBadge({ status, progress, message, compact = false
         <Progress value={progress} className="h-1" />
       )}
       {message && (
-        <p className="text-xs text-[#B0B0C0]">{message}</p>
+        <p className="text-xs text-[#c4c5d6]">{message}</p>
       )}
     </div>
   )

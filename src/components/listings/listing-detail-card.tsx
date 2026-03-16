@@ -86,14 +86,14 @@ export function ListingDetailCard({ listing, open, onOpenChange }: ListingDetail
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-[500px] bg-[#08090E] border-[#2A2D42] overflow-y-auto">
+      <SheetContent className="w-[500px] bg-[#09090f] border-[#363a4f] overflow-y-auto">
         <SheetHeader className="pb-4">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <SheetTitle className="text-lg text-[#EEEEF4] line-clamp-2">
+              <SheetTitle className="text-lg text-[#f0f0f6] line-clamp-2">
                 {listing.listing_title}
               </SheetTitle>
-              <div className="flex items-center gap-2 mt-1 text-sm text-[#B0B0C0]">
+              <div className="flex items-center gap-2 mt-1 text-sm text-[#c4c5d6]">
                 <MapPin className="h-3 w-3 shrink-0" />
                 <span>{listing.city}, {listing.state}</span>
                 {listing.neighborhood && (
@@ -142,30 +142,30 @@ export function ListingDetailCard({ listing, open, onOpenChange }: ListingDetail
 
           {/* Score Breakdown */}
           {listing.score_breakdown && (
-            <div className="bg-[#161822] rounded-lg p-4">
-              <h4 className="text-sm font-medium text-[#EEEEF4] mb-3">Score Breakdown</h4>
+            <div className="bg-[#1c1d2b] rounded-lg p-4">
+              <h4 className="text-sm font-medium text-[#f0f0f6] mb-3">Score Breakdown</h4>
               <ScoreBreakdown breakdown={listing.score_breakdown} />
             </div>
           )}
 
           {/* Property Details */}
-          <div className="bg-[#161822] rounded-lg p-4">
-            <h4 className="text-sm font-medium text-[#EEEEF4] mb-3">Property Details</h4>
+          <div className="bg-[#1c1d2b] rounded-lg p-4">
+            <h4 className="text-sm font-medium text-[#f0f0f6] mb-3">Property Details</h4>
             <div className="grid grid-cols-3 gap-4">
               <div className="flex items-center gap-2">
-                <Bed className="h-4 w-4 text-[#B0B0C0]" />
-                <span className="text-[#EEEEF4]">{listing.bedrooms} beds</span>
+                <Bed className="h-4 w-4 text-[#c4c5d6]" />
+                <span className="text-[#f0f0f6]">{listing.bedrooms} beds</span>
               </div>
               <div className="flex items-center gap-2">
-                <Bath className="h-4 w-4 text-[#B0B0C0]" />
-                <span className="text-[#EEEEF4]">{listing.bathrooms} baths</span>
+                <Bath className="h-4 w-4 text-[#c4c5d6]" />
+                <span className="text-[#f0f0f6]">{listing.bathrooms} baths</span>
               </div>
               <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-[#B0B0C0]" />
-                <span className="text-[#EEEEF4]">{listing.max_guests} guests</span>
+                <Users className="h-4 w-4 text-[#c4c5d6]" />
+                <span className="text-[#f0f0f6]">{listing.max_guests} guests</span>
               </div>
             </div>
-            <div className="mt-3 pt-3 border-t border-[#2A2D42]">
+            <div className="mt-3 pt-3 border-t border-[#363a4f]">
               <Badge variant="secondary" className="bg-[#6366F1]/10 text-[#6366F1]">
                 {listing.property_type}
               </Badge>
@@ -178,42 +178,42 @@ export function ListingDetailCard({ listing, open, onOpenChange }: ListingDetail
           </div>
 
           {/* Pricing & Performance */}
-          <div className="bg-[#161822] rounded-lg p-4">
-            <h4 className="text-sm font-medium text-[#EEEEF4] mb-3">Pricing & Performance</h4>
+          <div className="bg-[#1c1d2b] rounded-lg p-4">
+            <h4 className="text-sm font-medium text-[#f0f0f6] mb-3">Pricing & Performance</h4>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <div className="flex items-center gap-2 text-[#B0B0C0] text-sm mb-1">
+                <div className="flex items-center gap-2 text-[#c4c5d6] text-sm mb-1">
                   <DollarSign className="h-3 w-3" />
                   Nightly Rate
                 </div>
-                <p className="text-lg font-mono text-[#EEEEF4]">
+                <p className="text-lg font-mono text-[#f0f0f6]">
                   {listing.nightly_rate ? `$${listing.nightly_rate}` : '—'}
                 </p>
               </div>
               <div>
-                <div className="flex items-center gap-2 text-[#B0B0C0] text-sm mb-1">
+                <div className="flex items-center gap-2 text-[#c4c5d6] text-sm mb-1">
                   <DollarSign className="h-3 w-3" />
                   Cleaning Fee
                 </div>
-                <p className="text-lg font-mono text-[#EEEEF4]">
+                <p className="text-lg font-mono text-[#f0f0f6]">
                   {listing.cleaning_fee ? `$${listing.cleaning_fee}` : '—'}
                 </p>
               </div>
               <div>
-                <div className="flex items-center gap-2 text-[#B0B0C0] text-sm mb-1">
+                <div className="flex items-center gap-2 text-[#c4c5d6] text-sm mb-1">
                   <Star className="h-3 w-3" />
                   Rating
                 </div>
-                <p className="text-lg font-mono text-[#EEEEF4]">
+                <p className="text-lg font-mono text-[#f0f0f6]">
                   {listing.avg_rating?.toFixed(1) || '—'}
                 </p>
               </div>
               <div>
-                <div className="flex items-center gap-2 text-[#B0B0C0] text-sm mb-1">
+                <div className="flex items-center gap-2 text-[#c4c5d6] text-sm mb-1">
                   <MessageSquare className="h-3 w-3" />
                   Reviews
                 </div>
-                <p className="text-lg font-mono text-[#EEEEF4]">
+                <p className="text-lg font-mono text-[#f0f0f6]">
                   {listing.total_reviews}
                 </p>
               </div>
@@ -221,13 +221,13 @@ export function ListingDetailCard({ listing, open, onOpenChange }: ListingDetail
           </div>
 
           {/* Host Info */}
-          <div className="bg-[#161822] rounded-lg p-4">
-            <h4 className="text-sm font-medium text-[#EEEEF4] mb-3">Host Information</h4>
+          <div className="bg-[#1c1d2b] rounded-lg p-4">
+            <h4 className="text-sm font-medium text-[#f0f0f6] mb-3">Host Information</h4>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-[#B0B0C0]" />
-                  <span className="text-[#EEEEF4]">{listing.host_name || 'Unknown'}</span>
+                  <User className="h-4 w-4 text-[#c4c5d6]" />
+                  <span className="text-[#f0f0f6]">{listing.host_name || 'Unknown'}</span>
                 </div>
                 {listing.superhost && (
                   <Badge variant="secondary" className="bg-[#F59E0B]/10 text-[#F59E0B]">
@@ -236,19 +236,19 @@ export function ListingDetailCard({ listing, open, onOpenChange }: ListingDetail
                 )}
               </div>
               {listing.host_since && (
-                <div className="flex items-center gap-2 text-sm text-[#B0B0C0]">
+                <div className="flex items-center gap-2 text-sm text-[#c4c5d6]">
                   <Calendar className="h-3 w-3" />
                   Host since {new Date(listing.host_since).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                 </div>
               )}
               <div className="grid grid-cols-2 gap-4 pt-2">
                 <div>
-                  <p className="text-xs text-[#B0B0C0]">Listings</p>
-                  <p className="font-mono text-[#EEEEF4]">{listing.host_listing_count || '—'}</p>
+                  <p className="text-xs text-[#c4c5d6]">Listings</p>
+                  <p className="font-mono text-[#f0f0f6]">{listing.host_listing_count || '—'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#B0B0C0]">Response Rate</p>
-                  <p className="font-mono text-[#EEEEF4]">
+                  <p className="text-xs text-[#c4c5d6]">Response Rate</p>
+                  <p className="font-mono text-[#f0f0f6]">
                     {listing.host_response_rate ? `${listing.host_response_rate}%` : '—'}
                   </p>
                 </div>
@@ -258,14 +258,14 @@ export function ListingDetailCard({ listing, open, onOpenChange }: ListingDetail
 
           {/* Amenities */}
           {listing.amenities && listing.amenities.length > 0 && (
-            <div className="bg-[#161822] rounded-lg p-4">
-              <h4 className="text-sm font-medium text-[#EEEEF4] mb-3">Amenities</h4>
+            <div className="bg-[#1c1d2b] rounded-lg p-4">
+              <h4 className="text-sm font-medium text-[#f0f0f6] mb-3">Amenities</h4>
               <div className="flex flex-wrap gap-2">
                 {listing.amenities.map((amenity) => (
                   <Badge 
                     key={amenity} 
                     variant="secondary" 
-                    className="bg-[#2A2D42] text-[#B0B0C0]"
+                    className="bg-[#363a4f] text-[#c4c5d6]"
                   >
                     {amenity}
                   </Badge>
@@ -278,7 +278,7 @@ export function ListingDetailCard({ listing, open, onOpenChange }: ListingDetail
           {listing.flags && listing.flags.length > 0 && (
             <div className="bg-[#F59E0B]/10 rounded-lg p-4">
               <h4 className="text-sm font-medium text-[#F59E0B] mb-2">Flags</h4>
-              <ul className="text-sm text-[#EEEEF4] space-y-1">
+              <ul className="text-sm text-[#f0f0f6] space-y-1">
                 {listing.flags.map((flag, i) => (
                   <li key={i}>• {flag}</li>
                 ))}
@@ -288,14 +288,14 @@ export function ListingDetailCard({ listing, open, onOpenChange }: ListingDetail
 
           {/* Notes */}
           {listing.notes && (
-            <div className="bg-[#161822] rounded-lg p-4">
-              <h4 className="text-sm font-medium text-[#EEEEF4] mb-2">Notes</h4>
-              <p className="text-sm text-[#B0B0C0]">{listing.notes}</p>
+            <div className="bg-[#1c1d2b] rounded-lg p-4">
+              <h4 className="text-sm font-medium text-[#f0f0f6] mb-2">Notes</h4>
+              <p className="text-sm text-[#c4c5d6]">{listing.notes}</p>
             </div>
           )}
 
           {/* Metadata */}
-          <div className="text-xs text-[#7A7A90] space-y-1">
+          <div className="text-xs text-[#9395a8] space-y-1">
             <p>Source: {listing.collection_source}</p>
             <p>Added: {new Date(listing.created_at).toLocaleDateString()}</p>
             <p>ID: {listing.listing_id}</p>

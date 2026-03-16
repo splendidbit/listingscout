@@ -133,10 +133,10 @@ export default function CriteriaSettingsPage() {
 
       <div className="p-6 space-y-6">
         {/* Create New Template */}
-        <Card className="bg-[#0F1117] border-[#2A2D42]">
+        <Card className="bg-[#13141c] border-[#363a4f]">
           <CardHeader>
-            <CardTitle className="text-[#EEEEF4]">Create New Template</CardTitle>
-            <CardDescription className="text-[#B0B0C0]">
+            <CardTitle className="text-[#f0f0f6]">Create New Template</CardTitle>
+            <CardDescription className="text-[#c4c5d6]">
               Save current default criteria as a reusable template
             </CardDescription>
           </CardHeader>
@@ -148,7 +148,7 @@ export default function CriteriaSettingsPage() {
                   value={newTemplateName}
                   onChange={e => setNewTemplateName(e.target.value)}
                   placeholder="e.g., Austin STR Criteria"
-                  className="bg-[#161822] border-[#2A2D42] text-[#EEEEF4]"
+                  className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
                 />
               </div>
               <div className="space-y-2">
@@ -157,7 +157,7 @@ export default function CriteriaSettingsPage() {
                   value={newTemplateDesc}
                   onChange={e => setNewTemplateDesc(e.target.value)}
                   placeholder="e.g., For 3BR+ homes in Downtown"
-                  className="bg-[#161822] border-[#2A2D42] text-[#EEEEF4]"
+                  className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
                 />
               </div>
             </div>
@@ -175,16 +175,16 @@ export default function CriteriaSettingsPage() {
         </Card>
 
         {/* Saved Templates */}
-        <Card className="bg-[#0F1117] border-[#2A2D42]">
+        <Card className="bg-[#13141c] border-[#363a4f]">
           <CardHeader>
-            <CardTitle className="text-[#EEEEF4]">Saved Templates</CardTitle>
-            <CardDescription className="text-[#B0B0C0]">
+            <CardTitle className="text-[#f0f0f6]">Saved Templates</CardTitle>
+            <CardDescription className="text-[#c4c5d6]">
               {templates.length} template{templates.length !== 1 ? 's' : ''} saved
             </CardDescription>
           </CardHeader>
           <CardContent>
             {templates.length === 0 ? (
-              <div className="text-center py-8 text-[#B0B0C0]">
+              <div className="text-center py-8 text-[#c4c5d6]">
                 <Save className="h-10 w-10 mx-auto mb-3 opacity-50" />
                 <p>No templates saved yet</p>
                 <p className="text-sm mt-1">Create your first template above</p>
@@ -194,21 +194,21 @@ export default function CriteriaSettingsPage() {
                 {templates.map(template => (
                   <div
                     key={template.id}
-                    className="flex items-center justify-between p-4 bg-[#161822] rounded-lg"
+                    className="flex items-center justify-between p-4 bg-[#1c1d2b] rounded-lg"
                   >
                     <div>
-                      <h4 className="font-medium text-[#EEEEF4]">{template.name}</h4>
+                      <h4 className="font-medium text-[#f0f0f6]">{template.name}</h4>
                       {template.description && (
-                        <p className="text-sm text-[#B0B0C0]">{template.description}</p>
+                        <p className="text-sm text-[#c4c5d6]">{template.description}</p>
                       )}
                       <div className="flex items-center gap-2 mt-2">
-                        <Badge variant="secondary" className="text-xs bg-[#2A2D42] text-[#B0B0C0]">
+                        <Badge variant="secondary" className="text-xs bg-[#363a4f] text-[#c4c5d6]">
                           {template.criteria.location.target_markets.length} markets
                         </Badge>
-                        <Badge variant="secondary" className="text-xs bg-[#2A2D42] text-[#B0B0C0]">
+                        <Badge variant="secondary" className="text-xs bg-[#363a4f] text-[#c4c5d6]">
                           {template.criteria.property.min_bedrooms}+ beds
                         </Badge>
-                        <span className="text-xs text-[#7A7A90]">
+                        <span className="text-xs text-[#9395a8]">
                           Created {new Date(template.createdAt).toLocaleDateString()}
                         </span>
                       </div>
@@ -218,7 +218,7 @@ export default function CriteriaSettingsPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleCopyToClipboard(template)}
-                        className="text-[#B0B0C0]"
+                        className="text-[#c4c5d6]"
                       >
                         <Copy className="h-4 w-4" />
                       </Button>
@@ -226,7 +226,7 @@ export default function CriteriaSettingsPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleExportTemplate(template)}
-                        className="text-[#B0B0C0]"
+                        className="text-[#c4c5d6]"
                       >
                         <FileDown className="h-4 w-4" />
                       </Button>

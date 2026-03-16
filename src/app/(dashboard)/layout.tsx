@@ -40,16 +40,16 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen bg-[#08090E]">
+    <div className="flex h-screen bg-[#09090f]">
       <Sidebar user={userData} />
       <main className="flex-1 overflow-auto">{children}</main>
       <Toaster
         position="bottom-right"
         toastOptions={{
           style: {
-            background: '#161822',
-            border: '1px solid #2A2D42',
-            color: '#EEEEF4',
+            background: '#1c1d2b',
+            border: '1px solid #363a4f',
+            color: '#f0f0f6',
           },
         }}
       />

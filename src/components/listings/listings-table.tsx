@@ -163,7 +163,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
             'flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-150',
             isExpanded
               ? 'bg-[#6366F1]/20 text-[#818CF8] ring-1 ring-[#6366F1]/30'
-              : 'bg-[#161822] text-[#B0B0C0] hover:bg-[#252840] hover:text-[#EEEEF4]'
+              : 'bg-[#1c1d2b] text-[#c4c5d6] hover:bg-[#2f3247] hover:text-[#f0f0f6]'
           )}
           aria-label={isExpanded ? 'Collapse row' : 'Expand row'}
           aria-expanded={isExpanded}
@@ -213,7 +213,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
                   {opp}
                 </span>
               ) : (
-                <span className="text-[#7A7A90] text-sm">—</span>
+                <span className="text-[#9395a8] text-sm">—</span>
               )}
               {badge && (
                 <span className={cn('text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded border', badge.className)}>
@@ -236,11 +236,11 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
       header: 'Title',
       cell: ({ row }) => (
         <div className="max-w-[280px]">
-          <p className="font-medium text-[#EEEEF4] truncate text-[13px] leading-snug">
+          <p className="font-medium text-[#f0f0f6] truncate text-[13px] leading-snug">
             {row.original.listing_title}
           </p>
-          <div className="flex items-center gap-1.5 mt-1 text-xs text-[#B0B0C0]">
-            <MapPin className="h-3 w-3 text-[#7A7A90]" />
+          <div className="flex items-center gap-1.5 mt-1 text-xs text-[#c4c5d6]">
+            <MapPin className="h-3 w-3 text-[#9395a8]" />
             {row.original.city}, {row.original.state}
           </div>
         </div>
@@ -252,7 +252,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
       accessorFn: (row) => `${row.city}, ${row.state}`,
       header: 'Location',
       cell: ({ row }) => (
-        <span className="text-[#B0B0C0]">
+        <span className="text-[#c4c5d6]">
           {row.original.city}, {row.original.state}
         </span>
       ),
@@ -262,7 +262,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
       accessorKey: 'nightly_rate',
       header: 'Rate',
       cell: ({ row }) => (
-        <span className="font-mono font-semibold text-[#EEEEF4]">
+        <span className="font-mono font-semibold text-[#f0f0f6]">
           {row.original.nightly_rate
             ? `$${row.original.nightly_rate.toFixed(0)}`
             : '—'}
@@ -276,7 +276,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
       cell: ({ row }) => (
         <div className="flex items-center gap-1.5">
           <Star className="h-3.5 w-3.5 text-[#F59E0B] fill-[#F59E0B]" />
-          <span className="font-mono font-semibold text-[#EEEEF4]">
+          <span className="font-mono font-semibold text-[#f0f0f6]">
             {row.original.avg_rating?.toFixed(1) || '—'}
           </span>
         </div>
@@ -287,7 +287,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
       accessorKey: 'total_reviews',
       header: 'Reviews',
       cell: ({ row }) => (
-        <span className="font-mono text-[#B0B0C0]">
+        <span className="font-mono text-[#c4c5d6]">
           {row.original.total_reviews}
         </span>
       ),
@@ -297,7 +297,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
       id: 'specs',
       header: 'Specs',
       cell: ({ row }) => (
-        <span className="text-sm text-[#B0B0C0]">
+        <span className="text-sm text-[#c4c5d6]">
           {row.original.bedrooms}BR · {row.original.bathrooms}BA · {row.original.max_guests}G
         </span>
       ),
@@ -308,7 +308,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
       header: 'Host',
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <span className="text-[#EEEEF4] truncate max-w-[120px]">
+          <span className="text-[#f0f0f6] truncate max-w-[120px]">
             {row.original.host_name || '—'}
           </span>
           {row.original.superhost && (
@@ -327,7 +327,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
           href={row.original.listing_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center w-8 h-8 rounded-lg text-[#7A7A90] hover:text-[#818CF8] hover:bg-[#6366F1]/10 transition-colors"
+          className="flex items-center justify-center w-8 h-8 rounded-lg text-[#9395a8] hover:text-[#818CF8] hover:bg-[#6366F1]/10 transition-colors"
           onClick={(e) => e.stopPropagation()}
           aria-label="Open listing"
         >
@@ -367,30 +367,30 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-4">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#7A7A90]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9395a8]" />
           <Input
             placeholder="Search listings..."
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
-            className="pl-10 h-10 bg-[#161822] border-[#2A2D42] text-[#EEEEF4] placeholder:text-[#7A7A90] focus:border-[#6366F1]/50 focus:ring-[#6366F1]/20"
+            className="pl-10 h-10 bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6] placeholder:text-[#9395a8] focus:border-[#6366F1]/50 focus:ring-[#6366F1]/20"
           />
         </div>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="border-[#2A2D42] text-[#B0B0C0] hover:bg-[#1D2030] hover:text-[#EEEEF4]">
+            <Button variant="outline" size="sm" className="border-[#363a4f] text-[#c4c5d6] hover:bg-[#262838] hover:text-[#f0f0f6]">
               <SlidersHorizontal className="h-4 w-4 mr-2" />
               Columns
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="bg-[#161822] border-[#2A2D42]">
+          <DropdownMenuContent align="end" className="bg-[#1c1d2b] border-[#363a4f]">
             {table
               .getAllColumns()
               .filter((column) => column.getCanHide())
               .map((column) => (
                 <DropdownMenuCheckboxItem
                   key={column.id}
-                  className="capitalize text-[#EEEEF4]"
+                  className="capitalize text-[#f0f0f6]"
                   checked={column.getIsVisible()}
                   onCheckedChange={(value) => column.toggleVisibility(!!value)}
                 >
@@ -402,15 +402,15 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-[#2A2D42] overflow-hidden">
+      <div className="rounded-xl border border-[#363a4f] overflow-hidden">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="border-[#2A2D42] bg-[#0F1117] hover:bg-[#0F1117]">
+              <TableRow key={headerGroup.id} className="border-[#363a4f] bg-[#13141c] hover:bg-[#13141c]">
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="text-xs font-semibold text-[#B0B0C0] uppercase tracking-wider py-3.5"
+                    className="text-xs font-semibold text-[#c4c5d6] uppercase tracking-wider py-3.5"
                     style={{ width: header.getSize() }}
                   >
                     {header.isPlaceholder
@@ -427,8 +427,8 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
                 <React.Fragment key={row.id}>
                   <TableRow
                     className={cn(
-                      'border-[#1F2235] hover:bg-[#1D2030] cursor-pointer transition-colors',
-                      idx % 2 === 1 && 'bg-[#0C0D14]'
+                      'border-[#2a2d3e] hover:bg-[#262838] cursor-pointer transition-colors',
+                      idx % 2 === 1 && 'bg-[#0e0f16]'
                     )}
                     onClick={() => onRowClick?.(row.original)}
                   >
@@ -439,7 +439,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
                     ))}
                   </TableRow>
                   {expandedRows.has(row.original.id) && (
-                    <TableRow className="border-[#2A2D42]">
+                    <TableRow className="border-[#363a4f]">
                       <TableCell colSpan={columns.length} className="p-0">
                         <ListingDetailPanel listing={row.original} />
                       </TableCell>
@@ -449,7 +449,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center text-[#7A7A90]">
+                <TableCell colSpan={columns.length} className="h-24 text-center text-[#9395a8]">
                   No listings found.
                 </TableCell>
               </TableRow>
@@ -460,7 +460,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
 
       {/* Pagination */}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-[#B0B0C0]">
+        <p className="text-sm text-[#c4c5d6]">
           {data.length > 0
             ? `Showing ${table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to ${Math.min(
                 (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
@@ -475,7 +475,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
             size="sm"
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
-            className="border-[#2A2D42] text-[#B0B0C0] hover:bg-[#1D2030] disabled:opacity-30"
+            className="border-[#363a4f] text-[#c4c5d6] hover:bg-[#262838] disabled:opacity-30"
           >
             <ChevronsLeft className="h-4 w-4" />
           </Button>
@@ -484,11 +484,11 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className="border-[#2A2D42] text-[#B0B0C0] hover:bg-[#1D2030] disabled:opacity-30"
+            className="border-[#363a4f] text-[#c4c5d6] hover:bg-[#262838] disabled:opacity-30"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="text-sm text-[#B0B0C0] px-3 tabular-nums">
+          <span className="text-sm text-[#c4c5d6] px-3 tabular-nums">
             Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
           </span>
           <Button
@@ -496,7 +496,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-            className="border-[#2A2D42] text-[#B0B0C0] hover:bg-[#1D2030] disabled:opacity-30"
+            className="border-[#363a4f] text-[#c4c5d6] hover:bg-[#262838] disabled:opacity-30"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -505,7 +505,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
             size="sm"
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}
-            className="border-[#2A2D42] text-[#B0B0C0] hover:bg-[#1D2030] disabled:opacity-30"
+            className="border-[#363a4f] text-[#c4c5d6] hover:bg-[#262838] disabled:opacity-30"
           >
             <ChevronsRight className="h-4 w-4" />
           </Button>
@@ -542,7 +542,7 @@ function ListingDetailPanel({ listing }: { listing: ListingRow }) {
   const priorityBadge = priority ? PRIORITY_BADGE[priority] : null
 
   return (
-    <div className="px-6 py-5 space-y-5 text-sm bg-[#0B0C12] border-t border-[#2A2D42]">
+    <div className="px-6 py-5 space-y-5 text-sm bg-[#0e0f16] border-t border-[#363a4f]">
       {/* Header */}
       <div className="flex items-center gap-3 flex-wrap">
         <span className={cn(
@@ -559,8 +559,8 @@ function ListingDetailPanel({ listing }: { listing: ListingRow }) {
             {priorityBadge.label}
           </span>
         )}
-        <span className="text-[#EEEEF4] font-medium">{bucket.emoji} {bucket.label}</span>
-        <span className="text-[#B0B0C0]">
+        <span className="text-[#f0f0f6] font-medium">{bucket.emoji} {bucket.label}</span>
+        <span className="text-[#c4c5d6]">
           {HOST_TYPE_LABELS[listing.host_type ?? 'independent'] ?? listing.host_type}
           {listing.host_listing_count ? ` · ${listing.host_listing_count} listing${listing.host_listing_count > 1 ? 's' : ''}` : ''}
         </span>
@@ -574,13 +574,13 @@ function ListingDetailPanel({ listing }: { listing: ListingRow }) {
       {listing.recommended_outreach_reason && (
         <div className="bg-[#6366F1]/8 border border-[#6366F1]/25 rounded-lg p-4">
           <p className="text-[#818CF8] font-semibold text-xs uppercase tracking-wider mb-1.5">Outreach Signal</p>
-          <p className="text-[#EEEEF4] leading-relaxed">{listing.recommended_outreach_reason}</p>
+          <p className="text-[#f0f0f6] leading-relaxed">{listing.recommended_outreach_reason}</p>
         </div>
       )}
 
       {/* Score breakdown */}
       <div>
-        <p className="text-[#B0B0C0] font-semibold text-xs uppercase tracking-wider mb-3">Score Breakdown</p>
+        <p className="text-[#c4c5d6] font-semibold text-xs uppercase tracking-wider mb-3">Score Breakdown</p>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {[
             {
@@ -632,9 +632,9 @@ function ListingDetailPanel({ listing }: { listing: ListingRow }) {
                 : `${listing.host_listing_count ?? '?'} listings.`,
             },
           ].map(item => (
-            <div key={item.label} className="bg-[#0F1117] rounded-lg p-3.5 border border-[#1F2235]">
+            <div key={item.label} className="bg-[#13141c] rounded-lg p-3.5 border border-[#2a2d3e]">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[#B0B0C0] font-medium text-xs">{item.label}</span>
+                <span className="text-[#c4c5d6] font-medium text-xs">{item.label}</span>
                 {item.value !== null && item.value !== undefined && (
                   <span className={cn(
                     'font-mono font-bold text-sm',
@@ -642,7 +642,7 @@ function ListingDetailPanel({ listing }: { listing: ListingRow }) {
                   )}>{item.value}</span>
                 )}
               </div>
-              <p className="text-[#7A7A90] leading-relaxed text-xs">{item.desc}</p>
+              <p className="text-[#9395a8] leading-relaxed text-xs">{item.desc}</p>
             </div>
           ))}
         </div>
@@ -652,7 +652,7 @@ function ListingDetailPanel({ listing }: { listing: ListingRow }) {
       {(listing.estimated_revenue_upside || listing.estimated_upside_pct) && (
         <div className="bg-emerald-500/8 border border-emerald-500/25 rounded-lg p-4">
           <p className="text-emerald-400 font-semibold text-xs uppercase tracking-wider mb-1.5">Revenue Upside Estimate</p>
-          <p className="text-[#EEEEF4] leading-relaxed">
+          <p className="text-[#f0f0f6] leading-relaxed">
             {listing.estimated_revenue_upside && `$${listing.estimated_revenue_upside.toLocaleString()} estimated annual upside`}
             {listing.estimated_upside_pct && ` (${Math.round(listing.estimated_upside_pct * 100)}% improvement potential)`}
           </p>
@@ -663,20 +663,20 @@ function ListingDetailPanel({ listing }: { listing: ListingRow }) {
       {(listing.opportunity_notes || listing.outreach_angle) ? (
         <div className="grid grid-cols-1 gap-3 min-w-0">
           {listing.opportunity_notes && (
-            <div className="bg-[#0F1117] border border-[#1F2235] rounded-lg p-4">
+            <div className="bg-[#13141c] border border-[#2a2d3e] rounded-lg p-4">
               <p className="text-[#818CF8] font-semibold text-xs uppercase tracking-wider mb-2">Primary Opportunity</p>
-              <p className="text-[#EEEEF4] leading-relaxed break-words whitespace-normal">{listing.opportunity_notes}</p>
+              <p className="text-[#f0f0f6] leading-relaxed break-words whitespace-normal">{listing.opportunity_notes}</p>
             </div>
           )}
           {listing.outreach_angle && (
             <div className="bg-[#6366F1]/8 border border-[#6366F1]/25 rounded-lg p-4">
               <p className="text-[#818CF8] font-semibold text-xs uppercase tracking-wider mb-2">Suggested Outreach</p>
-              <p className="text-[#EEEEF4] leading-relaxed italic break-words whitespace-normal">&ldquo;{listing.outreach_angle}&rdquo;</p>
+              <p className="text-[#f0f0f6] leading-relaxed italic break-words whitespace-normal">&ldquo;{listing.outreach_angle}&rdquo;</p>
             </div>
           )}
         </div>
       ) : (
-        <p className="text-[#7A7A90] italic">No AI analysis yet. Run &quot;Re-score All&quot; to generate insights.</p>
+        <p className="text-[#9395a8] italic">No AI analysis yet. Run &quot;Re-score All&quot; to generate insights.</p>
       )}
     </div>
   )

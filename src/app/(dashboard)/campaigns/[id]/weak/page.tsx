@@ -72,8 +72,8 @@ export default async function CampaignWeakPage({ params }: WeakPageProps) {
               <AlertCircle className="h-6 w-6 text-[#EF4444]" />
             </div>
             <div>
-              <p className="text-lg font-bold text-[#EEEEF4]">{listingData.length} Weak Leads</p>
-              <p className="text-sm text-[#B0B0C0]">
+              <p className="text-lg font-bold text-[#f0f0f6]">{listingData.length} Weak Leads</p>
+              <p className="text-sm text-[#c4c5d6]">
                 These listings scored below 40 and don&apos;t match your criteria well
               </p>
             </div>
@@ -83,13 +83,13 @@ export default async function CampaignWeakPage({ params }: WeakPageProps) {
         {listingData.length > 0 ? (
           <ListingsTable data={listingData} />
         ) : (
-          <Card className="bg-[#0F1117] border-[#2A2D42]">
+          <Card className="bg-[#13141c] border-[#363a4f]">
             <CardContent className="flex flex-col items-center justify-center py-12">
-              <AlertCircle className="h-12 w-12 text-[#7A7A90] mb-4" />
-              <h3 className="text-lg font-medium text-[#EEEEF4] mb-2">
+              <AlertCircle className="h-12 w-12 text-[#9395a8] mb-4" />
+              <h3 className="text-lg font-medium text-[#f0f0f6] mb-2">
                 No weak leads
               </h3>
-              <p className="text-sm text-[#B0B0C0] text-center max-w-md">
+              <p className="text-sm text-[#c4c5d6] text-center max-w-md">
                 All your scored listings are above the weak threshold. Great news!
               </p>
               <Link href={`/campaigns/${id}/listings`}>

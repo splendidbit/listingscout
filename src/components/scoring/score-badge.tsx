@@ -14,7 +14,7 @@ export function ScoreBadge({ score, tier, size = 'md', showTier = false }: Score
     return (
       <div
         className={cn(
-          'flex items-center justify-center rounded-full bg-[#1D2030] text-[#7A7A90] font-mono',
+          'flex items-center justify-center rounded-full bg-[#262838] text-[#9395a8] font-mono',
           size === 'sm' && 'w-8 h-8 text-xs',
           size === 'md' && 'w-10 h-10 text-sm',
           size === 'lg' && 'w-14 h-14 text-lg'
@@ -47,8 +47,8 @@ export function ScoreBadge({ score, tier, size = 'md', showTier = false }: Score
         }
       default:
         return {
-          bg: 'bg-[#7A7A90]',
-          ring: 'ring-[#7A7A90]/30',
+          bg: 'bg-[#9395a8]',
+          ring: 'ring-[#9395a8]/30',
           text: 'text-white',
         }
     }

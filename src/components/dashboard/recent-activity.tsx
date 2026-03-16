@@ -42,7 +42,7 @@ export function RecentActivity({ activities, maxVisible = 10 }: RecentActivityPr
     if (action.includes('deleted')) return 'bg-[#EF4444]/10 text-[#EF4444]'
     if (action.includes('scored')) return 'bg-[#6366F1]/10 text-[#6366F1]'
     if (action.includes('import')) return 'bg-[#F59E0B]/10 text-[#F59E0B]'
-    return 'bg-[#7A7A90]/10 text-[#B0B0C0]'
+    return 'bg-[#9395a8]/10 text-[#c4c5d6]'
   }
 
   const formatAction = (action: string): string => {
@@ -79,11 +79,11 @@ export function RecentActivity({ activities, maxVisible = 10 }: RecentActivityPr
 
   if (activities.length === 0) {
     return (
-      <Card className="bg-[#0F1117] border-[#2A2D42]">
+      <Card className="bg-[#13141c] border-[#363a4f]">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base text-[#EEEEF4]">Recent Activity</CardTitle>
+          <CardTitle className="text-base text-[#f0f0f6]">Recent Activity</CardTitle>
         </CardHeader>
-        <CardContent className="text-center py-8 text-[#B0B0C0]">
+        <CardContent className="text-center py-8 text-[#c4c5d6]">
           No activity yet
         </CardContent>
       </Card>
@@ -93,9 +93,9 @@ export function RecentActivity({ activities, maxVisible = 10 }: RecentActivityPr
   const visibleActivities = activities.slice(0, maxVisible)
 
   return (
-    <Card className="bg-[#0F1117] border-[#2A2D42]">
+    <Card className="bg-[#13141c] border-[#363a4f]">
       <CardHeader className="pb-2">
-        <CardTitle className="text-base text-[#EEEEF4]">Recent Activity</CardTitle>
+        <CardTitle className="text-base text-[#f0f0f6]">Recent Activity</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
@@ -107,27 +107,27 @@ export function RecentActivity({ activities, maxVisible = 10 }: RecentActivityPr
             return (
               <div
                 key={activity.id}
-                className="flex items-start gap-3 p-3 bg-[#161822] rounded-lg"
+                className="flex items-start gap-3 p-3 bg-[#1c1d2b] rounded-lg"
               >
                 <div className={`p-2 rounded-lg ${colorClass.split(' ')[0]}`}>
                   <Icon className={`h-4 w-4 ${colorClass.split(' ')[1]}`} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-[#EEEEF4] font-medium">
+                    <span className="text-sm text-[#f0f0f6] font-medium">
                       {formatAction(activity.action)}
                     </span>
-                    <Badge variant="secondary" className="text-xs bg-[#2A2D42] text-[#B0B0C0]">
+                    <Badge variant="secondary" className="text-xs bg-[#363a4f] text-[#c4c5d6]">
                       {activity.entity_type}
                     </Badge>
                   </div>
                   {summary && (
-                    <p className="text-xs text-[#B0B0C0] truncate mt-0.5">
+                    <p className="text-xs text-[#c4c5d6] truncate mt-0.5">
                       {summary}
                     </p>
                   )}
                 </div>
-                <span className="text-xs text-[#7A7A90] shrink-0">
+                <span className="text-xs text-[#9395a8] shrink-0">
                   {formatTimeAgo(activity.created_at)}
                 </span>
               </div>
@@ -136,7 +136,7 @@ export function RecentActivity({ activities, maxVisible = 10 }: RecentActivityPr
         </div>
 
         {activities.length > maxVisible && (
-          <p className="text-center text-xs text-[#B0B0C0] mt-4">
+          <p className="text-center text-xs text-[#c4c5d6] mt-4">
             Showing {maxVisible} of {activities.length} activities
           </p>
         )}

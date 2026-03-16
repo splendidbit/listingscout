@@ -229,10 +229,10 @@ export function ListingImportModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl bg-[#08090E] border-[#2A2D42]">
+      <DialogContent className="max-w-2xl bg-[#09090f] border-[#363a4f]">
         <DialogHeader>
-          <DialogTitle className="text-[#EEEEF4]">Import Listings</DialogTitle>
-          <DialogDescription className="text-[#B0B0C0]">
+          <DialogTitle className="text-[#f0f0f6]">Import Listings</DialogTitle>
+          <DialogDescription className="text-[#c4c5d6]">
             Upload a CSV or JSON file with your listings data
           </DialogDescription>
         </DialogHeader>
@@ -254,13 +254,13 @@ export function ListingImportModal({
                       ? 'bg-[#6366F1] text-white'
                       : isCompleted
                       ? 'bg-[#22C55E] text-white'
-                      : 'bg-[#2A2D42] text-[#7A7A90]'
+                      : 'bg-[#363a4f] text-[#9395a8]'
                   }`}
                 >
                   {i + 1}
                 </div>
                 {i < 3 && (
-                  <ChevronRight className="h-4 w-4 mx-2 text-[#7A7A90]" />
+                  <ChevronRight className="h-4 w-4 mx-2 text-[#9395a8]" />
                 )}
               </div>
             )
@@ -271,14 +271,14 @@ export function ListingImportModal({
         {step === 'upload' && (
           <div className="space-y-4">
             <div
-              className="border-2 border-dashed border-[#2A2D42] rounded-lg p-8 text-center hover:border-[#6366F1] transition-colors cursor-pointer"
+              className="border-2 border-dashed border-[#363a4f] rounded-lg p-8 text-center hover:border-[#6366F1] transition-colors cursor-pointer"
               onClick={() => document.getElementById('file-upload')?.click()}
             >
-              <Upload className="h-10 w-10 mx-auto text-[#7A7A90] mb-4" />
-              <p className="text-[#EEEEF4] font-medium mb-1">
+              <Upload className="h-10 w-10 mx-auto text-[#9395a8] mb-4" />
+              <p className="text-[#f0f0f6] font-medium mb-1">
                 Drop your file here or click to browse
               </p>
-              <p className="text-sm text-[#B0B0C0]">
+              <p className="text-sm text-[#c4c5d6]">
                 Supports CSV and JSON files
               </p>
               <input
@@ -290,8 +290,8 @@ export function ListingImportModal({
               />
             </div>
 
-            <div className="bg-[#161822] rounded-lg p-4">
-              <h4 className="text-sm font-medium text-[#EEEEF4] mb-2">Required columns:</h4>
+            <div className="bg-[#1c1d2b] rounded-lg p-4">
+              <h4 className="text-sm font-medium text-[#f0f0f6] mb-2">Required columns:</h4>
               <div className="flex flex-wrap gap-2">
                 {REQUIRED_FIELDS.map(field => (
                   <Badge key={field} variant="secondary" className="bg-[#6366F1]/10 text-[#6366F1]">
@@ -307,9 +307,9 @@ export function ListingImportModal({
         {step === 'mapping' && (
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-4">
-              <FileText className="h-5 w-5 text-[#B0B0C0]" />
-              <span className="text-[#EEEEF4] font-medium">{file?.name}</span>
-              <Badge variant="secondary" className="bg-[#2A2D42] text-[#B0B0C0]">
+              <FileText className="h-5 w-5 text-[#c4c5d6]" />
+              <span className="text-[#f0f0f6] font-medium">{file?.name}</span>
+              <Badge variant="secondary" className="bg-[#363a4f] text-[#c4c5d6]">
                 {data.length} rows
               </Badge>
             </div>
@@ -317,17 +317,17 @@ export function ListingImportModal({
             <div className="max-h-[400px] overflow-y-auto space-y-3">
               {/* Required Fields */}
               <div className="space-y-2">
-                <h4 className="text-sm font-medium text-[#EEEEF4]">Required Fields</h4>
+                <h4 className="text-sm font-medium text-[#f0f0f6]">Required Fields</h4>
                 {REQUIRED_FIELDS.map(field => (
                   <div key={field} className="flex items-center gap-3">
-                    <Label className="w-32 text-[#B0B0C0] capitalize">
+                    <Label className="w-32 text-[#c4c5d6] capitalize">
                       {field.replace(/_/g, ' ')}
                     </Label>
                     <Select
                       value={mapping[field] || ''}
                       onValueChange={v => setMapping(prev => ({ ...prev, [field]: v }))}
                     >
-                      <SelectTrigger className="flex-1 bg-[#161822] border-[#2A2D42]">
+                      <SelectTrigger className="flex-1 bg-[#1c1d2b] border-[#363a4f]">
                         <SelectValue placeholder="Select column" />
                       </SelectTrigger>
                       <SelectContent>
@@ -346,18 +346,18 @@ export function ListingImportModal({
               </div>
 
               {/* Optional Fields */}
-              <div className="space-y-2 pt-4 border-t border-[#2A2D42]">
-                <h4 className="text-sm font-medium text-[#EEEEF4]">Optional Fields</h4>
+              <div className="space-y-2 pt-4 border-t border-[#363a4f]">
+                <h4 className="text-sm font-medium text-[#f0f0f6]">Optional Fields</h4>
                 {OPTIONAL_FIELDS.map(field => (
                   <div key={field} className="flex items-center gap-3">
-                    <Label className="w-32 text-[#B0B0C0] capitalize">
+                    <Label className="w-32 text-[#c4c5d6] capitalize">
                       {field.replace(/_/g, ' ')}
                     </Label>
                     <Select
                       value={mapping[field] || ''}
                       onValueChange={v => setMapping(prev => ({ ...prev, [field]: v || undefined }))}
                     >
-                      <SelectTrigger className="flex-1 bg-[#161822] border-[#2A2D42]">
+                      <SelectTrigger className="flex-1 bg-[#1c1d2b] border-[#363a4f]">
                         <SelectValue placeholder="Select column (optional)" />
                       </SelectTrigger>
                       <SelectContent>
@@ -394,8 +394,8 @@ export function ListingImportModal({
         {step === 'importing' && (
           <div className="py-12 text-center">
             <Loader2 className="h-10 w-10 mx-auto text-[#6366F1] animate-spin mb-4" />
-            <p className="text-[#EEEEF4] font-medium">Importing listings...</p>
-            <p className="text-sm text-[#B0B0C0] mt-1">
+            <p className="text-[#f0f0f6] font-medium">Importing listings...</p>
+            <p className="text-sm text-[#c4c5d6] mt-1">
               Checking for duplicates and validating data
             </p>
           </div>
@@ -406,29 +406,29 @@ export function ListingImportModal({
           <div className="space-y-4">
             <div className="text-center py-6">
               <CheckCircle2 className="h-12 w-12 mx-auto text-[#22C55E] mb-4" />
-              <h3 className="text-lg font-medium text-[#EEEEF4]">Import Complete</h3>
+              <h3 className="text-lg font-medium text-[#f0f0f6]">Import Complete</h3>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-[#22C55E]/10 rounded-lg p-4 text-center">
                 <p className="text-2xl font-bold text-[#22C55E]">{importResult.imported}</p>
-                <p className="text-sm text-[#B0B0C0]">Imported</p>
+                <p className="text-sm text-[#c4c5d6]">Imported</p>
               </div>
               <div className="bg-[#F59E0B]/10 rounded-lg p-4 text-center">
                 <p className="text-2xl font-bold text-[#F59E0B]">{importResult.skipped}</p>
-                <p className="text-sm text-[#B0B0C0]">Skipped (duplicates)</p>
+                <p className="text-sm text-[#c4c5d6]">Skipped (duplicates)</p>
               </div>
             </div>
 
             {importResult.errors.length > 0 && (
               <div className="bg-[#EF4444]/10 rounded-lg p-4">
                 <h4 className="text-sm font-medium text-[#EF4444] mb-2">Errors:</h4>
-                <ul className="text-sm text-[#EEEEF4] space-y-1">
+                <ul className="text-sm text-[#f0f0f6] space-y-1">
                   {importResult.errors.slice(0, 5).map((err, i) => (
                     <li key={i}>• {err}</li>
                   ))}
                   {importResult.errors.length > 5 && (
-                    <li className="text-[#B0B0C0]">
+                    <li className="text-[#c4c5d6]">
                       ... and {importResult.errors.length - 5} more
                     </li>
                   )}

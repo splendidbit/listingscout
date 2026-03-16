@@ -10,7 +10,7 @@ export function Skeleton({ className, ...props }: SkeletonProps) {
   return (
     <div
       className={cn(
-        'animate-pulse rounded-md bg-[#2A2D42]',
+        'animate-pulse rounded-md bg-[#363a4f]',
         className
       )}
       {...props}
@@ -20,7 +20,7 @@ export function Skeleton({ className, ...props }: SkeletonProps) {
 
 export function CardSkeleton() {
   return (
-    <div className="bg-[#0F1117] border border-[#2A2D42] rounded-lg p-4 space-y-3">
+    <div className="bg-[#13141c] border border-[#363a4f] rounded-lg p-4 space-y-3">
       <div className="flex items-center justify-between">
         <Skeleton className="h-5 w-32" />
         <Skeleton className="h-8 w-16 rounded-full" />
@@ -36,9 +36,9 @@ export function CardSkeleton() {
 
 export function TableSkeleton({ rows = 5, columns = 5 }) {
   return (
-    <div className="border border-[#2A2D42] rounded-lg overflow-hidden">
+    <div className="border border-[#363a4f] rounded-lg overflow-hidden">
       {/* Header */}
-      <div className="bg-[#161822] p-3 flex gap-4">
+      <div className="bg-[#1c1d2b] p-3 flex gap-4">
         {Array.from({ length: columns }).map((_, i) => (
           <Skeleton key={i} className="h-4 flex-1" />
         ))}
@@ -46,7 +46,7 @@ export function TableSkeleton({ rows = 5, columns = 5 }) {
       
       {/* Rows */}
       {Array.from({ length: rows }).map((_, rowIndex) => (
-        <div key={rowIndex} className="p-3 border-t border-[#2A2D42] flex gap-4">
+        <div key={rowIndex} className="p-3 border-t border-[#363a4f] flex gap-4">
           {Array.from({ length: columns }).map((_, colIndex) => (
             <Skeleton key={colIndex} className="h-4 flex-1" />
           ))}
@@ -58,7 +58,7 @@ export function TableSkeleton({ rows = 5, columns = 5 }) {
 
 export function ChartSkeleton() {
   return (
-    <div className="bg-[#0F1117] border border-[#2A2D42] rounded-lg p-4 space-y-4">
+    <div className="bg-[#13141c] border border-[#363a4f] rounded-lg p-4 space-y-4">
       <Skeleton className="h-5 w-40" />
       <div className="space-y-3">
         {[100, 80, 60, 40, 20].map((width, i) => (
@@ -74,7 +74,7 @@ export function ChartSkeleton() {
 
 export function ListingSkeleton() {
   return (
-    <div className="bg-[#0F1117] border border-[#2A2D42] rounded-lg p-4 flex items-center gap-4">
+    <div className="bg-[#13141c] border border-[#363a4f] rounded-lg p-4 flex items-center gap-4">
       <Skeleton className="h-10 w-10 rounded-full" />
       <div className="flex-1 space-y-2">
         <Skeleton className="h-4 w-3/4" />

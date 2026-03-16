@@ -40,10 +40,10 @@ export default async function CampaignsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {campaignList.map((campaign) => (
               <Link key={campaign.id} href={`/campaigns/${campaign.id}`}>
-                <Card className="bg-[#0F1117] border-[#2A2D42] hover:border-[#3A3D58] transition-colors cursor-pointer h-full">
+                <Card className="bg-[#13141c] border-[#363a4f] hover:border-[#4a4d65] transition-colors cursor-pointer h-full">
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
-                      <CardTitle className="text-base font-medium text-[#EEEEF4]">
+                      <CardTitle className="text-base font-medium text-[#f0f0f6]">
                         {campaign.name}
                       </CardTitle>
                       <Badge
@@ -56,14 +56,14 @@ export default async function CampaignsPage() {
                   </CardHeader>
                   <CardContent>
                     {campaign.description && (
-                      <p className="text-sm text-[#B0B0C0] mb-4 line-clamp-2">
+                      <p className="text-sm text-[#c4c5d6] mb-4 line-clamp-2">
                         {campaign.description}
                       </p>
                     )}
                     <div className="flex items-center justify-between text-sm">
                       <div className="flex items-center space-x-4">
-                        <span className="text-[#B0B0C0]">
-                          <span className="font-mono text-[#EEEEF4]">
+                        <span className="text-[#c4c5d6]">
+                          <span className="font-mono text-[#f0f0f6]">
                             {campaign.total_listings || 0}
                           </span>{' '}
                           listings
@@ -76,7 +76,7 @@ export default async function CampaignsPage() {
                         </span>
                       </div>
                     </div>
-                    <div className="mt-3 h-1.5 bg-[#161822] rounded-full overflow-hidden">
+                    <div className="mt-3 h-1.5 bg-[#1c1d2b] rounded-full overflow-hidden">
                       <div className="h-full flex">
                         <div
                           className="bg-[#22C55E]"
@@ -98,7 +98,7 @@ export default async function CampaignsPage() {
                         />
                       </div>
                     </div>
-                    <p className="text-xs text-[#7A7A90] mt-3">
+                    <p className="text-xs text-[#9395a8] mt-3">
                       Updated{' '}
                       {new Date(campaign.updated_at).toLocaleDateString()}
                     </p>
@@ -108,13 +108,13 @@ export default async function CampaignsPage() {
             ))}
           </div>
         ) : (
-          <Card className="bg-[#0F1117] border-[#2A2D42]">
+          <Card className="bg-[#13141c] border-[#363a4f]">
             <CardContent className="flex flex-col items-center justify-center py-12">
-              <FolderKanban className="h-12 w-12 text-[#7A7A90] mb-4" />
-              <h3 className="text-lg font-medium text-[#EEEEF4] mb-2">
+              <FolderKanban className="h-12 w-12 text-[#9395a8] mb-4" />
+              <h3 className="text-lg font-medium text-[#f0f0f6] mb-2">
                 No campaigns yet
               </h3>
-              <p className="text-sm text-[#B0B0C0] mb-4">
+              <p className="text-sm text-[#c4c5d6] mb-4">
                 Create your first campaign to start researching listings
               </p>
               <Link

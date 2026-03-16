@@ -65,7 +65,7 @@ export function ScoreBreakdown({ breakdown, showLabels = true }: ScoreBreakdownP
       {/* Opportunity Score Header */}
       {hasNewScoring && (
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-[#EEEEF4]">Opportunity Score</span>
+          <span className="text-sm font-medium text-[#f0f0f6]">Opportunity Score</span>
           <span className={cn(
             'text-2xl font-mono font-bold',
             opportunityScore >= 70 ? 'text-red-400' :
@@ -95,12 +95,12 @@ export function ScoreBreakdown({ breakdown, showLabels = true }: ScoreBreakdownP
       {breakdown.recommended_outreach_reason && (
         <div className="bg-[#6366F1]/10 border border-[#6366F1]/20 rounded p-2.5">
           <p className="text-xs text-[#6366F1] font-medium mb-0.5">Outreach Signal</p>
-          <p className="text-xs text-[#EEEEF4] leading-relaxed">{breakdown.recommended_outreach_reason}</p>
+          <p className="text-xs text-[#f0f0f6] leading-relaxed">{breakdown.recommended_outreach_reason}</p>
         </div>
       )}
 
       {/* Component Score Bars */}
-      <div className="h-3 rounded-full overflow-hidden flex bg-[#2A2D42]">
+      <div className="h-3 rounded-full overflow-hidden flex bg-[#363a4f]">
         {CATEGORIES.map(({ key, color }) => {
           const value = (breakdown as Record<string, unknown>)[key] as number | undefined
           if (!value || value === 0) return null
@@ -122,8 +122,8 @@ export function ScoreBreakdown({ breakdown, showLabels = true }: ScoreBreakdownP
             return (
               <div key={key} className="flex items-center gap-2">
                 <div className={cn('w-2 h-2 rounded-full shrink-0', color)} />
-                <span className="text-xs text-[#B0B0C0] truncate">{label}</span>
-                <span className="text-xs font-mono text-[#EEEEF4] ml-auto">
+                <span className="text-xs text-[#c4c5d6] truncate">{label}</span>
+                <span className="text-xs font-mono text-[#f0f0f6] ml-auto">
                   {value ?? '—'}
                 </span>
               </div>
@@ -134,7 +134,7 @@ export function ScoreBreakdown({ breakdown, showLabels = true }: ScoreBreakdownP
 
       {/* Market Deltas */}
       {hasNewScoring && (
-        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#2A2D42]">
+        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#363a4f]">
           {[
             { label: 'Occ. vs Market', value: formatDelta(breakdown.occupancy_delta !== undefined ? (breakdown.occupancy_delta !== null ? breakdown.occupancy_delta * 100 : null) : null, '%') },
             { label: 'RevPAR vs Mkt', value: breakdown.revpan_delta !== null && breakdown.revpan_delta !== undefined ? `$${Math.round(breakdown.revpan_delta)}` : null },
@@ -142,10 +142,10 @@ export function ScoreBreakdown({ breakdown, showLabels = true }: ScoreBreakdownP
             { label: 'Est. Upside', value: breakdown.estimated_revenue_upside ? `$${breakdown.estimated_revenue_upside.toLocaleString()}` : null },
           ].map(item => (
             <div key={item.label} className="flex items-center justify-between">
-              <span className="text-xs text-[#B0B0C0]">{item.label}</span>
+              <span className="text-xs text-[#c4c5d6]">{item.label}</span>
               <span className={cn(
                 'text-xs font-mono',
-                item.value ? 'text-[#EEEEF4]' : 'text-[#7A7A90]'
+                item.value ? 'text-[#f0f0f6]' : 'text-[#9395a8]'
               )}>
                 {item.value ?? '—'}
               </span>
@@ -155,11 +155,11 @@ export function ScoreBreakdown({ breakdown, showLabels = true }: ScoreBreakdownP
       )}
 
       {/* Total */}
-      <div className="flex items-center justify-between pt-2 border-t border-[#2A2D42]">
-        <span className="text-sm font-medium text-[#EEEEF4]">
+      <div className="flex items-center justify-between pt-2 border-t border-[#363a4f]">
+        <span className="text-sm font-medium text-[#f0f0f6]">
           {hasNewScoring ? 'Opportunity Score' : 'Total Score'}
         </span>
-        <span className="text-lg font-mono font-bold text-[#EEEEF4]">
+        <span className="text-lg font-mono font-bold text-[#f0f0f6]">
           {hasNewScoring ? opportunityScore : Object.values(breakdown).reduce<number>((a, b) => a + (typeof b === 'number' ? b : 0), 0)}
         </span>
       </div>

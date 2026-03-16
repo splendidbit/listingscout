@@ -15,18 +15,18 @@ interface HeaderProps {
 
 export function Header({ title, description, action }: HeaderProps) {
   return (
-    <header className="flex items-center justify-between px-8 py-5 border-b border-[#2A2D42] bg-[#0F1117]">
+    <header className="flex items-center justify-between px-8 py-5 border-b border-[#363a4f] bg-[#13141c]">
       <div>
-        <h1 className="text-2xl font-bold text-[#EEEEF4] tracking-tight">{title}</h1>
+        <h1 className="text-2xl font-bold text-[#f0f0f6] tracking-tight">{title}</h1>
         {description && (
-          <p className="text-sm text-[#B0B0C0] mt-1">{description}</p>
+          <p className="text-sm text-[#c4c5d6] mt-1">{description}</p>
         )}
       </div>
       <div className="flex items-center space-x-3">
         <Button
           variant="ghost"
           size="icon"
-          className="text-[#B0B0C0] hover:text-[#EEEEF4] hover:bg-[#1D2030]"
+          className="text-[#c4c5d6] hover:text-[#f0f0f6] hover:bg-[#262838]"
         >
           <Bell className="h-5 w-5" />
         </Button>

@@ -56,19 +56,19 @@ export default function LoginPage() {
   }
 
   return (
-    <Card className="border-[#2A2D42] bg-[#0F1117]">
+    <Card className="border-[#363a4f] bg-[#13141c]">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-[#EEEEF4]">
+        <CardTitle className="text-2xl font-bold text-[#f0f0f6]">
           Welcome back
         </CardTitle>
-        <CardDescription className="text-[#B0B0C0]">
+        <CardDescription className="text-[#c4c5d6]">
           Sign in to your ListingScout account
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <form onSubmit={handleEmailLogin} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-[#EEEEF4]">
+            <Label htmlFor="email" className="text-[#f0f0f6]">
               Email
             </Label>
             <Input
@@ -78,12 +78,12 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="bg-[#161822] border-[#2A2D42] text-[#EEEEF4] placeholder:text-[#7A7A90]"
+              className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6] placeholder:text-[#9395a8]"
             />
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="password" className="text-[#EEEEF4]">
+              <Label htmlFor="password" className="text-[#f0f0f6]">
                 Password
               </Label>
               <Link
@@ -99,7 +99,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="bg-[#161822] border-[#2A2D42] text-[#EEEEF4]"
+              className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
             />
           </div>
           <Button
@@ -123,10 +123,10 @@ export default function LoginPage() {
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <Separator className="w-full bg-[#2A2D42]" />
+            <Separator className="w-full bg-[#363a4f]" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-[#0F1117] px-2 text-[#7A7A90]">
+            <span className="bg-[#13141c] px-2 text-[#9395a8]">
               Or continue with
             </span>
           </div>
@@ -136,7 +136,7 @@ export default function LoginPage() {
           <Button
             variant="outline"
             onClick={() => handleOAuthLogin('google')}
-            className="border-[#2A2D42] bg-[#161822] text-[#EEEEF4] hover:bg-[#1D2030] hover:border-[#3A3D58]"
+            className="border-[#363a4f] bg-[#1c1d2b] text-[#f0f0f6] hover:bg-[#262838] hover:border-[#4a4d65]"
           >
             <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
               <path
@@ -161,7 +161,7 @@ export default function LoginPage() {
           <Button
             variant="outline"
             onClick={() => handleOAuthLogin('azure')}
-            className="border-[#2A2D42] bg-[#161822] text-[#EEEEF4] hover:bg-[#1D2030] hover:border-[#3A3D58]"
+            className="border-[#363a4f] bg-[#1c1d2b] text-[#f0f0f6] hover:bg-[#262838] hover:border-[#4a4d65]"
           >
             <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
               <path
@@ -178,7 +178,7 @@ export default function LoginPage() {
         </div>
       </CardContent>
       <CardFooter className="flex justify-center">
-        <p className="text-sm text-[#B0B0C0]">
+        <p className="text-sm text-[#c4c5d6]">
           Don&apos;t have an account?{' '}
           <Link href="/signup" className="text-[#6366F1] hover:text-[#818CF8]">
             Sign up
