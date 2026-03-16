@@ -14,7 +14,7 @@ export function ScoreBadge({ score, tier, size = 'md', showTier = false }: Score
     return (
       <div
         className={cn(
-          'flex items-center justify-center rounded-full bg-[#2A2A3C] text-[#5C5C72]',
+          'flex items-center justify-center rounded-full bg-[#1D2030] text-[#7A7A90] font-mono',
           size === 'sm' && 'w-8 h-8 text-xs',
           size === 'md' && 'w-10 h-10 text-sm',
           size === 'lg' && 'w-14 h-14 text-lg'
@@ -30,25 +30,25 @@ export function ScoreBadge({ score, tier, size = 'md', showTier = false }: Score
       case 'strong':
         return {
           bg: 'bg-[#22C55E]',
-          ring: 'ring-[#22C55E]/30',
+          ring: 'ring-[#22C55E]/40',
           text: 'text-white',
         }
       case 'moderate':
         return {
           bg: 'bg-[#F59E0B]',
-          ring: 'ring-[#F59E0B]/30',
+          ring: 'ring-[#F59E0B]/40',
           text: 'text-white',
         }
       case 'weak':
         return {
           bg: 'bg-[#EF4444]',
-          ring: 'ring-[#EF4444]/30',
+          ring: 'ring-[#EF4444]/40',
           text: 'text-white',
         }
       default:
         return {
-          bg: 'bg-[#5C5C72]',
-          ring: 'ring-[#5C5C72]/30',
+          bg: 'bg-[#7A7A90]',
+          ring: 'ring-[#7A7A90]/30',
           text: 'text-white',
         }
     }
@@ -60,7 +60,7 @@ export function ScoreBadge({ score, tier, size = 'md', showTier = false }: Score
     <div className="flex flex-col items-center gap-1">
       <div
         className={cn(
-          'flex items-center justify-center rounded-full font-mono font-bold ring-2',
+          'flex items-center justify-center rounded-full font-mono font-bold ring-2 shadow-lg',
           colors.bg,
           colors.ring,
           colors.text,
@@ -73,7 +73,7 @@ export function ScoreBadge({ score, tier, size = 'md', showTier = false }: Score
       </div>
       {showTier && tier && tier !== 'unscored' && tier !== 'excluded' && (
         <span className={cn(
-          'text-[10px] uppercase tracking-wide font-medium',
+          'text-[10px] uppercase tracking-wider font-semibold',
           tier === 'strong' && 'text-[#22C55E]',
           tier === 'moderate' && 'text-[#F59E0B]',
           tier === 'weak' && 'text-[#EF4444]'

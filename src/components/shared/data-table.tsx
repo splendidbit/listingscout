@@ -86,12 +86,12 @@ export function DataTable<TData, TValue>({
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-4">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#5C5C72]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#7A7A90]" />
           <Input
             placeholder={searchPlaceholder}
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
-            className="pl-9 bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5]"
+            className="pl-9 bg-[#161822] border-[#2A2D42] text-[#EEEEF4]"
           />
         </div>
 
@@ -121,16 +121,16 @@ export function DataTable<TData, TValue>({
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border border-[#2A2A3C] overflow-hidden">
+      <div className="rounded-lg border border-[#2A2D42] overflow-hidden">
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader className="bg-[#1A1A26]">
+            <TableHeader className="bg-[#161822]">
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id} className="border-[#2A2A3C] hover:bg-[#1A1A26]">
+                <TableRow key={headerGroup.id} className="border-[#2A2D42] hover:bg-[#161822]">
                   {headerGroup.headers.map((header) => (
                     <TableHead
                       key={header.id}
-                      className="text-[#9494A8] font-medium whitespace-nowrap"
+                      className="text-[#B0B0C0] font-medium whitespace-nowrap"
                     >
                       {header.isPlaceholder
                         ? null
@@ -145,7 +145,7 @@ export function DataTable<TData, TValue>({
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
-                    className={`border-[#2A2A3C] hover:bg-[#1A1A26] ${
+                    className={`border-[#2A2D42] hover:bg-[#161822] ${
                       onRowClick ? 'cursor-pointer' : ''
                     }`}
                     onClick={() => onRowClick?.(row.original)}
@@ -159,7 +159,7 @@ export function DataTable<TData, TValue>({
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center text-[#9494A8]">
+                  <TableCell colSpan={columns.length} className="h-24 text-center text-[#B0B0C0]">
                     No results found.
                   </TableCell>
                 </TableRow>
@@ -171,7 +171,7 @@ export function DataTable<TData, TValue>({
 
       {/* Pagination */}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-[#9494A8]">
+        <p className="text-sm text-[#B0B0C0]">
           Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to{' '}
           {Math.min(
             (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
@@ -197,7 +197,7 @@ export function DataTable<TData, TValue>({
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="text-sm text-[#9494A8] px-2">
+          <span className="text-sm text-[#B0B0C0] px-2">
             Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
           </span>
           <Button

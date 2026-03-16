@@ -249,16 +249,16 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col bg-[#12121A] border-[#2A2A3C]">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col bg-[#0F1117] border-[#2A2D42]">
         <DialogHeader>
-          <DialogTitle className="text-[#F0F0F5]">Search AirROI Listings</DialogTitle>
-          <DialogDescription className="text-[#9494A8]">
+          <DialogTitle className="text-[#EEEEF4]">Search AirROI Listings</DialogTitle>
+          <DialogDescription className="text-[#B0B0C0]">
             Search 20M+ entire-home STR listings. Type a city, region, or country to get started.
           </DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="market" onValueChange={() => { setResults([]); setSearched(false) }}>
-        <TabsList className="bg-[#1A1A26] border border-[#2A2A3C] w-full">
+        <TabsList className="bg-[#161822] border border-[#2A2D42] w-full">
           <TabsTrigger value="market" className="flex-1 data-[state=active]:bg-[#6366F1]/20">
             <MapPin className="h-3.5 w-3.5 mr-1.5" />Market Search
           </TabsTrigger>
@@ -270,32 +270,32 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
         <TabsContent value="market" className="mt-3 space-y-3">
         {/* Market Search */}
         <div className="relative" ref={dropdownRef}>
-          <Label className="text-[#9494A8] text-xs mb-1 block">Market</Label>
+          <Label className="text-[#B0B0C0] text-xs mb-1 block">Market</Label>
           <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#5C5C72]" />
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#7A7A90]" />
             <Input
               placeholder="Type a city, state, or country… e.g. Austin"
               value={query}
               onChange={e => { setQuery(e.target.value); setSelectedMarket(null) }}
               onKeyDown={e => e.key === 'Enter' && !showDropdown && selectedMarket && handleSearch()}
-              className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5] pl-9"
+              className="bg-[#161822] border-[#2A2D42] text-[#EEEEF4] pl-9"
             />
-            {isLoadingMarkets && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-[#5C5C72]" />}
+            {isLoadingMarkets && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-[#7A7A90]" />}
           </div>
 
           {showDropdown && (
-            <div className="absolute z-50 w-full mt-1 bg-[#1A1A26] border border-[#2A2A3C] rounded-lg shadow-xl overflow-hidden">
+            <div className="absolute z-50 w-full mt-1 bg-[#161822] border border-[#2A2D42] rounded-lg shadow-xl overflow-hidden">
               {markets.slice(0, 8).map((market, i) => (
                 <button
                   key={i}
                   onClick={() => selectMarket(market)}
-                  className="w-full text-left px-4 py-2.5 hover:bg-[#2A2A3C] transition-colors flex items-center justify-between"
+                  className="w-full text-left px-4 py-2.5 hover:bg-[#2A2D42] transition-colors flex items-center justify-between"
                 >
                   <div>
-                    <span className="text-sm text-[#F0F0F5]">{market.full_name}</span>
+                    <span className="text-sm text-[#EEEEF4]">{market.full_name}</span>
                   </div>
                   {market.active_listings_count && (
-                    <span className="text-xs text-[#5C5C72]">{market.active_listings_count.toLocaleString()} listings</span>
+                    <span className="text-xs text-[#7A7A90]">{market.active_listings_count.toLocaleString()} listings</span>
                   )}
                 </button>
               ))}
@@ -317,18 +317,18 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
 
         <TabsContent value="lookup" className="mt-3 space-y-3">
           <div>
-            <Label className="text-[#9494A8] text-xs mb-1 block">Airbnb URL, Listing ID, or Address</Label>
+            <Label className="text-[#B0B0C0] text-xs mb-1 block">Airbnb URL, Listing ID, or Address</Label>
             <div className="relative">
-              <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#5C5C72]" />
+              <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#7A7A90]" />
               <Input
                 placeholder="https://airbnb.com/rooms/12345  or  123 Main St, Austin TX"
                 value={lookupInput}
                 onChange={e => setLookupInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleLookup()}
-                className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5] pl-9"
+                className="bg-[#161822] border-[#2A2D42] text-[#EEEEF4] pl-9"
               />
             </div>
-            <p className="text-xs text-[#5C5C72] mt-1">
+            <p className="text-xs text-[#7A7A90] mt-1">
               Paste an Airbnb URL, numeric listing ID, or a street address to find comparable listings
             </p>
           </div>
@@ -349,12 +349,12 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
         {searched && (
           <div className="flex-1 overflow-hidden flex flex-col min-h-0">
             <div className="flex items-center justify-between py-2">
-              <span className="text-sm text-[#9494A8]">
+              <span className="text-sm text-[#B0B0C0]">
                 {results.length} listings · {selected.size} selected
               </span>
               <div className="flex gap-2">
-                <Button variant="ghost" size="sm" onClick={() => setSelected(new Set(results.map(l => l.listing_id)))} className="text-xs text-[#9494A8]">All</Button>
-                <Button variant="ghost" size="sm" onClick={() => setSelected(new Set())} className="text-xs text-[#9494A8]">None</Button>
+                <Button variant="ghost" size="sm" onClick={() => setSelected(new Set(results.map(l => l.listing_id)))} className="text-xs text-[#B0B0C0]">All</Button>
+                <Button variant="ghost" size="sm" onClick={() => setSelected(new Set())} className="text-xs text-[#B0B0C0]">None</Button>
                 <Button
                   size="sm"
                   onClick={handleImport}
@@ -371,9 +371,9 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
 
             {/* Market avg context */}
             {results[0]?.market_avg_price && (
-              <div className="flex gap-4 text-xs text-[#9494A8] bg-[#1A1A26] rounded-lg px-3 py-2 mb-2">
-                <span>Market avg: <span className="text-[#F0F0F5] font-mono">${Math.round(results[0].market_avg_price)}/night</span></span>
-                {results[0].market_avg_revenue && <span>Market avg revenue: <span className="text-[#F0F0F5] font-mono">${Math.round(results[0].market_avg_revenue / 1000)}k/yr</span></span>}
+              <div className="flex gap-4 text-xs text-[#B0B0C0] bg-[#161822] rounded-lg px-3 py-2 mb-2">
+                <span>Market avg: <span className="text-[#EEEEF4] font-mono">${Math.round(results[0].market_avg_price)}/night</span></span>
+                {results[0].market_avg_revenue && <span>Market avg revenue: <span className="text-[#EEEEF4] font-mono">${Math.round(results[0].market_avg_revenue / 1000)}k/yr</span></span>}
               </div>
             )}
 
@@ -386,23 +386,23 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
 
                 const isExpanded = expanded.has(listing.listing_id)
                 return (
-                  <div key={listing.listing_id} className={`rounded-lg border transition-colors ${selected.has(listing.listing_id) ? 'border-[#6366F1] bg-[#6366F1]/10' : 'border-[#2A2A3C] bg-[#1A1A26]'}`}>
+                  <div key={listing.listing_id} className={`rounded-lg border transition-colors ${selected.has(listing.listing_id) ? 'border-[#6366F1] bg-[#6366F1]/10' : 'border-[#2A2D42] bg-[#161822]'}`}>
                     {/* Main row */}
                     <div className="p-3 cursor-pointer hover:bg-white/[0.02]" onClick={() => toggleSelect(listing.listing_id)}>
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <p className="text-sm font-medium text-[#F0F0F5] truncate">{listing.listing_title}</p>
+                            <p className="text-sm font-medium text-[#EEEEF4] truncate">{listing.listing_title}</p>
                             {listing.superhost && <Badge className="bg-[#F59E0B]/10 text-[#F59E0B] text-[10px] px-1 py-0 shrink-0 border-0">Superhost</Badge>}
                           </div>
-                          <p className="text-xs text-[#9494A8] mt-0.5">
+                          <p className="text-xs text-[#B0B0C0] mt-0.5">
                             {[listing.neighborhood, listing.city, listing.state].filter(Boolean).join(', ')}
                             {' · '}{listing.bedrooms}bd {listing.bathrooms}ba · {listing.max_guests} guests
                           </p>
                           <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                             <ScoreBadge score={listing.revenue_potential_score} />
                             <span className={`text-[10px] px-1.5 py-0.5 rounded border ${bucket.color}`}>{bucket.emoji} {bucket.label}</span>
-                            <span className="text-[10px] text-[#9494A8]">
+                            <span className="text-[10px] text-[#B0B0C0]">
                               {listing.host_type === 'diy' || listing.host_type === 'independent' ? '🏠 Independent' : listing.host_type === 'scaling' ? '📈 Scaling' : '🏢 Pro'}
                               {listing.host_listing_count ? ` · ${listing.host_listing_count} listing${listing.host_listing_count > 1 ? 's' : ''}` : ''}
                             </span>
@@ -410,12 +410,12 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
                           </div>
                         </div>
                         <div className="flex flex-col items-end gap-1 shrink-0 text-xs">
-                          {listing.avg_rating && <div className="flex items-center gap-1 text-[#F59E0B]"><Star className="h-3 w-3" /><span>{listing.avg_rating.toFixed(1)}</span><span className="text-[#5C5C72]">({listing.total_reviews})</span></div>}
-                          {listing.ttm_avg_rate && <div className="flex items-center gap-1 text-[#9494A8]"><DollarSign className="h-3 w-3" /><span>${Math.round(listing.ttm_avg_rate)}/night</span></div>}
+                          {listing.avg_rating && <div className="flex items-center gap-1 text-[#F59E0B]"><Star className="h-3 w-3" /><span>{listing.avg_rating.toFixed(1)}</span><span className="text-[#7A7A90]">({listing.total_reviews})</span></div>}
+                          {listing.ttm_avg_rate && <div className="flex items-center gap-1 text-[#B0B0C0]"><DollarSign className="h-3 w-3" /><span>${Math.round(listing.ttm_avg_rate)}/night</span></div>}
                           {listing.ttm_revenue && <div className="flex items-center gap-1 text-[#22C55E]"><TrendingUp className="h-3 w-3" /><span>${Math.round(listing.ttm_revenue / 1000)}k/yr</span></div>}
                           <div className="flex items-center gap-2 mt-0.5">
                             <a href={listing.listing_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-[#6366F1] hover:text-[#818CF8]"><ExternalLink className="h-3 w-3" /></a>
-                            <button onClick={e => { e.stopPropagation(); setExpanded(prev => { const n = new Set(prev); n.has(listing.listing_id) ? n.delete(listing.listing_id) : n.add(listing.listing_id); return n }) }} className="text-[#5C5C72] hover:text-[#9494A8]">
+                            <button onClick={e => { e.stopPropagation(); setExpanded(prev => { const n = new Set(prev); n.has(listing.listing_id) ? n.delete(listing.listing_id) : n.add(listing.listing_id); return n }) }} className="text-[#7A7A90] hover:text-[#B0B0C0]">
                               {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
                             </button>
                           </div>
@@ -425,10 +425,10 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
 
                     {/* Expanded detail panel */}
                     {isExpanded && (
-                      <div className="border-t border-[#2A2A3C] px-3 py-3 space-y-3 text-xs">
+                      <div className="border-t border-[#2A2D42] px-3 py-3 space-y-3 text-xs">
                         {/* Score breakdown */}
                         <div>
-                          <p className="text-[#9494A8] font-medium mb-2">📊 How this score was calculated</p>
+                          <p className="text-[#B0B0C0] font-medium mb-2">📊 How this score was calculated</p>
                           <div className="grid grid-cols-2 gap-2">
                             {[
                               {
@@ -472,14 +472,14 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
                                   : listing.ttm_revenue ? `Earned $${Math.round(listing.ttm_revenue / 1000)}k last 12 months. No market comparison available.` : 'Revenue data unavailable.',
                               },
                             ].map(item => (
-                              <div key={item.label} className="bg-[#0A0A0F] rounded p-2.5">
+                              <div key={item.label} className="bg-[#08090E] rounded p-2.5">
                                 <div className="flex items-center justify-between mb-1">
-                                  <span className="text-[#9494A8] font-medium">{item.label}</span>
+                                  <span className="text-[#B0B0C0] font-medium">{item.label}</span>
                                   {item.value !== null && item.value !== undefined && (
                                     <span className={`font-mono font-bold text-sm ${item.value >= 65 ? 'text-green-400' : item.value >= 40 ? 'text-yellow-400' : 'text-red-400'}`}>{item.value}</span>
                                   )}
                                 </div>
-                                <p className="text-[#9494A8] leading-relaxed">{item.desc}</p>
+                                <p className="text-[#B0B0C0] leading-relaxed">{item.desc}</p>
                               </div>
                             ))}
                           </div>
@@ -489,20 +489,20 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
                         {(listing.opportunity_notes || listing.outreach_angle) ? (
                           <div className="space-y-2">
                             {listing.opportunity_notes && (
-                              <div className="bg-[#0A0A0F] rounded p-2.5">
+                              <div className="bg-[#08090E] rounded p-2.5">
                                 <p className="text-[#6366F1] font-medium mb-1">💡 Primary Opportunity</p>
-                                <p className="text-[#F0F0F5] leading-relaxed break-words whitespace-normal">{listing.opportunity_notes}</p>
+                                <p className="text-[#EEEEF4] leading-relaxed break-words whitespace-normal">{listing.opportunity_notes}</p>
                               </div>
                             )}
                             {listing.outreach_angle && (
                               <div className="bg-[#6366F1]/10 border border-[#6366F1]/20 rounded p-2.5">
                                 <p className="text-[#6366F1] font-medium mb-1">✉️ Suggested Outreach</p>
-                                <p className="text-[#F0F0F5] leading-relaxed italic break-words whitespace-normal">&ldquo;{listing.outreach_angle}&rdquo;</p>
+                                <p className="text-[#EEEEF4] leading-relaxed italic break-words whitespace-normal">&ldquo;{listing.outreach_angle}&rdquo;</p>
                               </div>
                             )}
                           </div>
                         ) : (
-                          <p className="text-[#5C5C72] text-center italic py-1">AI analysis available for listings with score ≥ 40 when OpenAI is configured.</p>
+                          <p className="text-[#7A7A90] text-center italic py-1">AI analysis available for listings with score ≥ 40 when OpenAI is configured.</p>
                         )}
                       </div>
                     )}

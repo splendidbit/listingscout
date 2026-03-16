@@ -159,11 +159,12 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
       return (
         <button
           onClick={e => { e.stopPropagation(); toggleExpand(row.original.id) }}
-          className={`flex items-center justify-center w-7 h-7 rounded-md transition-colors ${
+          className={cn(
+            'flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-150',
             isExpanded
-              ? 'bg-[#6366F1]/15 text-[#818CF8]'
-              : 'bg-[#1A1A26] text-[#9494A8] hover:bg-[#2A2A3C] hover:text-[#F0F0F5]'
-          }`}
+              ? 'bg-[#6366F1]/20 text-[#818CF8] ring-1 ring-[#6366F1]/30'
+              : 'bg-[#161822] text-[#B0B0C0] hover:bg-[#252840] hover:text-[#EEEEF4]'
+          )}
           aria-label={isExpanded ? 'Collapse row' : 'Expand row'}
           aria-expanded={isExpanded}
         >
@@ -171,7 +172,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
         </button>
       )
     },
-    size: 40,
+    size: 48,
   }
 
   const columns: ColumnDef<ListingRow>[] = [
@@ -199,8 +200,8 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
         const badge = priority ? PRIORITY_BADGE[priority] : null
 
         return (
-          <div className="flex flex-col items-start gap-1">
-            <div className="flex items-center gap-1.5">
+          <div className="flex flex-col items-start gap-1.5">
+            <div className="flex items-center gap-2">
               {opp !== null && opp !== undefined ? (
                 <span className={cn(
                   'font-mono font-bold text-sm',
@@ -212,46 +213,46 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
                   {opp}
                 </span>
               ) : (
-                <span className="text-[#5C5C72] text-sm">—</span>
+                <span className="text-[#7A7A90] text-sm">—</span>
               )}
               {badge && (
-                <span className={cn('text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded border', badge.className)}>
+                <span className={cn('text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded border', badge.className)}>
                   {badge.label}
                 </span>
               )}
             </div>
             {upside && (
-              <span className="text-[10px] text-emerald-400 font-mono">
+              <span className="text-xs text-emerald-400 font-mono">
                 +${upside.toLocaleString()}
               </span>
             )}
           </div>
         )
       },
-      size: 120,
+      size: 130,
     },
     {
       accessorKey: 'listing_title',
       header: 'Title',
       cell: ({ row }) => (
-        <div className="max-w-[250px]">
-          <p className="font-medium text-[#F0F0F5] truncate">
+        <div className="max-w-[280px]">
+          <p className="font-medium text-[#EEEEF4] truncate text-[13px] leading-snug">
             {row.original.listing_title}
           </p>
-          <div className="flex items-center gap-1 text-xs text-[#9494A8]">
-            <MapPin className="h-3 w-3" />
+          <div className="flex items-center gap-1.5 mt-1 text-xs text-[#B0B0C0]">
+            <MapPin className="h-3 w-3 text-[#7A7A90]" />
             {row.original.city}, {row.original.state}
           </div>
         </div>
       ),
-      size: 280,
+      size: 300,
     },
     {
       id: 'location',
       accessorFn: (row) => `${row.city}, ${row.state}`,
       header: 'Location',
       cell: ({ row }) => (
-        <span className="text-[#9494A8]">
+        <span className="text-[#B0B0C0]">
           {row.original.city}, {row.original.state}
         </span>
       ),
@@ -261,7 +262,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
       accessorKey: 'nightly_rate',
       header: 'Rate',
       cell: ({ row }) => (
-        <span className="font-mono text-[#F0F0F5]">
+        <span className="font-mono font-semibold text-[#EEEEF4]">
           {row.original.nightly_rate
             ? `$${row.original.nightly_rate.toFixed(0)}`
             : '—'}
@@ -273,20 +274,20 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
       accessorKey: 'avg_rating',
       header: 'Rating',
       cell: ({ row }) => (
-        <div className="flex items-center gap-1">
-          <Star className="h-3 w-3 text-[#F59E0B]" />
-          <span className="font-mono text-[#F0F0F5]">
+        <div className="flex items-center gap-1.5">
+          <Star className="h-3.5 w-3.5 text-[#F59E0B] fill-[#F59E0B]" />
+          <span className="font-mono font-semibold text-[#EEEEF4]">
             {row.original.avg_rating?.toFixed(1) || '—'}
           </span>
         </div>
       ),
-      size: 80,
+      size: 90,
     },
     {
       accessorKey: 'total_reviews',
       header: 'Reviews',
       cell: ({ row }) => (
-        <span className="font-mono text-[#9494A8]">
+        <span className="font-mono text-[#B0B0C0]">
           {row.original.total_reviews}
         </span>
       ),
@@ -296,28 +297,28 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
       id: 'specs',
       header: 'Specs',
       cell: ({ row }) => (
-        <span className="text-xs text-[#9494A8]">
-          {row.original.bedrooms}BR • {row.original.bathrooms}BA • {row.original.max_guests}G
+        <span className="text-sm text-[#B0B0C0]">
+          {row.original.bedrooms}BR · {row.original.bathrooms}BA · {row.original.max_guests}G
         </span>
       ),
-      size: 100,
+      size: 120,
     },
     {
       accessorKey: 'host_name',
       header: 'Host',
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <span className="text-[#F0F0F5] truncate max-w-[120px]">
+          <span className="text-[#EEEEF4] truncate max-w-[120px]">
             {row.original.host_name || '—'}
           </span>
           {row.original.superhost && (
-            <Badge variant="secondary" className="bg-[#F59E0B]/10 text-[#F59E0B] text-[10px] px-1">
+            <Badge variant="secondary" className="bg-[#F59E0B]/15 text-[#F59E0B] text-[10px] px-1.5 border border-[#F59E0B]/25">
               SH
             </Badge>
           )}
         </div>
       ),
-      size: 150,
+      size: 160,
     },
     {
       id: 'actions',
@@ -326,13 +327,14 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
           href={row.original.listing_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="p-1 text-[#5C5C72] hover:text-[#6366F1] transition-colors"
+          className="flex items-center justify-center w-8 h-8 rounded-lg text-[#7A7A90] hover:text-[#818CF8] hover:bg-[#6366F1]/10 transition-colors"
           onClick={(e) => e.stopPropagation()}
+          aria-label="Open listing"
         >
           <ExternalLink className="h-4 w-4" />
         </a>
       ),
-      size: 40,
+      size: 48,
     },
   ]
 
@@ -364,31 +366,31 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
     <div className="space-y-4">
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#5C5C72]" />
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#7A7A90]" />
           <Input
             placeholder="Search listings..."
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
-            className="pl-9 bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5]"
+            className="pl-10 h-10 bg-[#161822] border-[#2A2D42] text-[#EEEEF4] placeholder:text-[#7A7A90] focus:border-[#6366F1]/50 focus:ring-[#6366F1]/20"
           />
         </div>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="border-[#2A2D42] text-[#B0B0C0] hover:bg-[#1D2030] hover:text-[#EEEEF4]">
               <SlidersHorizontal className="h-4 w-4 mr-2" />
               Columns
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="bg-[#161822] border-[#2A2D42]">
             {table
               .getAllColumns()
               .filter((column) => column.getCanHide())
               .map((column) => (
                 <DropdownMenuCheckboxItem
                   key={column.id}
-                  className="capitalize"
+                  className="capitalize text-[#EEEEF4]"
                   checked={column.getIsVisible()}
                   onCheckedChange={(value) => column.toggleVisibility(!!value)}
                 >
@@ -400,15 +402,15 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border border-[#2A2A3C] overflow-hidden">
+      <div className="rounded-xl border border-[#2A2D42] overflow-hidden">
         <Table>
-          <TableHeader className="bg-[#1A1A26]">
+          <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="border-[#2A2A3C] hover:bg-[#1A1A26]">
+              <TableRow key={headerGroup.id} className="border-[#2A2D42] bg-[#0F1117] hover:bg-[#0F1117]">
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="text-[#9494A8] font-medium"
+                    className="text-xs font-semibold text-[#B0B0C0] uppercase tracking-wider py-3.5"
                     style={{ width: header.getSize() }}
                   >
                     {header.isPlaceholder
@@ -421,20 +423,23 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+              table.getRowModel().rows.map((row, idx) => (
                 <React.Fragment key={row.id}>
                   <TableRow
-                    className="border-[#2A2A3C] hover:bg-[#1A1A26] cursor-pointer"
+                    className={cn(
+                      'border-[#1F2235] hover:bg-[#1D2030] cursor-pointer transition-colors',
+                      idx % 2 === 1 && 'bg-[#0C0D14]'
+                    )}
                     onClick={() => onRowClick?.(row.original)}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="py-3">
+                      <TableCell key={cell.id} className="py-3.5">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
                   </TableRow>
                   {expandedRows.has(row.original.id) && (
-                    <TableRow className="border-[#2A2A3C] bg-[#0A0A0F]">
+                    <TableRow className="border-[#2A2D42]">
                       <TableCell colSpan={columns.length} className="p-0">
                         <ListingDetailPanel listing={row.original} />
                       </TableCell>
@@ -444,7 +449,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center text-[#9494A8]">
+                <TableCell colSpan={columns.length} className="h-24 text-center text-[#7A7A90]">
                   No listings found.
                 </TableCell>
               </TableRow>
@@ -455,21 +460,22 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
 
       {/* Pagination */}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-[#9494A8]">
-          Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to{' '}
-          {Math.min(
-            (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
-            data.length
-          )}{' '}
-          of {data.length} listings
+        <p className="text-sm text-[#B0B0C0]">
+          {data.length > 0
+            ? `Showing ${table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to ${Math.min(
+                (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
+                data.length
+              )} of ${data.length} listings`
+            : 'No listings'}
         </p>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <Button
             variant="outline"
             size="sm"
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
+            className="border-[#2A2D42] text-[#B0B0C0] hover:bg-[#1D2030] disabled:opacity-30"
           >
             <ChevronsLeft className="h-4 w-4" />
           </Button>
@@ -478,10 +484,11 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
+            className="border-[#2A2D42] text-[#B0B0C0] hover:bg-[#1D2030] disabled:opacity-30"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="text-sm text-[#9494A8]">
+          <span className="text-sm text-[#B0B0C0] px-3 tabular-nums">
             Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
           </span>
           <Button
@@ -489,6 +496,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
+            className="border-[#2A2D42] text-[#B0B0C0] hover:bg-[#1D2030] disabled:opacity-30"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -497,6 +505,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
             size="sm"
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}
+            className="border-[#2A2D42] text-[#B0B0C0] hover:bg-[#1D2030] disabled:opacity-30"
           >
             <ChevronsRight className="h-4 w-4" />
           </Button>
@@ -528,17 +537,16 @@ function ListingDetailPanel({ listing }: { listing: ListingRow }) {
   const pricingGap = listing.market_avg_price && listing.ttm_avg_rate
     ? Math.round(listing.market_avg_price - listing.ttm_avg_rate)
     : null
-  const hasNewScoring = listing.opportunity_score !== null && listing.opportunity_score !== undefined
   const oppScore = listing.opportunity_score ?? listing.lead_score ?? 0
   const priority = listing.lead_priority_rank
   const priorityBadge = priority ? PRIORITY_BADGE[priority] : null
 
   return (
-    <div className="px-4 py-4 space-y-4 text-xs border-t border-[#2A2A3C] overflow-hidden">
+    <div className="px-6 py-5 space-y-5 text-sm bg-[#0B0C12] border-t border-[#2A2D42]">
       {/* Header */}
       <div className="flex items-center gap-3 flex-wrap">
         <span className={cn(
-          'font-mono font-bold text-base px-2 py-0.5 rounded',
+          'font-mono font-bold text-lg px-2.5 py-1 rounded-lg',
           oppScore >= 70 ? 'bg-red-500/10 text-red-400' :
           oppScore >= 50 ? 'bg-orange-500/10 text-orange-400' :
           oppScore >= 30 ? 'bg-yellow-500/10 text-yellow-400' :
@@ -547,33 +555,33 @@ function ListingDetailPanel({ listing }: { listing: ListingRow }) {
           {oppScore}
         </span>
         {priorityBadge && (
-          <span className={cn('text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded border', priorityBadge.className)}>
+          <span className={cn('text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded border', priorityBadge.className)}>
             {priorityBadge.label}
           </span>
         )}
-        <span className="text-[#F0F0F5] font-medium">{bucket.emoji} {bucket.label}</span>
-        <span className="text-[#9494A8]">
+        <span className="text-[#EEEEF4] font-medium">{bucket.emoji} {bucket.label}</span>
+        <span className="text-[#B0B0C0]">
           {HOST_TYPE_LABELS[listing.host_type ?? 'independent'] ?? listing.host_type}
           {listing.host_listing_count ? ` · ${listing.host_listing_count} listing${listing.host_listing_count > 1 ? 's' : ''}` : ''}
         </span>
-        {pricingGap && pricingGap > 5 && <span className="text-orange-400">↑ ${pricingGap} below market</span>}
+        {pricingGap && pricingGap > 5 && <span className="text-orange-400 font-medium">↑ ${pricingGap} below market</span>}
         {listing.estimated_revenue_upside && (
-          <span className="text-emerald-400 font-mono">+${listing.estimated_revenue_upside.toLocaleString()} upside</span>
+          <span className="text-emerald-400 font-mono font-semibold">+${listing.estimated_revenue_upside.toLocaleString()} upside</span>
         )}
       </div>
 
       {/* Outreach reason callout */}
       {listing.recommended_outreach_reason && (
-        <div className="bg-[#6366F1]/10 border border-[#6366F1]/20 rounded p-2.5">
-          <p className="text-[#6366F1] font-medium mb-0.5">📡 Outreach Signal</p>
-          <p className="text-[#F0F0F5] leading-relaxed">{listing.recommended_outreach_reason}</p>
+        <div className="bg-[#6366F1]/8 border border-[#6366F1]/25 rounded-lg p-4">
+          <p className="text-[#818CF8] font-semibold text-xs uppercase tracking-wider mb-1.5">Outreach Signal</p>
+          <p className="text-[#EEEEF4] leading-relaxed">{listing.recommended_outreach_reason}</p>
         </div>
       )}
 
       {/* Score breakdown */}
       <div>
-        <p className="text-[#9494A8] font-medium mb-2">📊 How this score was calculated</p>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+        <p className="text-[#B0B0C0] font-semibold text-xs uppercase tracking-wider mb-3">Score Breakdown</p>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {[
             {
               label: 'Occupancy Gap',
@@ -624,17 +632,17 @@ function ListingDetailPanel({ listing }: { listing: ListingRow }) {
                 : `${listing.host_listing_count ?? '?'} listings.`,
             },
           ].map(item => (
-            <div key={item.label} className="bg-[#12121A] rounded p-2.5 border border-[#2A2A3C]">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[#9494A8] font-medium">{item.label}</span>
+            <div key={item.label} className="bg-[#0F1117] rounded-lg p-3.5 border border-[#1F2235]">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[#B0B0C0] font-medium text-xs">{item.label}</span>
                 {item.value !== null && item.value !== undefined && (
                   <span className={cn(
-                    'font-mono font-bold',
+                    'font-mono font-bold text-sm',
                     (item.value as number) >= 65 ? 'text-red-400' : (item.value as number) >= 40 ? 'text-orange-400' : 'text-green-400'
                   )}>{item.value}</span>
                 )}
               </div>
-              <p className="text-[#9494A8] leading-relaxed">{item.desc}</p>
+              <p className="text-[#7A7A90] leading-relaxed text-xs">{item.desc}</p>
             </div>
           ))}
         </div>
@@ -642,9 +650,9 @@ function ListingDetailPanel({ listing }: { listing: ListingRow }) {
 
       {/* Revenue upside estimate */}
       {(listing.estimated_revenue_upside || listing.estimated_upside_pct) && (
-        <div className="bg-emerald-500/5 border border-emerald-500/20 rounded p-2.5">
-          <p className="text-emerald-400 font-medium mb-0.5">💰 Revenue Upside Estimate</p>
-          <p className="text-[#F0F0F5] leading-relaxed">
+        <div className="bg-emerald-500/8 border border-emerald-500/25 rounded-lg p-4">
+          <p className="text-emerald-400 font-semibold text-xs uppercase tracking-wider mb-1.5">Revenue Upside Estimate</p>
+          <p className="text-[#EEEEF4] leading-relaxed">
             {listing.estimated_revenue_upside && `$${listing.estimated_revenue_upside.toLocaleString()} estimated annual upside`}
             {listing.estimated_upside_pct && ` (${Math.round(listing.estimated_upside_pct * 100)}% improvement potential)`}
           </p>
@@ -653,22 +661,22 @@ function ListingDetailPanel({ listing }: { listing: ListingRow }) {
 
       {/* AI analysis */}
       {(listing.opportunity_notes || listing.outreach_angle) ? (
-        <div className="grid grid-cols-1 gap-2 min-w-0">
+        <div className="grid grid-cols-1 gap-3 min-w-0">
           {listing.opportunity_notes && (
-            <div className="bg-[#12121A] border border-[#2A2A3C] rounded p-2.5">
-              <p className="text-[#6366F1] font-medium mb-1">💡 Primary Opportunity</p>
-              <p className="text-[#F0F0F5] leading-relaxed break-words whitespace-normal">{listing.opportunity_notes}</p>
+            <div className="bg-[#0F1117] border border-[#1F2235] rounded-lg p-4">
+              <p className="text-[#818CF8] font-semibold text-xs uppercase tracking-wider mb-2">Primary Opportunity</p>
+              <p className="text-[#EEEEF4] leading-relaxed break-words whitespace-normal">{listing.opportunity_notes}</p>
             </div>
           )}
           {listing.outreach_angle && (
-            <div className="bg-[#6366F1]/10 border border-[#6366F1]/20 rounded p-2.5">
-              <p className="text-[#6366F1] font-medium mb-1">✉️ Suggested Outreach</p>
-              <p className="text-[#F0F0F5] leading-relaxed italic break-words whitespace-normal">&ldquo;{listing.outreach_angle}&rdquo;</p>
+            <div className="bg-[#6366F1]/8 border border-[#6366F1]/25 rounded-lg p-4">
+              <p className="text-[#818CF8] font-semibold text-xs uppercase tracking-wider mb-2">Suggested Outreach</p>
+              <p className="text-[#EEEEF4] leading-relaxed italic break-words whitespace-normal">&ldquo;{listing.outreach_angle}&rdquo;</p>
             </div>
           )}
         </div>
       ) : (
-        <p className="text-[#5C5C72] italic">No AI analysis yet. Run &quot;Re-score All&quot; to generate insights.</p>
+        <p className="text-[#7A7A90] italic">No AI analysis yet. Run &quot;Re-score All&quot; to generate insights.</p>
       )}
     </div>
   )

@@ -37,12 +37,12 @@ export default function ForgotPasswordPage() {
 
   if (sent) {
     return (
-      <Card className="border-[#2A2A3C] bg-[#12121A]">
+      <Card className="border-[#2A2D42] bg-[#0F1117]">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-[#F0F0F5]">
+          <CardTitle className="text-2xl font-bold text-[#EEEEF4]">
             Check your email
           </CardTitle>
-          <CardDescription className="text-[#9494A8]">
+          <CardDescription className="text-[#B0B0C0]">
             We&apos;ve sent a password reset link to {email}
           </CardDescription>
         </CardHeader>
@@ -60,19 +60,19 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <Card className="border-[#2A2A3C] bg-[#12121A]">
+    <Card className="border-[#2A2D42] bg-[#0F1117]">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-[#F0F0F5]">
+        <CardTitle className="text-2xl font-bold text-[#EEEEF4]">
           Reset password
         </CardTitle>
-        <CardDescription className="text-[#9494A8]">
+        <CardDescription className="text-[#B0B0C0]">
           Enter your email and we&apos;ll send you a reset link
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleReset} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-[#F0F0F5]">
+            <Label htmlFor="email" className="text-[#EEEEF4]">
               Email
             </Label>
             <Input
@@ -82,7 +82,7 @@ export default function ForgotPasswordPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5] placeholder:text-[#5C5C72]"
+              className="bg-[#161822] border-[#2A2D42] text-[#EEEEF4] placeholder:text-[#7A7A90]"
             />
           </div>
           <Button

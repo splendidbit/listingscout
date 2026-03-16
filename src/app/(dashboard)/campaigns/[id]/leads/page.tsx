@@ -72,8 +72,8 @@ export default async function CampaignLeadsPage({ params }: LeadsPageProps) {
               <Star className="h-6 w-6 text-[#22C55E]" />
             </div>
             <div>
-              <p className="text-lg font-bold text-[#F0F0F5]">{listingData.length} Strong Leads</p>
-              <p className="text-sm text-[#9494A8]">
+              <p className="text-lg font-bold text-[#EEEEF4]">{listingData.length} Strong Leads</p>
+              <p className="text-sm text-[#B0B0C0]">
                 These listings scored 70+ and match your criteria well
               </p>
             </div>
@@ -83,13 +83,13 @@ export default async function CampaignLeadsPage({ params }: LeadsPageProps) {
         {listingData.length > 0 ? (
           <ListingsTable data={listingData} />
         ) : (
-          <Card className="bg-[#12121A] border-[#2A2A3C]">
+          <Card className="bg-[#0F1117] border-[#2A2D42]">
             <CardContent className="flex flex-col items-center justify-center py-12">
-              <Star className="h-12 w-12 text-[#5C5C72] mb-4" />
-              <h3 className="text-lg font-medium text-[#F0F0F5] mb-2">
+              <Star className="h-12 w-12 text-[#7A7A90] mb-4" />
+              <h3 className="text-lg font-medium text-[#EEEEF4] mb-2">
                 No strong leads yet
               </h3>
-              <p className="text-sm text-[#9494A8] text-center max-w-md">
+              <p className="text-sm text-[#B0B0C0] text-center max-w-md">
                 Score your listings to identify strong leads. Strong leads are listings
                 that score 70 or above based on your criteria.
               </p>

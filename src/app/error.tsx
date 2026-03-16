@@ -12,32 +12,31 @@ interface ErrorProps {
 
 export default function Error({ error, reset }: ErrorProps) {
   useEffect(() => {
-    // Log the error to an error reporting service
     console.error('Application error:', error)
   }, [error])
 
   return (
-    <div className="min-h-screen bg-[#0A0A0F] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#08090E] flex items-center justify-center p-4">
       <div className="max-w-md w-full text-center">
         <div className="w-16 h-16 rounded-full bg-[#EF4444]/10 flex items-center justify-center mx-auto mb-6">
           <AlertTriangle className="h-8 w-8 text-[#EF4444]" />
         </div>
-        
-        <h1 className="text-2xl font-bold text-[#F0F0F5] mb-2">
+
+        <h1 className="text-2xl font-bold text-[#EEEEF4] mb-2">
           Something went wrong
         </h1>
-        
-        <p className="text-[#9494A8] mb-6">
+
+        <p className="text-[#B0B0C0] mb-6">
           An unexpected error occurred. This has been logged and we&apos;ll look into it.
         </p>
 
         {process.env.NODE_ENV === 'development' && (
-          <div className="bg-[#12121A] border border-[#2A2A3C] rounded-lg p-4 mb-6 text-left">
+          <div className="bg-[#0F1117] border border-[#2A2D42] rounded-lg p-4 mb-6 text-left">
             <p className="text-xs font-mono text-[#EF4444] break-all">
               {error.message}
             </p>
             {error.digest && (
-              <p className="text-xs font-mono text-[#5C5C72] mt-2">
+              <p className="text-xs font-mono text-[#7A7A90] mt-2">
                 Digest: {error.digest}
               </p>
             )}
@@ -48,7 +47,7 @@ export default function Error({ error, reset }: ErrorProps) {
           <Button
             onClick={reset}
             variant="outline"
-            className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5] hover:bg-[#2A2A3C]"
+            className="bg-[#161822] border-[#2A2D42] text-[#EEEEF4] hover:bg-[#1D2030]"
           >
             <RefreshCw className="h-4 w-4 mr-2" />
             Try Again
@@ -61,7 +60,7 @@ export default function Error({ error, reset }: ErrorProps) {
           </Button>
         </div>
 
-        <p className="text-xs text-[#5C5C72] mt-8">
+        <p className="text-xs text-[#7A7A90] mt-8">
           If this keeps happening, please contact support.
         </p>
       </div>

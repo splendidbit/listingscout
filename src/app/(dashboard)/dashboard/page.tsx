@@ -60,17 +60,17 @@ export default async function DashboardPage() {
           {stats.map((stat) => (
             <Card
               key={stat.name}
-              className="bg-[#12121A] border-[#2A2A3C] hover:border-[#3A3A52] transition-colors"
+              className="bg-[#0F1117] border-[#2A2D42] hover:border-[#3A3D58] transition-colors"
             >
               <CardContent className="p-6">
-                <div className={`p-2 rounded-lg bg-[#1A1A26] w-fit ${stat.color || 'text-[#6366F1]'}`}>
+                <div className={`p-2 rounded-lg bg-[#161822] w-fit ${stat.color || 'text-[#6366F1]'}`}>
                   <stat.icon className="h-5 w-5" />
                 </div>
                 <div className="mt-4">
-                  <p className="text-3xl font-bold text-[#F0F0F5] font-mono">
+                  <p className="text-3xl font-bold text-[#EEEEF4] font-mono">
                     {stat.value}
                   </p>
-                  <p className="text-sm text-[#9494A8] mt-1">{stat.name}</p>
+                  <p className="text-sm text-[#B0B0C0] mt-1">{stat.name}</p>
                 </div>
               </CardContent>
             </Card>
@@ -80,7 +80,7 @@ export default async function DashboardPage() {
         {/* Campaigns Grid */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-[#F0F0F5]">
+            <h2 className="text-lg font-semibold text-[#EEEEF4]">
               Active Campaigns
             </h2>
             <Link
@@ -95,10 +95,10 @@ export default async function DashboardPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {campaignList.map((campaign) => (
                 <Link key={campaign.id} href={`/campaigns/${campaign.id}`}>
-                  <Card className="bg-[#12121A] border-[#2A2A3C] hover:border-[#3A3A52] transition-colors cursor-pointer h-full">
+                  <Card className="bg-[#0F1117] border-[#2A2D42] hover:border-[#3A3D58] transition-colors cursor-pointer h-full">
                     <CardHeader className="pb-2">
                       <div className="flex items-center justify-between">
-                        <CardTitle className="text-base font-medium text-[#F0F0F5]">
+                        <CardTitle className="text-base font-medium text-[#EEEEF4]">
                           {campaign.name}
                         </CardTitle>
                         <Badge
@@ -111,14 +111,14 @@ export default async function DashboardPage() {
                     </CardHeader>
                     <CardContent>
                       {campaign.description && (
-                        <p className="text-sm text-[#9494A8] mb-4 line-clamp-2">
+                        <p className="text-sm text-[#B0B0C0] mb-4 line-clamp-2">
                           {campaign.description}
                         </p>
                       )}
                       <div className="flex items-center justify-between text-sm">
                         <div className="flex items-center space-x-4">
-                          <span className="text-[#9494A8]">
-                            <span className="font-mono text-[#F0F0F5]">
+                          <span className="text-[#B0B0C0]">
+                            <span className="font-mono text-[#EEEEF4]">
                               {campaign.total_listings || 0}
                             </span>{' '}
                             listings
@@ -132,7 +132,7 @@ export default async function DashboardPage() {
                         </div>
                       </div>
                       {/* Mini progress bar */}
-                      <div className="mt-3 h-1.5 bg-[#1A1A26] rounded-full overflow-hidden">
+                      <div className="mt-3 h-1.5 bg-[#161822] rounded-full overflow-hidden">
                         <div className="h-full flex">
                           <div
                             className="bg-[#22C55E]"
@@ -160,13 +160,13 @@ export default async function DashboardPage() {
               ))}
             </div>
           ) : (
-            <Card className="bg-[#12121A] border-[#2A2A3C]">
+            <Card className="bg-[#0F1117] border-[#2A2D42]">
               <CardContent className="flex flex-col items-center justify-center py-12">
-                <FolderKanban className="h-12 w-12 text-[#5C5C72] mb-4" />
-                <h3 className="text-lg font-medium text-[#F0F0F5] mb-2">
+                <FolderKanban className="h-12 w-12 text-[#7A7A90] mb-4" />
+                <h3 className="text-lg font-medium text-[#EEEEF4] mb-2">
                   No campaigns yet
                 </h3>
-                <p className="text-sm text-[#9494A8] mb-4">
+                <p className="text-sm text-[#B0B0C0] mb-4">
                   Create your first campaign to start researching listings
                 </p>
                 <Link

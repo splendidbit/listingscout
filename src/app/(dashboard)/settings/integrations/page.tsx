@@ -58,7 +58,7 @@ export default function IntegrationsSettingsPage() {
 
       <div className="p-6 space-y-6">
         {/* Google Sheets */}
-        <Card className="bg-[#12121A] border-[#2A2A3C]">
+        <Card className="bg-[#0F1117] border-[#2A2D42]">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -69,8 +69,8 @@ export default function IntegrationsSettingsPage() {
                   </svg>
                 </div>
                 <div>
-                  <CardTitle className="text-[#F0F0F5]">Google Sheets</CardTitle>
-                  <CardDescription className="text-[#9494A8]">
+                  <CardTitle className="text-[#EEEEF4]">Google Sheets</CardTitle>
+                  <CardDescription className="text-[#B0B0C0]">
                     Sync listings bidirectionally with Google Sheets
                   </CardDescription>
                 </div>
@@ -81,7 +81,7 @@ export default function IntegrationsSettingsPage() {
                     ? 'bg-[#22C55E]/10 text-[#22C55E]'
                     : sheetsStatus === 'error'
                     ? 'bg-[#EF4444]/10 text-[#EF4444]'
-                    : 'bg-[#5C5C72]/10 text-[#9494A8]'
+                    : 'bg-[#7A7A90]/10 text-[#B0B0C0]'
                 }`}
               >
                 {sheetsStatus === 'connected' && <CheckCircle2 className="h-3 w-3 mr-1" />}
@@ -98,7 +98,7 @@ export default function IntegrationsSettingsPage() {
                   value={googleSheetId}
                   onChange={e => setGoogleSheetId(e.target.value)}
                   placeholder="e.g., 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
-                  className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5]"
+                  className="bg-[#161822] border-[#2A2D42] text-[#EEEEF4]"
                 />
                 <Button
                   variant="outline"
@@ -112,7 +112,7 @@ export default function IntegrationsSettingsPage() {
                   )}
                 </Button>
               </div>
-              <p className="text-xs text-[#9494A8]">
+              <p className="text-xs text-[#B0B0C0]">
                 Find the ID in the spreadsheet URL between /d/ and /edit
               </p>
             </div>
@@ -127,8 +127,8 @@ export default function IntegrationsSettingsPage() {
                 <ExternalLink className="h-3 w-3" />
                 Open Google Sheets
               </a>
-              <span className="text-[#5C5C72]">•</span>
-              <span className="text-xs text-[#9494A8]">
+              <span className="text-[#7A7A90]">•</span>
+              <span className="text-xs text-[#B0B0C0]">
                 Requires Google account authorization
               </span>
             </div>
@@ -136,15 +136,15 @@ export default function IntegrationsSettingsPage() {
         </Card>
 
         {/* AI API Keys */}
-        <Card className="bg-[#12121A] border-[#2A2A3C]">
+        <Card className="bg-[#0F1117] border-[#2A2D42]">
           <CardHeader>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-[#6366F1]/10 flex items-center justify-center">
                 <Key className="h-5 w-5 text-[#6366F1]" />
               </div>
               <div>
-                <CardTitle className="text-[#F0F0F5]">AI Integration</CardTitle>
-                <CardDescription className="text-[#9494A8]">
+                <CardTitle className="text-[#EEEEF4]">AI Integration</CardTitle>
+                <CardDescription className="text-[#B0B0C0]">
                   API keys for AI-powered listing research
                 </CardDescription>
               </div>
@@ -158,9 +158,9 @@ export default function IntegrationsSettingsPage() {
                 value={openaiKey}
                 onChange={e => setOpenaiKey(e.target.value)}
                 placeholder="sk-..."
-                className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5]"
+                className="bg-[#161822] border-[#2A2D42] text-[#EEEEF4]"
               />
-              <p className="text-xs text-[#9494A8]">
+              <p className="text-xs text-[#B0B0C0]">
                 Get your key at{' '}
                 <a 
                   href="https://platform.openai.com/api-keys" 
@@ -180,9 +180,9 @@ export default function IntegrationsSettingsPage() {
                 value={anthropicKey}
                 onChange={e => setAnthropicKey(e.target.value)}
                 placeholder="sk-ant-..."
-                className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5]"
+                className="bg-[#161822] border-[#2A2D42] text-[#EEEEF4]"
               />
-              <p className="text-xs text-[#9494A8]">
+              <p className="text-xs text-[#B0B0C0]">
                 Get your key at{' '}
                 <a 
                   href="https://console.anthropic.com" 
@@ -199,7 +199,7 @@ export default function IntegrationsSettingsPage() {
               Save API Keys
             </Button>
 
-            <p className="text-xs text-[#9494A8] bg-[#1A1A26] p-3 rounded-lg">
+            <p className="text-xs text-[#B0B0C0] bg-[#161822] p-3 rounded-lg">
               ⚠️ API keys are stored locally in your browser. For production use, 
               configure keys in environment variables.
             </p>
@@ -207,15 +207,15 @@ export default function IntegrationsSettingsPage() {
         </Card>
 
         {/* Future Integrations */}
-        <Card className="bg-[#12121A] border-[#2A2A3C] opacity-60">
+        <Card className="bg-[#0F1117] border-[#2A2D42] opacity-60">
           <CardHeader>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#5C5C72]/10 flex items-center justify-center">
-                <Link2 className="h-5 w-5 text-[#5C5C72]" />
+              <div className="w-10 h-10 rounded-lg bg-[#7A7A90]/10 flex items-center justify-center">
+                <Link2 className="h-5 w-5 text-[#7A7A90]" />
               </div>
               <div>
-                <CardTitle className="text-[#9494A8]">More Integrations Coming Soon</CardTitle>
-                <CardDescription className="text-[#5C5C72]">
+                <CardTitle className="text-[#B0B0C0]">More Integrations Coming Soon</CardTitle>
+                <CardDescription className="text-[#7A7A90]">
                   CRM, email automation, and more
                 </CardDescription>
               </div>
@@ -223,10 +223,10 @@ export default function IntegrationsSettingsPage() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              <Badge variant="secondary" className="bg-[#2A2A3C] text-[#5C5C72]">Salesforce</Badge>
-              <Badge variant="secondary" className="bg-[#2A2A3C] text-[#5C5C72]">HubSpot</Badge>
-              <Badge variant="secondary" className="bg-[#2A2A3C] text-[#5C5C72]">Mailchimp</Badge>
-              <Badge variant="secondary" className="bg-[#2A2A3C] text-[#5C5C72]">Zapier</Badge>
+              <Badge variant="secondary" className="bg-[#2A2D42] text-[#7A7A90]">Salesforce</Badge>
+              <Badge variant="secondary" className="bg-[#2A2D42] text-[#7A7A90]">HubSpot</Badge>
+              <Badge variant="secondary" className="bg-[#2A2D42] text-[#7A7A90]">Mailchimp</Badge>
+              <Badge variant="secondary" className="bg-[#2A2D42] text-[#7A7A90]">Zapier</Badge>
             </div>
           </CardContent>
         </Card>

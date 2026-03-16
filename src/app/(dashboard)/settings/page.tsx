@@ -33,14 +33,14 @@ export default function SettingsPage() {
         <div className="grid gap-4">
           {settingsLinks.map((item) => (
             <Link key={item.href} href={item.href}>
-              <Card className="bg-[#12121A] border-[#2A2A3C] hover:border-[#3A3A52] transition-colors cursor-pointer">
+              <Card className="bg-[#0F1117] border-[#2A2D42] hover:border-[#3A3D58] transition-colors cursor-pointer">
                 <CardContent className="flex items-center p-6">
-                  <div className="p-3 rounded-lg bg-[#1A1A26] mr-4">
+                  <div className="p-3 rounded-lg bg-[#161822] mr-4">
                     <item.icon className="h-6 w-6 text-[#6366F1]" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-[#F0F0F5]">{item.title}</h3>
-                    <p className="text-sm text-[#9494A8]">{item.description}</p>
+                    <h3 className="font-medium text-[#EEEEF4]">{item.title}</h3>
+                    <p className="text-sm text-[#B0B0C0]">{item.description}</p>
                   </div>
                 </CardContent>
               </Card>
