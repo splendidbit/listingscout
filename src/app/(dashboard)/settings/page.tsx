@@ -1,5 +1,5 @@
 import { Header } from '@/components/layout/header'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Settings, Palette, Bell, Key } from 'lucide-react'
 import Link from 'next/link'
 

@@ -39,7 +39,7 @@ const navigation = [
 
 const secondaryNavigation = [
   { name: 'Settings', href: '/settings', icon: Settings },
-  { name: 'Help', href: '/help', icon: HelpCircle },
+  { name: 'Help', href: '/settings', icon: HelpCircle },
 ]
 
 interface SidebarProps {

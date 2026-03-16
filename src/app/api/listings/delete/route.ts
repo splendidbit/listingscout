@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
         }).eq('id', cid)
       }
 
-      return NextResponse.json({ deleted: listingIds.length })
+      return NextResponse.json({ deleted: (toDelete ?? []).length })
     }
 
     return NextResponse.json({ error: 'Provide listingIds or deleteAll+campaignId' }, { status: 400 })

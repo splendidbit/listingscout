@@ -4,14 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { FolderKanban } from 'lucide-react'
 import Link from 'next/link'
-
-const statusColors = {
-  draft: 'bg-[#5C5C72]/10 text-[#9494A8]',
-  active: 'bg-[#22C55E]/10 text-[#22C55E]',
-  paused: 'bg-[#F59E0B]/10 text-[#F59E0B]',
-  completed: 'bg-[#3B82F6]/10 text-[#3B82F6]',
-  archived: 'bg-[#5C5C72]/10 text-[#5C5C72]',
-}
+import { STATUS_COLORS } from '@/lib/campaigns/constants'
 
 export default async function CampaignsPage() {
   const supabase = await createClient()
@@ -55,11 +48,7 @@ export default async function CampaignsPage() {
                       </CardTitle>
                       <Badge
                         variant="secondary"
-                        className={
-                          statusColors[
-                            campaign.status as keyof typeof statusColors
-                          ]
-                        }
+                        className={STATUS_COLORS[campaign.status] ?? STATUS_COLORS.draft}
                       >
                         {campaign.status}
                       </Badge>

@@ -30,6 +30,7 @@ export default function ForgotPasswordPage() {
       return
     }
 
+    setLoading(false)
     setSent(true)
     toast.success('Password reset email sent')
   }

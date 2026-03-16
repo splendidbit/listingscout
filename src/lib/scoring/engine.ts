@@ -221,8 +221,7 @@ function calcOccupancyGapScore(listing: ListingData): { score: number; delta: nu
   if (delta < -0.10) return { score: 70, delta }
   if (delta < -0.05) return { score: 50, delta }
   if (delta < 0.05) return { score: 30, delta }
-  if (delta >= 0.05) return { score: 20, delta }
-  return { score: 25, delta }
+  return { score: 20, delta }
 }
 
 // ─── 4. RevPAN Gap Score ────────────────────────────────────────────────────
@@ -253,8 +252,7 @@ function calcRevPANGapScore(listing: ListingData): { score: number; delta: numbe
   if (gapPct > 0.20) return { score: 70, delta }
   if (gapPct > 0.10) return { score: 50, delta }
   if (gapPct > 0) return { score: 30, delta }
-  if (gapPct <= 0) return { score: 10, delta }
-  return { score: 20, delta }
+  return { score: 10, delta }
 }
 
 // ─── 5. Pricing Inefficiency Score ──────────────────────────────────────────

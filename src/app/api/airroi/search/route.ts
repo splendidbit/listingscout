@@ -118,7 +118,7 @@ function mapAirROIToEnriched(
   const rat = listing.ratings ?? {}
   const pm = listing.performance_metrics ?? {}
 
-  const listingId = String(li.listing_id ?? Math.random())
+  const listingId = String(li.listing_id ?? '')
   const listingUrl = li.listing_url ?? `https://www.airbnb.com/rooms/${li.listing_id ?? ''}`
 
   return {
@@ -337,7 +337,6 @@ export async function POST(request: NextRequest) {
     ])
 
     const market = marketSummary.status === 'fulfilled' ? marketSummary.value : null
-    console.log("Market summary:", JSON.stringify(market, null, 2))
 
     // Merge all pages, deduplicate by listing_id
     const seen = new Set<number>()
@@ -354,16 +353,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Post-fetch quality filter: remove listings with fewer than 3 reviews
+    // Post-fetch quality filter: remove listings with fewer than 3 reviews or no listing ID
     rawListings = rawListings.filter(l => {
+      if (!l.listing_info?.listing_id) return false
       const reviews = l.ratings?.num_reviews ?? l.ratings?.review_count ?? 0
       return reviews >= 3
     })
-
-    console.log(`AirROI returned ${rawListings.length} raw listings (${pages} pages)`)
-    if (rawListings.length > 0) {
-      console.log('First listing keys:', Object.keys(rawListings[0]))
-    }
 
     // Map nested AirROI response → flat EnrichedListing
     let listings = rawListings.map((l: AirROIListing) => mapAirROIToEnriched(l, market))
@@ -424,7 +419,6 @@ export async function POST(request: NextRequest) {
 
     // AI analysis — run on ALL listings (key is set)
     if (process.env.OPENAI_API_KEY) {
-      console.log(`Running AI analysis on ${listings.length} listings`)
       const marketData = {
         average_daily_rate: market?.average_daily_rate ?? null,
         occupancy: market?.occupancy ?? null,

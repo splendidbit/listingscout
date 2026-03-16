@@ -2,15 +2,11 @@ import { createClient } from '@/lib/supabase/server'
 import { Header } from '@/components/layout/header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Home, Target, Users, FolderKanban, TrendingUp, TrendingDown } from 'lucide-react'
+import { Home, Target, Users, FolderKanban } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
 
   // Fetch campaigns
   const { data: campaigns } = await supabase
@@ -44,35 +40,10 @@ export default async function DashboardPage() {
   const activeCampaigns = campaignList?.length || 0
 
   const stats = [
-    {
-      name: 'Total Listings',
-      value: totalListings.toLocaleString(),
-      icon: Home,
-      change: '+12%',
-      trend: 'up',
-    },
-    {
-      name: 'Strong Leads',
-      value: strongLeads.toLocaleString(),
-      icon: Target,
-      change: '+8%',
-      trend: 'up',
-      color: 'text-[#22C55E]',
-    },
-    {
-      name: 'Owners Found',
-      value: ownersFound.toLocaleString(),
-      icon: Users,
-      change: `${totalListings > 0 ? Math.round((ownersFound / totalListings) * 100) : 0}%`,
-      trend: 'neutral',
-    },
-    {
-      name: 'Active Campaigns',
-      value: activeCampaigns.toString(),
-      icon: FolderKanban,
-      change: '',
-      trend: 'neutral',
-    },
+    { name: 'Total Listings', value: totalListings.toLocaleString(), icon: Home },
+    { name: 'Strong Leads', value: strongLeads.toLocaleString(), icon: Target, color: 'text-[#22C55E]' },
+    { name: 'Owners Found', value: ownersFound.toLocaleString(), icon: Users },
+    { name: 'Active Campaigns', value: activeCampaigns.toString(), icon: FolderKanban },
   ]
 
   return (
@@ -92,31 +63,8 @@ export default async function DashboardPage() {
               className="bg-[#12121A] border-[#2A2A3C] hover:border-[#3A3A52] transition-colors"
             >
               <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div
-                    className={`p-2 rounded-lg bg-[#1A1A26] ${stat.color || 'text-[#6366F1]'}`}
-                  >
-                    <stat.icon className="h-5 w-5" />
-                  </div>
-                  {stat.change && (
-                    <div
-                      className={`flex items-center text-sm ${
-                        stat.trend === 'up'
-                          ? 'text-[#22C55E]'
-                          : stat.trend === 'down'
-                            ? 'text-[#EF4444]'
-                            : 'text-[#9494A8]'
-                      }`}
-                    >
-                      {stat.trend === 'up' && (
-                        <TrendingUp className="h-4 w-4 mr-1" />
-                      )}
-                      {stat.trend === 'down' && (
-                        <TrendingDown className="h-4 w-4 mr-1" />
-                      )}
-                      {stat.change}
-                    </div>
-                  )}
+                <div className={`p-2 rounded-lg bg-[#1A1A26] w-fit ${stat.color || 'text-[#6366F1]'}`}>
+                  <stat.icon className="h-5 w-5" />
                 </div>
                 <div className="mt-4">
                   <p className="text-3xl font-bold text-[#F0F0F5] font-mono">

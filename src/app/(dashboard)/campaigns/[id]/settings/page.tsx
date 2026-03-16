@@ -73,7 +73,6 @@ export default function CampaignSettingsPage() {
   // Input states for adding items
   const [marketInput, setMarketInput] = useState('')
   const [neighborhoodInput, setNeighborhoodInput] = useState('')
-  const [excludeInput, setExcludeInput] = useState('')
 
   useEffect(() => {
     async function loadCampaign() {

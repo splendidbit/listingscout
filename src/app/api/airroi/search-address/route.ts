@@ -20,7 +20,7 @@ function mapToEnriched(listing: AirROIListing, market: MarketSummaryResponse | n
   const pm = listing.performance_metrics ?? {}
 
   const base = {
-    listing_id: String(li.listing_id ?? Math.random()),
+    listing_id: String(li.listing_id ?? ''),
     listing_url: li.listing_url ?? `https://www.airbnb.com/rooms/${li.listing_id ?? ''}`,
     listing_title: li.listing_name ?? 'Untitled Listing',
     collection_source: 'airroi' as const,

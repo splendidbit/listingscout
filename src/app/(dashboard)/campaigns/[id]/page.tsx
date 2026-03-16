@@ -2,8 +2,6 @@ import { createClient } from '@/lib/supabase/server'
 import { Header } from '@/components/layout/header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { 
   Home, 
   Star, 
@@ -19,20 +17,13 @@ import { notFound } from 'next/navigation'
 import { CampaignCriteria } from '@/lib/types/criteria'
 import { Database } from '@/types/database'
 import { CampaignActions } from '@/components/campaigns/campaign-actions'
+import { STATUS_COLORS, LEAD_TIER_COLORS } from '@/lib/campaigns/constants'
 
 type CampaignDbRow = Database['public']['Tables']['campaigns']['Row']
 type ListingDbRow = Database['public']['Tables']['listings']['Row']
 
 interface CampaignPageProps {
   params: Promise<{ id: string }>
-}
-
-const statusColors = {
-  draft: 'bg-[#5C5C72]/10 text-[#9494A8]',
-  active: 'bg-[#22C55E]/10 text-[#22C55E]',
-  paused: 'bg-[#F59E0B]/10 text-[#F59E0B]',
-  completed: 'bg-[#3B82F6]/10 text-[#3B82F6]',
-  archived: 'bg-[#5C5C72]/10 text-[#5C5C72]',
 }
 
 export default async function CampaignDetailPage({ params }: CampaignPageProps) {
@@ -112,7 +103,7 @@ export default async function CampaignDetailPage({ params }: CampaignPageProps) 
         <div className="flex items-center justify-between">
           <Badge
             variant="secondary"
-            className={statusColors[campaign.status as keyof typeof statusColors]}
+            className={STATUS_COLORS[campaign.status] ?? STATUS_COLORS.draft}
           >
             {campaign.status}
           </Badge>
@@ -176,7 +167,7 @@ export default async function CampaignDetailPage({ params }: CampaignPageProps) 
                   <div
                     className="bg-[#5C5C72] transition-all"
                     style={{
-                      width: `${((campaign.total_listings - campaign.strong_leads - campaign.moderate_leads - campaign.weak_leads) / campaign.total_listings) * 100}%`,
+                      width: `${(Math.max(0, campaign.total_listings - campaign.strong_leads - campaign.moderate_leads - campaign.weak_leads) / campaign.total_listings) * 100}%`,
                     }}
                   />
                 </>
@@ -288,17 +279,7 @@ export default async function CampaignDetailPage({ params }: CampaignPageProps) 
                         </p>
                       </div>
                       {listing.lead_score !== null && (
-                        <div
-                          className={`ml-3 px-2 py-1 rounded text-xs font-mono ${
-                            listing.lead_tier === 'strong'
-                              ? 'bg-[#22C55E]/10 text-[#22C55E]'
-                              : listing.lead_tier === 'moderate'
-                              ? 'bg-[#F59E0B]/10 text-[#F59E0B]'
-                              : listing.lead_tier === 'weak'
-                              ? 'bg-[#EF4444]/10 text-[#EF4444]'
-                              : 'bg-[#5C5C72]/10 text-[#5C5C72]'
-                          }`}
-                        >
+                        <div className={`ml-3 px-2 py-1 rounded text-xs font-mono ${LEAD_TIER_COLORS[listing.lead_tier ?? 'unscored']}`}>
                           {listing.lead_score}
                         </div>
                       )}
@@ -330,7 +311,7 @@ export default async function CampaignDetailPage({ params }: CampaignPageProps) 
               <div>
                 <p className="text-xs font-medium text-[#9494A8] mb-1">Target Markets</p>
                 <div className="flex flex-wrap gap-1">
-                  {criteria?.location?.target_markets?.length > 0 ? (
+                  {(criteria?.location?.target_markets?.length ?? 0) > 0 ? (
                     criteria.location.target_markets.map((m) => (
                       <Badge key={m} variant="secondary" className="bg-[#6366F1]/10 text-[#6366F1] text-xs">
                         {m}

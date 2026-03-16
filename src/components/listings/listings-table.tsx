@@ -154,12 +154,24 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
   const expandColumn: ColumnDef<ListingRow> = {
     id: 'expand',
     header: '',
-    cell: ({ row }) => (
-      <button onClick={e => { e.stopPropagation(); toggleExpand(row.original.id) }} className="text-[#5C5C72] hover:text-[#9494A8] p-1">
-        {expandedRows.has(row.original.id) ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-      </button>
-    ),
-    size: 32,
+    cell: ({ row }) => {
+      const isExpanded = expandedRows.has(row.original.id)
+      return (
+        <button
+          onClick={e => { e.stopPropagation(); toggleExpand(row.original.id) }}
+          className={`flex items-center justify-center w-7 h-7 rounded-md transition-colors ${
+            isExpanded
+              ? 'bg-[#6366F1]/15 text-[#818CF8]'
+              : 'bg-[#1A1A26] text-[#9494A8] hover:bg-[#2A2A3C] hover:text-[#F0F0F5]'
+          }`}
+          aria-label={isExpanded ? 'Collapse row' : 'Expand row'}
+          aria-expanded={isExpanded}
+        >
+          {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+        </button>
+      )
+    },
+    size: 40,
   }
 
   const columns: ColumnDef<ListingRow>[] = [

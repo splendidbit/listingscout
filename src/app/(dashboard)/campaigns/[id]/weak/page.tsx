@@ -1,14 +1,13 @@
 import { createClient } from '@/lib/supabase/server'
 import { Header } from '@/components/layout/header'
-import { ListingsTable, ListingRow } from '@/components/listings/listings-table'
+import { ListingsTable } from '@/components/listings/listings-table'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { AlertCircle, Archive, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Database } from '@/types/database'
-
-type ListingDbRow = Database['public']['Tables']['listings']['Row']
+import { mapListingRows } from '@/lib/listings/map-listing-row'
 
 interface WeakPageProps {
   params: Promise<{ id: string }>
@@ -24,9 +23,7 @@ export default async function CampaignWeakPage({ params }: WeakPageProps) {
     .eq('id', id)
     .single()
 
-  if (campaignError || !campaignData) {
-    notFound()
-  }
+  if (campaignError || !campaignData) notFound()
 
   const campaign = campaignData as Database['public']['Tables']['campaigns']['Row']
 
@@ -38,24 +35,9 @@ export default async function CampaignWeakPage({ params }: WeakPageProps) {
     .eq('lead_tier', 'weak')
     .order('lead_score', { ascending: false, nullsFirst: false })
 
-  const listingData: ListingRow[] = ((listings || []) as ListingDbRow[]).map((l) => ({
-    id: l.id,
-    listing_id: l.listing_id,
-    listing_url: l.listing_url,
-    listing_title: l.listing_title,
-    city: l.city,
-    state: l.state,
-    bedrooms: l.bedrooms,
-    bathrooms: l.bathrooms,
-    max_guests: l.max_guests,
-    nightly_rate: l.nightly_rate,
-    avg_rating: l.avg_rating,
-    total_reviews: l.total_reviews,
-    host_name: l.host_name,
-    superhost: l.superhost,
-    lead_score: l.lead_score,
-    lead_tier: l.lead_tier,
-  }))
+  const listingData = mapListingRows(
+    (listings || []) as Database['public']['Tables']['listings']['Row'][]
+  )
 
   return (
     <div className="min-h-screen">
@@ -65,7 +47,6 @@ export default async function CampaignWeakPage({ params }: WeakPageProps) {
       />
 
       <div className="p-6 space-y-6">
-        {/* Actions */}
         <div className="flex items-center justify-between">
           <Link
             href={`/campaigns/${id}`}
@@ -74,18 +55,17 @@ export default async function CampaignWeakPage({ params }: WeakPageProps) {
             ← Back to campaign
           </Link>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" disabled title="Coming soon">
               <Archive className="h-4 w-4 mr-2" />
               Archive All
             </Button>
-            <Button variant="destructive" size="sm">
+            <Button variant="destructive" size="sm" disabled title="Coming soon">
               <Trash2 className="h-4 w-4 mr-2" />
               Remove All
             </Button>
           </div>
         </div>
 
-        {/* Stats Card */}
         <Card className="bg-[#EF4444]/5 border-[#EF4444]/20">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="p-3 rounded-full bg-[#EF4444]/10">
@@ -100,7 +80,6 @@ export default async function CampaignWeakPage({ params }: WeakPageProps) {
           </CardContent>
         </Card>
 
-        {/* Table */}
         {listingData.length > 0 ? (
           <ListingsTable data={listingData} />
         ) : (

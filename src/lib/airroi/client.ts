@@ -47,15 +47,11 @@ async function fetchAirROI<T>(
   }
 
   const json = await res.json()
-  
-  // Log top-level keys to help debug
-  console.log(`AirROI ${method} ${path} → keys:`, Object.keys(json))
 
   // Normalize listings search response
   if (path.includes('/listings/search') && !json.listings) {
     const arrayKey = Object.keys(json).find(k => Array.isArray(json[k]))
     if (arrayKey) {
-      console.log(`AirROI: remapping '${arrayKey}' → 'listings'`)
       json.listings = json[arrayKey]
     } else {
       json.listings = []
@@ -66,7 +62,6 @@ async function fetchAirROI<T>(
   if (path.includes('/markets/search') && !json.markets) {
     const arrayKey = Object.keys(json).find(k => Array.isArray(json[k]))
     if (arrayKey) {
-      console.log(`AirROI: remapping markets '${arrayKey}' → 'markets'`)
       json.markets = json[arrayKey]
     } else {
       json.markets = []
