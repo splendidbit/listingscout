@@ -94,8 +94,8 @@ export function ScoreBreakdown({ breakdown, showLabels = true }: ScoreBreakdownP
       {/* Outreach Reason Callout */}
       {breakdown.recommended_outreach_reason && (
         <div className="bg-[#6366F1]/10 border border-[#6366F1]/20 rounded p-2.5">
-          <p className="text-xs text-[#6366F1] font-medium mb-0.5">Outreach Signal</p>
-          <p className="text-xs text-[#f0f0f6] leading-relaxed">{breakdown.recommended_outreach_reason}</p>
+          <p className="text-sm text-[#6366F1] font-medium mb-0.5">Outreach Signal</p>
+          <p className="text-sm text-[#f0f0f6] leading-relaxed">{breakdown.recommended_outreach_reason}</p>
         </div>
       )}
 
@@ -122,8 +122,8 @@ export function ScoreBreakdown({ breakdown, showLabels = true }: ScoreBreakdownP
             return (
               <div key={key} className="flex items-center gap-2">
                 <div className={cn('w-2 h-2 rounded-full shrink-0', color)} />
-                <span className="text-xs text-[#c4c5d6] truncate">{label}</span>
-                <span className="text-xs font-mono text-[#f0f0f6] ml-auto">
+                <span className="text-sm text-[#c4c5d6] truncate">{label}</span>
+                <span className="text-sm font-mono text-[#f0f0f6] ml-auto">
                   {value ?? '—'}
                 </span>
               </div>
@@ -142,9 +142,9 @@ export function ScoreBreakdown({ breakdown, showLabels = true }: ScoreBreakdownP
             { label: 'Est. Upside', value: breakdown.estimated_revenue_upside ? `$${breakdown.estimated_revenue_upside.toLocaleString()}` : null },
           ].map(item => (
             <div key={item.label} className="flex items-center justify-between">
-              <span className="text-xs text-[#c4c5d6]">{item.label}</span>
+              <span className="text-sm text-[#c4c5d6]">{item.label}</span>
               <span className={cn(
-                'text-xs font-mono',
+                'text-sm font-mono',
                 item.value ? 'text-[#f0f0f6]' : 'text-[#9395a8]'
               )}>
                 {item.value ?? '—'}

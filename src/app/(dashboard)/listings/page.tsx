@@ -17,7 +17,7 @@ export default function ListingsPage() {
             <h3 className="text-lg font-medium text-[#f0f0f6] mb-2">
               No listings yet
             </h3>
-            <p className="text-sm text-[#c4c5d6]">
+            <p className="text-base text-[#c4c5d6]">
               Listings will appear here once you add them to campaigns
             </p>
           </CardContent>

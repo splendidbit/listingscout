@@ -17,9 +17,9 @@ export function Header({ title, description, action }: HeaderProps) {
   return (
     <header className="flex items-center justify-between px-8 py-5 border-b border-[#363a4f] bg-[#13141c]">
       <div>
-        <h1 className="text-2xl font-bold text-[#f0f0f6] tracking-tight">{title}</h1>
+        <h1 className="text-3xl font-bold text-[#f0f0f6] tracking-tight">{title}</h1>
         {description && (
-          <p className="text-sm text-[#c4c5d6] mt-1">{description}</p>
+          <p className="text-base text-[#c4c5d6] mt-1">{description}</p>
         )}
       </div>
       <div className="flex items-center space-x-3">

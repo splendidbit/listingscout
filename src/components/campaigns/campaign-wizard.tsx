@@ -462,7 +462,7 @@ export function CampaignWizard() {
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>Maximum Reviews</Label>
-          <p className="text-xs text-[#c4c5d6]">Target hosts still gaining traction (sweet spot: under 80)</p>
+          <p className="text-sm text-[#c4c5d6]">Target hosts still gaining traction (sweet spot: under 80)</p>
           <Input
             type="number"
             value={state.criteria.performance.min_reviews}
@@ -473,7 +473,7 @@ export function CampaignWizard() {
         </div>
         <div className="space-y-2">
           <Label>Maximum Rating</Label>
-          <p className="text-xs text-[#c4c5d6]">Hosts below 4.8 have room to improve (sweet spot: 4.4–4.8)</p>
+          <p className="text-sm text-[#c4c5d6]">Hosts below 4.8 have room to improve (sweet spot: 4.4–4.8)</p>
           <Select
             value={String(state.criteria.performance.min_rating)}
             onValueChange={v => updateCriteria('performance', { ...state.criteria.performance, min_rating: parseFloat(v || "0") })}
@@ -650,7 +650,7 @@ export function CampaignWizard() {
 
     return (
       <div className="space-y-6">
-        <p className="text-sm text-[#c4c5d6]">
+        <p className="text-base text-[#c4c5d6]">
           Adjust the weight of each category in the overall score. Weights should total 100%.
         </p>
 

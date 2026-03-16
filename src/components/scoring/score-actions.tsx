@@ -57,7 +57,7 @@ export function ScoreActions({ campaignId, unscoredCount, totalCount }: ScoreAct
     return (
       <div className="flex items-center gap-3">
         <Loader2 className="h-4 w-4 animate-spin text-[#6366F1]" />
-        <span className="text-sm text-[#c4c5d6]">Scoring listings...</span>
+        <span className="text-base text-[#c4c5d6]">Scoring listings...</span>
         {progress > 0 && (
           <Progress value={progress} className="w-24 h-2" />
         )}

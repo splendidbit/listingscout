@@ -95,7 +95,7 @@ export function Sidebar({ user }: SidebarProps) {
               key={item.name}
               href={item.href}
               className={cn(
-                'flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors',
+                'flex items-center px-3 py-2.5 text-[15px] font-medium rounded-lg transition-colors',
                 isActive
                   ? 'bg-[#6366F1]/15 text-[#818CF8]'
                   : 'text-[#c4c5d6] hover:bg-[#262838] hover:text-[#f0f0f6]'
@@ -116,7 +116,7 @@ export function Sidebar({ user }: SidebarProps) {
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    'flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors',
+                    'flex items-center px-3 py-2.5 text-[15px] font-medium rounded-lg transition-colors',
                     isActive
                       ? 'bg-[#6366F1]/15 text-[#818CF8]'
                       : 'text-[#c4c5d6] hover:bg-[#262838] hover:text-[#f0f0f6]'

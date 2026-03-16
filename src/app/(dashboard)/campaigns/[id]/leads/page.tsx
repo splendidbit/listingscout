@@ -73,7 +73,7 @@ export default async function CampaignLeadsPage({ params }: LeadsPageProps) {
             </div>
             <div>
               <p className="text-lg font-bold text-[#f0f0f6]">{listingData.length} Strong Leads</p>
-              <p className="text-sm text-[#c4c5d6]">
+              <p className="text-base text-[#c4c5d6]">
                 These listings scored 70+ and match your criteria well
               </p>
             </div>
@@ -89,7 +89,7 @@ export default async function CampaignLeadsPage({ params }: LeadsPageProps) {
               <h3 className="text-lg font-medium text-[#f0f0f6] mb-2">
                 No strong leads yet
               </h3>
-              <p className="text-sm text-[#c4c5d6] text-center max-w-md">
+              <p className="text-base text-[#c4c5d6] text-center max-w-md">
                 Score your listings to identify strong leads. Strong leads are listings
                 that score 70 or above based on your criteria.
               </p>

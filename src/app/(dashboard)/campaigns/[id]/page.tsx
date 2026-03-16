@@ -119,7 +119,7 @@ export default async function CampaignDetailPage({ params }: CampaignPageProps) 
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-[#c4c5d6]">{stat.label}</p>
+                      <p className="text-base text-[#c4c5d6]">{stat.label}</p>
                       <p className="text-2xl font-bold text-[#f0f0f6] font-mono">
                         {stat.value}
                       </p>
@@ -137,7 +137,7 @@ export default async function CampaignDetailPage({ params }: CampaignPageProps) 
         {/* Pipeline Progress */}
         <Card className="bg-[#13141c] border-[#363a4f]">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base text-[#f0f0f6] flex items-center gap-2">
+            <CardTitle className="text-lg text-[#f0f0f6] flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
               Lead Pipeline
             </CardTitle>
@@ -175,7 +175,7 @@ export default async function CampaignDetailPage({ params }: CampaignPageProps) 
                 <div className="w-full bg-[#363a4f]" />
               )}
             </div>
-            <div className="flex items-center justify-between mt-2 text-xs text-[#c4c5d6]">
+            <div className="flex items-center justify-between mt-2 text-sm text-[#c4c5d6]">
               <span>Strong: {campaign.strong_leads}</span>
               <span>Moderate: {campaign.moderate_leads}</span>
               <span>Weak: {campaign.weak_leads}</span>
@@ -195,7 +195,7 @@ export default async function CampaignDetailPage({ params }: CampaignPageProps) 
                   </div>
                   <div>
                     <p className="font-medium text-[#f0f0f6]">All Listings</p>
-                    <p className="text-sm text-[#c4c5d6]">{campaign.total_listings} total</p>
+                    <p className="text-base text-[#c4c5d6]">{campaign.total_listings} total</p>
                   </div>
                 </div>
                 <ArrowRight className="h-4 w-4 text-[#9395a8]" />
@@ -212,7 +212,7 @@ export default async function CampaignDetailPage({ params }: CampaignPageProps) 
                   </div>
                   <div>
                     <p className="font-medium text-[#f0f0f6]">Strong Leads</p>
-                    <p className="text-sm text-[#c4c5d6]">{campaign.strong_leads} ready</p>
+                    <p className="text-base text-[#c4c5d6]">{campaign.strong_leads} ready</p>
                   </div>
                 </div>
                 <ArrowRight className="h-4 w-4 text-[#9395a8]" />
@@ -229,7 +229,7 @@ export default async function CampaignDetailPage({ params }: CampaignPageProps) 
                   </div>
                   <div>
                     <p className="font-medium text-[#f0f0f6]">Weak Leads</p>
-                    <p className="text-sm text-[#c4c5d6]">{campaign.weak_leads} filtered</p>
+                    <p className="text-base text-[#c4c5d6]">{campaign.weak_leads} filtered</p>
                   </div>
                 </div>
                 <ArrowRight className="h-4 w-4 text-[#9395a8]" />
@@ -246,7 +246,7 @@ export default async function CampaignDetailPage({ params }: CampaignPageProps) 
                   </div>
                   <div>
                     <p className="font-medium text-[#f0f0f6]">Settings</p>
-                    <p className="text-sm text-[#c4c5d6]">Criteria & integrations</p>
+                    <p className="text-base text-[#c4c5d6]">Criteria & integrations</p>
                   </div>
                 </div>
                 <ArrowRight className="h-4 w-4 text-[#9395a8]" />
@@ -260,7 +260,7 @@ export default async function CampaignDetailPage({ params }: CampaignPageProps) 
           {/* Recent Listings */}
           <Card className="bg-[#13141c] border-[#363a4f]">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base text-[#f0f0f6]">Recent Listings</CardTitle>
+              <CardTitle className="text-lg text-[#f0f0f6]">Recent Listings</CardTitle>
             </CardHeader>
             <CardContent>
               {recentListings && recentListings.length > 0 ? (
@@ -274,7 +274,7 @@ export default async function CampaignDetailPage({ params }: CampaignPageProps) 
                         <p className="text-sm font-medium text-[#f0f0f6] truncate">
                           {listing.listing_title}
                         </p>
-                        <p className="text-xs text-[#c4c5d6]">
+                        <p className="text-sm text-[#c4c5d6]">
                           {listing.city}, {listing.state}
                         </p>
                       </div>
@@ -305,11 +305,11 @@ export default async function CampaignDetailPage({ params }: CampaignPageProps) 
           {/* Criteria Summary */}
           <Card className="bg-[#13141c] border-[#363a4f]">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base text-[#f0f0f6]">Criteria Summary</CardTitle>
+              <CardTitle className="text-lg text-[#f0f0f6]">Criteria Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <p className="text-xs font-medium text-[#c4c5d6] mb-1">Target Markets</p>
+                <p className="text-sm font-medium text-[#c4c5d6] mb-1">Target Markets</p>
                 <div className="flex flex-wrap gap-1">
                   {(criteria?.location?.target_markets?.length ?? 0) > 0 ? (
                     criteria.location.target_markets.map((m) => (
@@ -325,15 +325,15 @@ export default async function CampaignDetailPage({ params }: CampaignPageProps) 
 
               <div className="grid grid-cols-3 gap-4 text-sm">
                 <div>
-                  <p className="text-xs text-[#c4c5d6]">Min Beds</p>
+                  <p className="text-sm text-[#c4c5d6]">Min Beds</p>
                   <p className="font-mono text-[#f0f0f6]">{criteria?.property?.min_bedrooms || 0}+</p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#c4c5d6]">Min Rating</p>
+                  <p className="text-sm text-[#c4c5d6]">Min Rating</p>
                   <p className="font-mono text-[#f0f0f6]">{criteria?.performance?.min_rating || 0}+</p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#c4c5d6]">Rate Range</p>
+                  <p className="text-sm text-[#c4c5d6]">Rate Range</p>
                   <p className="font-mono text-[#f0f0f6]">
                     ${criteria?.performance?.nightly_rate_min || 0}-${criteria?.performance?.nightly_rate_max || 0}
                   </p>
@@ -341,7 +341,7 @@ export default async function CampaignDetailPage({ params }: CampaignPageProps) 
               </div>
 
               <div>
-                <p className="text-xs font-medium text-[#c4c5d6] mb-2">Scoring Weights</p>
+                <p className="text-sm font-medium text-[#c4c5d6] mb-2">Scoring Weights</p>
                 <div className="grid grid-cols-6 gap-1">
                   {criteria?.scoring_weights && Object.entries(criteria.scoring_weights).map(([key, value]) => (
                     <div key={key} className="text-center">

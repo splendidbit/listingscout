@@ -105,7 +105,7 @@ export default async function LeadsPage() {
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <Target className="h-12 w-12 text-[#9395a8] mb-4" />
             <h3 className="text-lg font-medium text-[#f0f0f6] mb-2">No leads yet</h3>
-            <p className="text-sm text-[#c4c5d6] max-w-md">
+            <p className="text-base text-[#c4c5d6] max-w-md">
               Score listings in your campaigns to surface leads here. Hot leads have opportunity scores ≥70. Warm leads are 45–69.
             </p>
           </div>

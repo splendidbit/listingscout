@@ -295,7 +295,7 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
                     <span className="text-sm text-[#f0f0f6]">{market.full_name}</span>
                   </div>
                   {market.active_listings_count && (
-                    <span className="text-xs text-[#9395a8]">{market.active_listings_count.toLocaleString()} listings</span>
+                    <span className="text-sm text-[#9395a8]">{market.active_listings_count.toLocaleString()} listings</span>
                   )}
                 </button>
               ))}
@@ -328,7 +328,7 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
                 className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6] pl-9"
               />
             </div>
-            <p className="text-xs text-[#9395a8] mt-1">
+            <p className="text-sm text-[#9395a8] mt-1">
               Paste an Airbnb URL, numeric listing ID, or a street address to find comparable listings
             </p>
           </div>
@@ -349,7 +349,7 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
         {searched && (
           <div className="flex-1 overflow-hidden flex flex-col min-h-0">
             <div className="flex items-center justify-between py-2">
-              <span className="text-sm text-[#c4c5d6]">
+              <span className="text-base text-[#c4c5d6]">
                 {results.length} listings · {selected.size} selected
               </span>
               <div className="flex gap-2">
@@ -371,7 +371,7 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
 
             {/* Market avg context */}
             {results[0]?.market_avg_price && (
-              <div className="flex gap-4 text-xs text-[#c4c5d6] bg-[#1c1d2b] rounded-lg px-3 py-2 mb-2">
+              <div className="flex gap-4 text-sm text-[#c4c5d6] bg-[#1c1d2b] rounded-lg px-3 py-2 mb-2">
                 <span>Market avg: <span className="text-[#f0f0f6] font-mono">${Math.round(results[0].market_avg_price)}/night</span></span>
                 {results[0].market_avg_revenue && <span>Market avg revenue: <span className="text-[#f0f0f6] font-mono">${Math.round(results[0].market_avg_revenue / 1000)}k/yr</span></span>}
               </div>
@@ -395,7 +395,7 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
                             <p className="text-sm font-medium text-[#f0f0f6] truncate">{listing.listing_title}</p>
                             {listing.superhost && <Badge className="bg-[#F59E0B]/10 text-[#F59E0B] text-[10px] px-1 py-0 shrink-0 border-0">Superhost</Badge>}
                           </div>
-                          <p className="text-xs text-[#c4c5d6] mt-0.5">
+                          <p className="text-sm text-[#c4c5d6] mt-0.5">
                             {[listing.neighborhood, listing.city, listing.state].filter(Boolean).join(', ')}
                             {' · '}{listing.bedrooms}bd {listing.bathrooms}ba · {listing.max_guests} guests
                           </p>

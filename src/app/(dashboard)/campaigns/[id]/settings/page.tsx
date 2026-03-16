@@ -526,7 +526,7 @@ export default function CampaignSettingsPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Maximum Reviews</Label>
-                    <p className="text-xs text-[#c4c5d6]">Target hosts still gaining traction (sweet spot: under 80)</p>
+                    <p className="text-sm text-[#c4c5d6]">Target hosts still gaining traction (sweet spot: under 80)</p>
                     <Input
                       type="number"
                       value={criteria.performance.min_reviews}
@@ -537,7 +537,7 @@ export default function CampaignSettingsPage() {
                   </div>
                   <div className="space-y-2">
                     <Label>Maximum Rating</Label>
-                    <p className="text-xs text-[#c4c5d6]">Hosts below 4.8 have room to improve</p>
+                    <p className="text-sm text-[#c4c5d6]">Hosts below 4.8 have room to improve</p>
                     <Select
                       value={String(criteria.performance.min_rating)}
                       onValueChange={v => updateCriteriaField('performance', { ...criteria.performance, min_rating: parseFloat(v || "0") })}
@@ -732,7 +732,7 @@ export default function CampaignSettingsPage() {
                       placeholder="Enter Google Sheet ID"
                       className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
                     />
-                    <p className="text-xs text-[#c4c5d6]">
+                    <p className="text-sm text-[#c4c5d6]">
                       Find the Sheet ID in the URL: docs.google.com/spreadsheets/d/<strong>[SHEET_ID]</strong>/edit
                     </p>
                   </div>

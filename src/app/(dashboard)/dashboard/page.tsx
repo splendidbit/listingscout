@@ -70,7 +70,7 @@ export default async function DashboardPage() {
                   <p className="text-3xl font-bold text-[#f0f0f6] font-mono">
                     {stat.value}
                   </p>
-                  <p className="text-sm text-[#c4c5d6] mt-1">{stat.name}</p>
+                  <p className="text-base text-[#c4c5d6] mt-1">{stat.name}</p>
                 </div>
               </CardContent>
             </Card>
@@ -111,7 +111,7 @@ export default async function DashboardPage() {
                     </CardHeader>
                     <CardContent>
                       {campaign.description && (
-                        <p className="text-sm text-[#c4c5d6] mb-4 line-clamp-2">
+                        <p className="text-base text-[#c4c5d6] mb-4 line-clamp-2">
                           {campaign.description}
                         </p>
                       )}
@@ -166,7 +166,7 @@ export default async function DashboardPage() {
                 <h3 className="text-lg font-medium text-[#f0f0f6] mb-2">
                   No campaigns yet
                 </h3>
-                <p className="text-sm text-[#c4c5d6] mb-4">
+                <p className="text-base text-[#c4c5d6] mb-4">
                   Create your first campaign to start researching listings
                 </p>
                 <Link

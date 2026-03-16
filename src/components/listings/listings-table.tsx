@@ -236,10 +236,10 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
       header: 'Title',
       cell: ({ row }) => (
         <div className="max-w-[280px]">
-          <p className="font-medium text-[#f0f0f6] truncate text-[13px] leading-snug">
+          <p className="font-medium text-[#f0f0f6] truncate text-[15px] leading-snug">
             {row.original.listing_title}
           </p>
-          <div className="flex items-center gap-1.5 mt-1 text-xs text-[#c4c5d6]">
+          <div className="flex items-center gap-1.5 mt-1 text-sm text-[#c4c5d6]">
             <MapPin className="h-3 w-3 text-[#9395a8]" />
             {row.original.city}, {row.original.state}
           </div>
@@ -297,7 +297,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
       id: 'specs',
       header: 'Specs',
       cell: ({ row }) => (
-        <span className="text-sm text-[#c4c5d6]">
+        <span className="text-[15px] text-[#c4c5d6]">
           {row.original.bedrooms}BR · {row.original.bathrooms}BA · {row.original.max_guests}G
         </span>
       ),
@@ -410,7 +410,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="text-xs font-semibold text-[#c4c5d6] uppercase tracking-wider py-3.5"
+                    className="text-[13px] font-semibold text-[#c4c5d6] uppercase tracking-wider py-4"
                     style={{ width: header.getSize() }}
                   >
                     {header.isPlaceholder
@@ -433,7 +433,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
                     onClick={() => onRowClick?.(row.original)}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="py-3.5">
+                      <TableCell key={cell.id} className="py-4">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
@@ -460,7 +460,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
 
       {/* Pagination */}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-[#c4c5d6]">
+        <p className="text-[15px] text-[#c4c5d6]">
           {data.length > 0
             ? `Showing ${table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to ${Math.min(
                 (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
@@ -488,7 +488,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="text-sm text-[#c4c5d6] px-3 tabular-nums">
+          <span className="text-[15px] text-[#c4c5d6] px-3 tabular-nums">
             Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
           </span>
           <Button
@@ -542,7 +542,7 @@ function ListingDetailPanel({ listing }: { listing: ListingRow }) {
   const priorityBadge = priority ? PRIORITY_BADGE[priority] : null
 
   return (
-    <div className="px-6 py-5 space-y-5 text-sm bg-[#0e0f16] border-t border-[#363a4f]">
+    <div className="px-6 py-5 space-y-5 text-[15px] bg-[#0e0f16] border-t border-[#363a4f]">
       {/* Header */}
       <div className="flex items-center gap-3 flex-wrap">
         <span className={cn(
@@ -573,14 +573,14 @@ function ListingDetailPanel({ listing }: { listing: ListingRow }) {
       {/* Outreach reason callout */}
       {listing.recommended_outreach_reason && (
         <div className="bg-[#6366F1]/8 border border-[#6366F1]/25 rounded-lg p-4">
-          <p className="text-[#818CF8] font-semibold text-xs uppercase tracking-wider mb-1.5">Outreach Signal</p>
+          <p className="text-[#818CF8] font-semibold text-sm uppercase tracking-wider mb-1.5">Outreach Signal</p>
           <p className="text-[#f0f0f6] leading-relaxed">{listing.recommended_outreach_reason}</p>
         </div>
       )}
 
       {/* Score breakdown */}
       <div>
-        <p className="text-[#c4c5d6] font-semibold text-xs uppercase tracking-wider mb-3">Score Breakdown</p>
+        <p className="text-[#c4c5d6] font-semibold text-sm uppercase tracking-wider mb-3">Score Breakdown</p>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {[
             {
@@ -634,7 +634,7 @@ function ListingDetailPanel({ listing }: { listing: ListingRow }) {
           ].map(item => (
             <div key={item.label} className="bg-[#13141c] rounded-lg p-3.5 border border-[#2a2d3e]">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[#c4c5d6] font-medium text-xs">{item.label}</span>
+                <span className="text-[#c4c5d6] font-medium text-sm">{item.label}</span>
                 {item.value !== null && item.value !== undefined && (
                   <span className={cn(
                     'font-mono font-bold text-sm',
@@ -642,7 +642,7 @@ function ListingDetailPanel({ listing }: { listing: ListingRow }) {
                   )}>{item.value}</span>
                 )}
               </div>
-              <p className="text-[#9395a8] leading-relaxed text-xs">{item.desc}</p>
+              <p className="text-[#9395a8] leading-relaxed text-sm">{item.desc}</p>
             </div>
           ))}
         </div>
@@ -651,7 +651,7 @@ function ListingDetailPanel({ listing }: { listing: ListingRow }) {
       {/* Revenue upside estimate */}
       {(listing.estimated_revenue_upside || listing.estimated_upside_pct) && (
         <div className="bg-emerald-500/8 border border-emerald-500/25 rounded-lg p-4">
-          <p className="text-emerald-400 font-semibold text-xs uppercase tracking-wider mb-1.5">Revenue Upside Estimate</p>
+          <p className="text-emerald-400 font-semibold text-sm uppercase tracking-wider mb-1.5">Revenue Upside Estimate</p>
           <p className="text-[#f0f0f6] leading-relaxed">
             {listing.estimated_revenue_upside && `$${listing.estimated_revenue_upside.toLocaleString()} estimated annual upside`}
             {listing.estimated_upside_pct && ` (${Math.round(listing.estimated_upside_pct * 100)}% improvement potential)`}
@@ -664,13 +664,13 @@ function ListingDetailPanel({ listing }: { listing: ListingRow }) {
         <div className="grid grid-cols-1 gap-3 min-w-0">
           {listing.opportunity_notes && (
             <div className="bg-[#13141c] border border-[#2a2d3e] rounded-lg p-4">
-              <p className="text-[#818CF8] font-semibold text-xs uppercase tracking-wider mb-2">Primary Opportunity</p>
+              <p className="text-[#818CF8] font-semibold text-sm uppercase tracking-wider mb-2">Primary Opportunity</p>
               <p className="text-[#f0f0f6] leading-relaxed break-words whitespace-normal">{listing.opportunity_notes}</p>
             </div>
           )}
           {listing.outreach_angle && (
             <div className="bg-[#6366F1]/8 border border-[#6366F1]/25 rounded-lg p-4">
-              <p className="text-[#818CF8] font-semibold text-xs uppercase tracking-wider mb-2">Suggested Outreach</p>
+              <p className="text-[#818CF8] font-semibold text-sm uppercase tracking-wider mb-2">Suggested Outreach</p>
               <p className="text-[#f0f0f6] leading-relaxed italic break-words whitespace-normal">&ldquo;{listing.outreach_angle}&rdquo;</p>
             </div>
           )}
