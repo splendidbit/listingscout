@@ -103,9 +103,9 @@ export default async function LeadsPage() {
       <div className="p-6 space-y-8">
         {allLeads.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
-            <Target className="h-12 w-12 text-[#5C5C72] mb-4" />
-            <h3 className="text-lg font-medium text-[#F0F0F5] mb-2">No leads yet</h3>
-            <p className="text-sm text-[#9494A8] max-w-md">
+            <Target className="h-12 w-12 text-[#9395a8] mb-4" />
+            <h3 className="text-lg font-medium text-[#f0f0f6] mb-2">No leads yet</h3>
+            <p className="text-base text-[#c4c5d6] max-w-md">
               Score listings in your campaigns to surface leads here. Hot leads have opportunity scores ≥70. Warm leads are 45–69.
             </p>
           </div>
@@ -115,7 +115,7 @@ export default async function LeadsPage() {
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Flame className="h-4 w-4 text-red-400" />
-                  <h2 className="text-sm font-semibold text-[#F0F0F5] uppercase tracking-wide">Hot Leads</h2>
+                  <h2 className="text-sm font-semibold text-[#f0f0f6] uppercase tracking-wide">Hot Leads</h2>
                   <span className="text-xs bg-red-500/15 text-red-400 border border-red-500/30 px-2 py-0.5 rounded font-mono">{hotLeads.length}</span>
                 </div>
                 <ListingsTable data={hotLeads} />
@@ -125,7 +125,7 @@ export default async function LeadsPage() {
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-orange-400" />
-                  <h2 className="text-sm font-semibold text-[#F0F0F5] uppercase tracking-wide">Warm Leads</h2>
+                  <h2 className="text-sm font-semibold text-[#f0f0f6] uppercase tracking-wide">Warm Leads</h2>
                   <span className="text-xs bg-orange-500/15 text-orange-400 border border-orange-500/30 px-2 py-0.5 rounded font-mono">{warmLeads.length}</span>
                 </div>
                 <ListingsTable data={warmLeads} />

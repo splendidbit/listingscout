@@ -59,7 +59,7 @@ export function ConfirmDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="bg-[#12121A] border-[#2A2A3C]">
+      <AlertDialogContent className="bg-[#13141c] border-[#363a4f]">
         <AlertDialogHeader>
           <div className="flex items-start gap-4">
             <div className={`p-2 rounded-lg ${
@@ -70,8 +70,8 @@ export function ConfirmDialog({
               {getIcon()}
             </div>
             <div>
-              <AlertDialogTitle className="text-[#F0F0F5]">{title}</AlertDialogTitle>
-              <AlertDialogDescription className="text-[#9494A8] mt-2">
+              <AlertDialogTitle className="text-[#f0f0f6]">{title}</AlertDialogTitle>
+              <AlertDialogDescription className="text-[#c4c5d6] mt-2">
                 {description}
               </AlertDialogDescription>
             </div>
@@ -80,7 +80,7 @@ export function ConfirmDialog({
         <AlertDialogFooter>
           <AlertDialogCancel 
             disabled={loading}
-            className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5] hover:bg-[#2A2A3C]"
+            className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6] hover:bg-[#363a4f]"
           >
             {cancelLabel}
           </AlertDialogCancel>

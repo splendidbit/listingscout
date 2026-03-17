@@ -2,15 +2,11 @@ import { createClient } from '@/lib/supabase/server'
 import { Header } from '@/components/layout/header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Home, Target, Users, FolderKanban, TrendingUp, TrendingDown } from 'lucide-react'
+import { Home, Target, Users, FolderKanban } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
 
   // Fetch campaigns
   const { data: campaigns } = await supabase
@@ -89,40 +85,17 @@ export default async function DashboardPage() {
           {stats.map((stat) => (
             <Card
               key={stat.name}
-              className="bg-[#12121A] border-[#2A2A3C] hover:border-[#3A3A52] transition-colors"
+              className="bg-[#13141c] border-[#363a4f] hover:border-[#4a4d65] transition-colors"
             >
               <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div
-                    className={`p-2 rounded-lg bg-[#1A1A26] ${stat.color || 'text-[#6366F1]'}`}
-                  >
-                    <stat.icon className="h-5 w-5" />
-                  </div>
-                  {stat.change && (
-                    <div
-                      className={`flex items-center text-sm ${
-                        stat.trend === 'up'
-                          ? 'text-[#22C55E]'
-                          : stat.trend === 'down'
-                            ? 'text-[#EF4444]'
-                            : 'text-[#9494A8]'
-                      }`}
-                    >
-                      {stat.trend === 'up' && (
-                        <TrendingUp className="h-4 w-4 mr-1" />
-                      )}
-                      {stat.trend === 'down' && (
-                        <TrendingDown className="h-4 w-4 mr-1" />
-                      )}
-                      {stat.change}
-                    </div>
-                  )}
+                <div className={`p-2 rounded-lg bg-[#1c1d2b] w-fit ${stat.color || 'text-[#6366F1]'}`}>
+                  <stat.icon className="h-5 w-5" />
                 </div>
                 <div className="mt-4">
-                  <p className="text-3xl font-bold text-[#F0F0F5] font-mono">
+                  <p className="text-3xl font-bold text-[#f0f0f6] font-mono">
                     {stat.value}
                   </p>
-                  <p className="text-sm text-[#9494A8] mt-1">{stat.name}</p>
+                  <p className="text-base text-[#c4c5d6] mt-1">{stat.name}</p>
                 </div>
               </CardContent>
             </Card>
@@ -132,7 +105,7 @@ export default async function DashboardPage() {
         {/* Campaigns Grid */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-[#F0F0F5]">
+            <h2 className="text-lg font-semibold text-[#f0f0f6]">
               Active Campaigns
             </h2>
             <Link
@@ -147,10 +120,10 @@ export default async function DashboardPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {campaignList.map((campaign) => (
                 <Link key={campaign.id} href={`/campaigns/${campaign.id}`}>
-                  <Card className="bg-[#12121A] border-[#2A2A3C] hover:border-[#3A3A52] transition-colors cursor-pointer h-full">
+                  <Card className="bg-[#13141c] border-[#363a4f] hover:border-[#4a4d65] transition-colors cursor-pointer h-full">
                     <CardHeader className="pb-2">
                       <div className="flex items-center justify-between">
-                        <CardTitle className="text-base font-medium text-[#F0F0F5]">
+                        <CardTitle className="text-base font-medium text-[#f0f0f6]">
                           {campaign.name}
                         </CardTitle>
                         <Badge
@@ -163,14 +136,14 @@ export default async function DashboardPage() {
                     </CardHeader>
                     <CardContent>
                       {campaign.description && (
-                        <p className="text-sm text-[#9494A8] mb-4 line-clamp-2">
+                        <p className="text-base text-[#c4c5d6] mb-4 line-clamp-2">
                           {campaign.description}
                         </p>
                       )}
                       <div className="flex items-center justify-between text-sm">
                         <div className="flex items-center space-x-4">
-                          <span className="text-[#9494A8]">
-                            <span className="font-mono text-[#F0F0F5]">
+                          <span className="text-[#c4c5d6]">
+                            <span className="font-mono text-[#f0f0f6]">
                               {campaign.total_listings || 0}
                             </span>{' '}
                             listings
@@ -184,7 +157,7 @@ export default async function DashboardPage() {
                         </div>
                       </div>
                       {/* Mini progress bar */}
-                      <div className="mt-3 h-1.5 bg-[#1A1A26] rounded-full overflow-hidden">
+                      <div className="mt-3 h-1.5 bg-[#1c1d2b] rounded-full overflow-hidden">
                         <div className="h-full flex">
                           <div
                             className="bg-[#22C55E]"
@@ -212,13 +185,13 @@ export default async function DashboardPage() {
               ))}
             </div>
           ) : (
-            <Card className="bg-[#12121A] border-[#2A2A3C]">
+            <Card className="bg-[#13141c] border-[#363a4f]">
               <CardContent className="flex flex-col items-center justify-center py-12">
-                <FolderKanban className="h-12 w-12 text-[#5C5C72] mb-4" />
-                <h3 className="text-lg font-medium text-[#F0F0F5] mb-2">
+                <FolderKanban className="h-12 w-12 text-[#9395a8] mb-4" />
+                <h3 className="text-lg font-medium text-[#f0f0f6] mb-2">
                   No campaigns yet
                 </h3>
-                <p className="text-sm text-[#9494A8] mb-4">
+                <p className="text-base text-[#c4c5d6] mb-4">
                   Create your first campaign to start researching listings
                 </p>
                 <Link

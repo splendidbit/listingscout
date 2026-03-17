@@ -4,14 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { FolderKanban } from 'lucide-react'
 import Link from 'next/link'
-
-const statusColors = {
-  draft: 'bg-[#5C5C72]/10 text-[#9494A8]',
-  active: 'bg-[#22C55E]/10 text-[#22C55E]',
-  paused: 'bg-[#F59E0B]/10 text-[#F59E0B]',
-  completed: 'bg-[#3B82F6]/10 text-[#3B82F6]',
-  archived: 'bg-[#5C5C72]/10 text-[#5C5C72]',
-}
+import { STATUS_COLORS } from '@/lib/campaigns/constants'
 
 export default async function CampaignsPage() {
   const supabase = await createClient()
@@ -47,19 +40,15 @@ export default async function CampaignsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {campaignList.map((campaign) => (
               <Link key={campaign.id} href={`/campaigns/${campaign.id}`}>
-                <Card className="bg-[#12121A] border-[#2A2A3C] hover:border-[#3A3A52] transition-colors cursor-pointer h-full">
+                <Card className="bg-[#13141c] border-[#363a4f] hover:border-[#4a4d65] transition-colors cursor-pointer h-full">
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
-                      <CardTitle className="text-base font-medium text-[#F0F0F5]">
+                      <CardTitle className="text-base font-medium text-[#f0f0f6]">
                         {campaign.name}
                       </CardTitle>
                       <Badge
                         variant="secondary"
-                        className={
-                          statusColors[
-                            campaign.status as keyof typeof statusColors
-                          ]
-                        }
+                        className={STATUS_COLORS[campaign.status] ?? STATUS_COLORS.draft}
                       >
                         {campaign.status}
                       </Badge>
@@ -67,14 +56,14 @@ export default async function CampaignsPage() {
                   </CardHeader>
                   <CardContent>
                     {campaign.description && (
-                      <p className="text-sm text-[#9494A8] mb-4 line-clamp-2">
+                      <p className="text-base text-[#c4c5d6] mb-4 line-clamp-2">
                         {campaign.description}
                       </p>
                     )}
                     <div className="flex items-center justify-between text-sm">
                       <div className="flex items-center space-x-4">
-                        <span className="text-[#9494A8]">
-                          <span className="font-mono text-[#F0F0F5]">
+                        <span className="text-[#c4c5d6]">
+                          <span className="font-mono text-[#f0f0f6]">
                             {campaign.total_listings || 0}
                           </span>{' '}
                           listings
@@ -87,7 +76,7 @@ export default async function CampaignsPage() {
                         </span>
                       </div>
                     </div>
-                    <div className="mt-3 h-1.5 bg-[#1A1A26] rounded-full overflow-hidden">
+                    <div className="mt-3 h-1.5 bg-[#1c1d2b] rounded-full overflow-hidden">
                       <div className="h-full flex">
                         <div
                           className="bg-[#22C55E]"
@@ -109,7 +98,7 @@ export default async function CampaignsPage() {
                         />
                       </div>
                     </div>
-                    <p className="text-xs text-[#5C5C72] mt-3">
+                    <p className="text-sm text-[#9395a8] mt-3">
                       Updated{' '}
                       {new Date(campaign.updated_at).toLocaleDateString()}
                     </p>
@@ -119,13 +108,13 @@ export default async function CampaignsPage() {
             ))}
           </div>
         ) : (
-          <Card className="bg-[#12121A] border-[#2A2A3C]">
+          <Card className="bg-[#13141c] border-[#363a4f]">
             <CardContent className="flex flex-col items-center justify-center py-12">
-              <FolderKanban className="h-12 w-12 text-[#5C5C72] mb-4" />
-              <h3 className="text-lg font-medium text-[#F0F0F5] mb-2">
+              <FolderKanban className="h-12 w-12 text-[#9395a8] mb-4" />
+              <h3 className="text-lg font-medium text-[#f0f0f6] mb-2">
                 No campaigns yet
               </h3>
-              <p className="text-sm text-[#9494A8] mb-4">
+              <p className="text-base text-[#c4c5d6] mb-4">
                 Create your first campaign to start researching listings
               </p>
               <Link

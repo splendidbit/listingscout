@@ -30,18 +30,19 @@ export default function ForgotPasswordPage() {
       return
     }
 
+    setLoading(false)
     setSent(true)
     toast.success('Password reset email sent')
   }
 
   if (sent) {
     return (
-      <Card className="border-[#2A2A3C] bg-[#12121A]">
+      <Card className="border-[#363a4f] bg-[#13141c]">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-[#F0F0F5]">
+          <CardTitle className="text-2xl font-bold text-[#f0f0f6]">
             Check your email
           </CardTitle>
-          <CardDescription className="text-[#9494A8]">
+          <CardDescription className="text-[#c4c5d6]">
             We&apos;ve sent a password reset link to {email}
           </CardDescription>
         </CardHeader>
@@ -59,19 +60,19 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <Card className="border-[#2A2A3C] bg-[#12121A]">
+    <Card className="border-[#363a4f] bg-[#13141c]">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-[#F0F0F5]">
+        <CardTitle className="text-2xl font-bold text-[#f0f0f6]">
           Reset password
         </CardTitle>
-        <CardDescription className="text-[#9494A8]">
+        <CardDescription className="text-[#c4c5d6]">
           Enter your email and we&apos;ll send you a reset link
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleReset} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-[#F0F0F5]">
+            <Label htmlFor="email" className="text-[#f0f0f6]">
               Email
             </Label>
             <Input
@@ -81,7 +82,7 @@ export default function ForgotPasswordPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5] placeholder:text-[#5C5C72]"
+              className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6] placeholder:text-[#9395a8]"
             />
           </div>
           <Button

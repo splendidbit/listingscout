@@ -73,7 +73,6 @@ export default function CampaignSettingsPage() {
   // Input states for adding items
   const [marketInput, setMarketInput] = useState('')
   const [neighborhoodInput, setNeighborhoodInput] = useState('')
-  const [excludeInput, setExcludeInput] = useState('')
 
   useEffect(() => {
     async function loadCampaign() {
@@ -209,7 +208,7 @@ export default function CampaignSettingsPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-[#9494A8]">Loading...</div>
+        <div className="text-[#c4c5d6]">Loading...</div>
       </div>
     )
   }
@@ -234,7 +233,7 @@ export default function CampaignSettingsPage() {
         </Link>
 
         <Tabs defaultValue="general" className="space-y-6">
-          <TabsList className="bg-[#1A1A26] border border-[#2A2A3C]">
+          <TabsList className="bg-[#1c1d2b] border border-[#363a4f]">
             <TabsTrigger value="general">General</TabsTrigger>
             <TabsTrigger value="location">Location</TabsTrigger>
             <TabsTrigger value="property">Property</TabsTrigger>
@@ -246,9 +245,9 @@ export default function CampaignSettingsPage() {
 
           {/* General Tab */}
           <TabsContent value="general">
-            <Card className="bg-[#12121A] border-[#2A2A3C]">
+            <Card className="bg-[#13141c] border-[#363a4f]">
               <CardHeader>
-                <CardTitle className="text-[#F0F0F5] flex items-center gap-2">
+                <CardTitle className="text-[#f0f0f6] flex items-center gap-2">
                   <Settings className="h-5 w-5" />
                   General Settings
                 </CardTitle>
@@ -260,7 +259,7 @@ export default function CampaignSettingsPage() {
                     id="name"
                     value={name}
                     onChange={e => setName(e.target.value)}
-                    className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5]"
+                    className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
                   />
                 </div>
                 <div className="space-y-2">
@@ -270,13 +269,13 @@ export default function CampaignSettingsPage() {
                     value={description}
                     onChange={e => setDescription(e.target.value)}
                     rows={3}
-                    className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5]"
+                    className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Status</Label>
                   <Select value={status} onValueChange={(v) => setStatus(v as typeof status)}>
-                    <SelectTrigger className="bg-[#1A1A26] border-[#2A2A3C]">
+                    <SelectTrigger className="bg-[#1c1d2b] border-[#363a4f]">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -294,9 +293,9 @@ export default function CampaignSettingsPage() {
 
           {/* Location Tab */}
           <TabsContent value="location">
-            <Card className="bg-[#12121A] border-[#2A2A3C]">
+            <Card className="bg-[#13141c] border-[#363a4f]">
               <CardHeader>
-                <CardTitle className="text-[#F0F0F5] flex items-center gap-2">
+                <CardTitle className="text-[#f0f0f6] flex items-center gap-2">
                   <MapPin className="h-5 w-5" />
                   Location Criteria
                 </CardTitle>
@@ -309,7 +308,7 @@ export default function CampaignSettingsPage() {
                       value={marketInput}
                       onChange={e => setMarketInput(e.target.value)}
                       placeholder="e.g., Austin, TX"
-                      className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5]"
+                      className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
                       onKeyDown={e => {
                         if (e.key === 'Enter') {
                           e.preventDefault()
@@ -348,7 +347,7 @@ export default function CampaignSettingsPage() {
                       value={neighborhoodInput}
                       onChange={e => setNeighborhoodInput(e.target.value)}
                       placeholder="e.g., Downtown"
-                      className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5]"
+                      className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
                       onKeyDown={e => {
                         if (e.key === 'Enter') {
                           e.preventDefault()
@@ -391,7 +390,7 @@ export default function CampaignSettingsPage() {
                       step={1}
                       className="flex-1"
                     />
-                    <span className="text-sm font-mono text-[#F0F0F5] w-12">
+                    <span className="text-sm font-mono text-[#f0f0f6] w-12">
                       {criteria.location.radius_miles} mi
                     </span>
                   </div>
@@ -402,9 +401,9 @@ export default function CampaignSettingsPage() {
 
           {/* Property Tab */}
           <TabsContent value="property">
-            <Card className="bg-[#12121A] border-[#2A2A3C]">
+            <Card className="bg-[#13141c] border-[#363a4f]">
               <CardHeader>
-                <CardTitle className="text-[#F0F0F5] flex items-center gap-2">
+                <CardTitle className="text-[#f0f0f6] flex items-center gap-2">
                   <Home className="h-5 w-5" />
                   Property Criteria
                 </CardTitle>
@@ -419,7 +418,7 @@ export default function CampaignSettingsPage() {
                         className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${
                           criteria.property.types.includes(type.value)
                             ? 'border-[#6366F1] bg-[#6366F1]/10'
-                            : 'border-[#2A2A3C] bg-[#1A1A26] hover:border-[#3A3A52]'
+                            : 'border-[#363a4f] bg-[#1c1d2b] hover:border-[#4a4d65]'
                         }`}
                       >
                         <Checkbox
@@ -432,7 +431,7 @@ export default function CampaignSettingsPage() {
                             updateCriteriaField('property', { ...criteria.property, types: updated })
                           }}
                         />
-                        <span className="text-sm text-[#F0F0F5]">{type.label}</span>
+                        <span className="text-sm text-[#f0f0f6]">{type.label}</span>
                       </label>
                     ))}
                   </div>
@@ -445,7 +444,7 @@ export default function CampaignSettingsPage() {
                       value={String(criteria.property.min_bedrooms)}
                       onValueChange={v => updateCriteriaField('property', { ...criteria.property, min_bedrooms: parseInt(v || "0") })}
                     >
-                      <SelectTrigger className="bg-[#1A1A26] border-[#2A2A3C]">
+                      <SelectTrigger className="bg-[#1c1d2b] border-[#363a4f]">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -461,7 +460,7 @@ export default function CampaignSettingsPage() {
                       value={String(criteria.property.min_bathrooms)}
                       onValueChange={v => updateCriteriaField('property', { ...criteria.property, min_bathrooms: parseFloat(v || "0") })}
                     >
-                      <SelectTrigger className="bg-[#1A1A26] border-[#2A2A3C]">
+                      <SelectTrigger className="bg-[#1c1d2b] border-[#363a4f]">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -477,7 +476,7 @@ export default function CampaignSettingsPage() {
                       value={String(criteria.property.min_guests)}
                       onValueChange={v => updateCriteriaField('property', { ...criteria.property, min_guests: parseInt(v || "0") })}
                     >
-                      <SelectTrigger className="bg-[#1A1A26] border-[#2A2A3C]">
+                      <SelectTrigger className="bg-[#1c1d2b] border-[#363a4f]">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -498,14 +497,14 @@ export default function CampaignSettingsPage() {
                         className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-colors ${
                           criteria.property.required_amenities.includes(amenity.value)
                             ? 'border-[#6366F1] bg-[#6366F1]/10'
-                            : 'border-[#2A2A3C] bg-[#1A1A26] hover:border-[#3A3A52]'
+                            : 'border-[#363a4f] bg-[#1c1d2b] hover:border-[#4a4d65]'
                         }`}
                       >
                         <Checkbox
                           checked={criteria.property.required_amenities.includes(amenity.value)}
                           onCheckedChange={() => toggleAmenity('required_amenities', amenity.value)}
                         />
-                        <span className="text-xs text-[#F0F0F5]">{amenity.label}</span>
+                        <span className="text-xs text-[#f0f0f6]">{amenity.label}</span>
                       </label>
                     ))}
                   </div>
@@ -516,9 +515,9 @@ export default function CampaignSettingsPage() {
 
           {/* Performance Tab */}
           <TabsContent value="performance">
-            <Card className="bg-[#12121A] border-[#2A2A3C]">
+            <Card className="bg-[#13141c] border-[#363a4f]">
               <CardHeader>
-                <CardTitle className="text-[#F0F0F5] flex items-center gap-2">
+                <CardTitle className="text-[#f0f0f6] flex items-center gap-2">
                   <BarChart3 className="h-5 w-5" />
                   Performance Criteria
                 </CardTitle>
@@ -527,23 +526,23 @@ export default function CampaignSettingsPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Maximum Reviews</Label>
-                    <p className="text-xs text-[#9494A8]">Target hosts still gaining traction (sweet spot: under 80)</p>
+                    <p className="text-sm text-[#c4c5d6]">Target hosts still gaining traction (sweet spot: under 80)</p>
                     <Input
                       type="number"
                       value={criteria.performance.min_reviews}
                       onChange={e => updateCriteriaField('performance', { ...criteria.performance, min_reviews: parseInt(e.target.value) || 0 })}
                       placeholder="e.g. 80"
-                      className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5]"
+                      className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Maximum Rating</Label>
-                    <p className="text-xs text-[#9494A8]">Hosts below 4.8 have room to improve</p>
+                    <p className="text-sm text-[#c4c5d6]">Hosts below 4.8 have room to improve</p>
                     <Select
                       value={String(criteria.performance.min_rating)}
                       onValueChange={v => updateCriteriaField('performance', { ...criteria.performance, min_rating: parseFloat(v || "0") })}
                     >
-                      <SelectTrigger className="bg-[#1A1A26] border-[#2A2A3C]">
+                      <SelectTrigger className="bg-[#1c1d2b] border-[#363a4f]">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -563,14 +562,14 @@ export default function CampaignSettingsPage() {
                       value={criteria.performance.nightly_rate_min}
                       onChange={e => updateCriteriaField('performance', { ...criteria.performance, nightly_rate_min: parseInt(e.target.value) || 0 })}
                       placeholder="Min"
-                      className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5]"
+                      className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
                     />
                     <Input
                       type="number"
                       value={criteria.performance.nightly_rate_max}
                       onChange={e => updateCriteriaField('performance', { ...criteria.performance, nightly_rate_max: parseInt(e.target.value) || 0 })}
                       placeholder="Max"
-                      className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5]"
+                      className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
                     />
                   </div>
                 </div>
@@ -580,9 +579,9 @@ export default function CampaignSettingsPage() {
 
           {/* Host Tab */}
           <TabsContent value="host">
-            <Card className="bg-[#12121A] border-[#2A2A3C]">
+            <Card className="bg-[#13141c] border-[#363a4f]">
               <CardHeader>
-                <CardTitle className="text-[#F0F0F5] flex items-center gap-2">
+                <CardTitle className="text-[#f0f0f6] flex items-center gap-2">
                   <User className="h-5 w-5" />
                   Host Criteria
                 </CardTitle>
@@ -594,7 +593,7 @@ export default function CampaignSettingsPage() {
                     value={criteria.host.preferred_type}
                     onValueChange={v => updateCriteriaField('host', { ...criteria.host, preferred_type: v as 'individual' | 'business' | 'any' })}
                   >
-                    <SelectTrigger className="bg-[#1A1A26] border-[#2A2A3C]">
+                    <SelectTrigger className="bg-[#1c1d2b] border-[#363a4f]">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -611,14 +610,14 @@ export default function CampaignSettingsPage() {
                       checked={criteria.host.superhost_required}
                       onCheckedChange={checked => updateCriteriaField('host', { ...criteria.host, superhost_required: !!checked })}
                     />
-                    <span className="text-sm text-[#F0F0F5]">Superhost required</span>
+                    <span className="text-sm text-[#f0f0f6]">Superhost required</span>
                   </label>
                   <label className="flex items-center gap-3 cursor-pointer">
                     <Checkbox
                       checked={criteria.host.superhost_preferred}
                       onCheckedChange={checked => updateCriteriaField('host', { ...criteria.host, superhost_preferred: !!checked })}
                     />
-                    <span className="text-sm text-[#F0F0F5]">Superhost preferred (bonus points)</span>
+                    <span className="text-sm text-[#f0f0f6]">Superhost preferred (bonus points)</span>
                   </label>
                 </div>
 
@@ -629,7 +628,7 @@ export default function CampaignSettingsPage() {
                       type="number"
                       value={criteria.host.min_listings}
                       onChange={e => updateCriteriaField('host', { ...criteria.host, min_listings: parseInt(e.target.value) || 1 })}
-                      className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5]"
+                      className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
                     />
                   </div>
                   <div className="space-y-2">
@@ -638,7 +637,7 @@ export default function CampaignSettingsPage() {
                       type="number"
                       value={criteria.host.max_listings}
                       onChange={e => updateCriteriaField('host', { ...criteria.host, max_listings: parseInt(e.target.value) || 50 })}
-                      className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5]"
+                      className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
                     />
                   </div>
                 </div>
@@ -648,9 +647,9 @@ export default function CampaignSettingsPage() {
 
           {/* Scoring Tab */}
           <TabsContent value="scoring">
-            <Card className="bg-[#12121A] border-[#2A2A3C]">
+            <Card className="bg-[#13141c] border-[#363a4f]">
               <CardHeader>
-                <CardTitle className="text-[#F0F0F5] flex items-center gap-2">
+                <CardTitle className="text-[#f0f0f6] flex items-center gap-2">
                   <Scale className="h-5 w-5" />
                   Scoring Weights
                 </CardTitle>
@@ -665,7 +664,7 @@ export default function CampaignSettingsPage() {
                     <div key={key} className="space-y-2">
                       <div className="flex items-center justify-between">
                         <Label className="capitalize">{key}</Label>
-                        <span className="text-sm font-mono text-[#F0F0F5]">{numValue}%</span>
+                        <span className="text-sm font-mono text-[#f0f0f6]">{numValue}%</span>
                       </div>
                       <Slider
                         value={[numValue]}
@@ -686,8 +685,8 @@ export default function CampaignSettingsPage() {
                   </p>
                 </div>
 
-                <div className="border-t border-[#2A2A3C] pt-6 space-y-4">
-                  <h4 className="font-medium text-[#F0F0F5]">Tier Thresholds</h4>
+                <div className="border-t border-[#363a4f] pt-6 space-y-4">
+                  <h4 className="font-medium text-[#f0f0f6]">Tier Thresholds</h4>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Strong Lead Minimum</Label>
@@ -695,7 +694,7 @@ export default function CampaignSettingsPage() {
                         type="number"
                         value={criteria.tier_thresholds.strong_min}
                         onChange={e => updateCriteriaField('tier_thresholds', { ...criteria.tier_thresholds, strong_min: parseInt(e.target.value) || 70 })}
-                        className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5]"
+                        className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
                       />
                     </div>
                     <div className="space-y-2">
@@ -704,7 +703,7 @@ export default function CampaignSettingsPage() {
                         type="number"
                         value={criteria.tier_thresholds.weak_max}
                         onChange={e => updateCriteriaField('tier_thresholds', { ...criteria.tier_thresholds, weak_max: parseInt(e.target.value) || 39 })}
-                        className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5]"
+                        className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
                       />
                     </div>
                   </div>
@@ -715,25 +714,25 @@ export default function CampaignSettingsPage() {
 
           {/* Integrations Tab */}
           <TabsContent value="integrations">
-            <Card className="bg-[#12121A] border-[#2A2A3C]">
+            <Card className="bg-[#13141c] border-[#363a4f]">
               <CardHeader>
-                <CardTitle className="text-[#F0F0F5] flex items-center gap-2">
+                <CardTitle className="text-[#f0f0f6] flex items-center gap-2">
                   <Link2 className="h-5 w-5" />
                   Integrations
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-4">
-                  <h4 className="font-medium text-[#F0F0F5]">Google Sheets</h4>
+                  <h4 className="font-medium text-[#f0f0f6]">Google Sheets</h4>
                   <div className="space-y-2">
                     <Label>Sheet ID</Label>
                     <Input
                       value={googleSheetId}
                       onChange={e => setGoogleSheetId(e.target.value)}
                       placeholder="Enter Google Sheet ID"
-                      className="bg-[#1A1A26] border-[#2A2A3C] text-[#F0F0F5]"
+                      className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6]"
                     />
-                    <p className="text-xs text-[#9494A8]">
+                    <p className="text-sm text-[#c4c5d6]">
                       Find the Sheet ID in the URL: docs.google.com/spreadsheets/d/<strong>[SHEET_ID]</strong>/edit
                     </p>
                   </div>
@@ -742,7 +741,7 @@ export default function CampaignSettingsPage() {
                       checked={sheetsSyncEnabled}
                       onCheckedChange={checked => setSheetsSyncEnabled(!!checked)}
                     />
-                    <span className="text-sm text-[#F0F0F5]">Enable automatic sync</span>
+                    <span className="text-sm text-[#f0f0f6]">Enable automatic sync</span>
                   </label>
                 </div>
               </CardContent>
@@ -751,7 +750,7 @@ export default function CampaignSettingsPage() {
         </Tabs>
 
         {/* Save / Delete Actions */}
-        <div className="flex items-center justify-between pt-6 border-t border-[#2A2A3C]">
+        <div className="flex items-center justify-between pt-6 border-t border-[#363a4f]">
           <Button
             variant="destructive"
             onClick={handleDelete}

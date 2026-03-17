@@ -85,12 +85,12 @@ export default function BillingSettingsPage() {
 
       <div className="p-6 space-y-6">
         {/* Current Plan */}
-        <Card className="bg-[#12121A] border-[#2A2A3C]">
+        <Card className="bg-[#13141c] border-[#363a4f]">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-[#F0F0F5]">Current Plan</CardTitle>
-                <CardDescription className="text-[#9494A8]">
+                <CardTitle className="text-[#f0f0f6]">Current Plan</CardTitle>
+                <CardDescription className="text-[#c4c5d6]">
                   You&apos;re currently on the Free plan
                 </CardDescription>
               </div>
@@ -103,8 +103,8 @@ export default function BillingSettingsPage() {
             <div className="grid grid-cols-3 gap-6">
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-[#9494A8]">Campaigns</span>
-                  <span className="text-[#F0F0F5]">
+                  <span className="text-[#c4c5d6]">Campaigns</span>
+                  <span className="text-[#f0f0f6]">
                     {usage.campaigns} / {usage.campaignsLimit}
                   </span>
                 </div>
@@ -115,8 +115,8 @@ export default function BillingSettingsPage() {
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-[#9494A8]">Listings</span>
-                  <span className="text-[#F0F0F5]">
+                  <span className="text-[#c4c5d6]">Listings</span>
+                  <span className="text-[#f0f0f6]">
                     {usage.listings} / {usage.listingsLimit}
                   </span>
                 </div>
@@ -127,8 +127,8 @@ export default function BillingSettingsPage() {
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-[#9494A8]">AI Research</span>
-                  <span className="text-[#F0F0F5]">
+                  <span className="text-[#c4c5d6]">AI Research</span>
+                  <span className="text-[#f0f0f6]">
                     {usage.aiResearches} / {usage.aiResearchesLimit}
                   </span>
                 </div>
@@ -148,7 +148,7 @@ export default function BillingSettingsPage() {
             return (
               <Card 
                 key={plan.id}
-                className={`bg-[#12121A] border-[#2A2A3C] relative ${
+                className={`bg-[#13141c] border-[#363a4f] relative ${
                   plan.popular ? 'ring-2 ring-[#6366F1]' : ''
                 }`}
               >
@@ -163,10 +163,10 @@ export default function BillingSettingsPage() {
                   <div className="w-12 h-12 rounded-full bg-[#6366F1]/10 flex items-center justify-center mx-auto mb-4">
                     <Icon className="h-6 w-6 text-[#6366F1]" />
                   </div>
-                  <CardTitle className="text-xl text-[#F0F0F5]">{plan.name}</CardTitle>
+                  <CardTitle className="text-xl text-[#f0f0f6]">{plan.name}</CardTitle>
                   <div className="mt-2">
-                    <span className="text-3xl font-bold text-[#F0F0F5]">{plan.price}</span>
-                    <span className="text-[#9494A8]">{plan.period}</span>
+                    <span className="text-3xl font-bold text-[#f0f0f6]">{plan.price}</span>
+                    <span className="text-[#c4c5d6]">{plan.period}</span>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -174,17 +174,17 @@ export default function BillingSettingsPage() {
                     {plan.features.map((feature, i) => (
                       <li key={i} className="flex items-center gap-2 text-sm">
                         <Check className="h-4 w-4 text-[#22C55E]" />
-                        <span className="text-[#9494A8]">{feature}</span>
+                        <span className="text-[#c4c5d6]">{feature}</span>
                       </li>
                     ))}
                   </ul>
                   <Button
                     className={`w-full ${
                       plan.current
-                        ? 'bg-[#2A2A3C] text-[#9494A8] cursor-default'
+                        ? 'bg-[#363a4f] text-[#c4c5d6] cursor-default'
                         : plan.popular
                         ? 'bg-[#6366F1] hover:bg-[#818CF8]'
-                        : 'bg-transparent border border-[#2A2A3C] hover:bg-[#1A1A26]'
+                        : 'bg-transparent border border-[#363a4f] hover:bg-[#1c1d2b]'
                     }`}
                     disabled={plan.current}
                   >
@@ -197,13 +197,13 @@ export default function BillingSettingsPage() {
         </div>
 
         {/* Payment Method */}
-        <Card className="bg-[#12121A] border-[#2A2A3C]">
+        <Card className="bg-[#13141c] border-[#363a4f]">
           <CardHeader>
             <div className="flex items-center gap-3">
-              <CreditCard className="h-5 w-5 text-[#9494A8]" />
+              <CreditCard className="h-5 w-5 text-[#c4c5d6]" />
               <div>
-                <CardTitle className="text-[#F0F0F5]">Payment Method</CardTitle>
-                <CardDescription className="text-[#9494A8]">
+                <CardTitle className="text-[#f0f0f6]">Payment Method</CardTitle>
+                <CardDescription className="text-[#c4c5d6]">
                   No payment method on file
                 </CardDescription>
               </div>
@@ -217,7 +217,7 @@ export default function BillingSettingsPage() {
         </Card>
 
         {/* Billing Info Notice */}
-        <p className="text-center text-sm text-[#5C5C72]">
+        <p className="text-center text-sm text-[#9395a8]">
           Billing is handled securely through Stripe. 
           Cancel anytime from your account settings.
         </p>

@@ -21,11 +21,14 @@ export async function GET(request: NextRequest) {
 
     const p = request.nextUrl.searchParams
     const address = p.get('address') ?? undefined
-    const lat = p.get('lat') ? Number(p.get('lat')) : undefined
-    const lng = p.get('lng') ? Number(p.get('lng')) : undefined
-    const bedrooms = Number(p.get('bedrooms') ?? 2)
-    const baths = Number(p.get('baths') ?? 1)
-    const guests = Number(p.get('guests') ?? 4)
+    const lat = p.get('lat') != null ? Number(p.get('lat')) : undefined
+    const lng = p.get('lng') != null ? Number(p.get('lng')) : undefined
+    const rawBedrooms = p.get('bedrooms')
+    const rawBaths = p.get('baths')
+    const rawGuests = p.get('guests')
+    const bedrooms = rawBedrooms != null && rawBedrooms !== '' ? Number(rawBedrooms) : 2
+    const baths = rawBaths != null && rawBaths !== '' ? Number(rawBaths) : 1
+    const guests = rawGuests != null && rawGuests !== '' ? Number(rawGuests) : 4
 
     if (!address && (lat === undefined || lng === undefined)) {
       return NextResponse.json({ error: 'Provide address or lat/lng' }, { status: 400 })

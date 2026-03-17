@@ -66,9 +66,9 @@ export function PipelineChart({ data }: PipelineChartProps) {
   }, [data])
 
   return (
-    <Card className="bg-[#12121A] border-[#2A2A3C]">
+    <Card className="bg-[#13141c] border-[#363a4f]">
       <CardHeader className="pb-2">
-        <CardTitle className="text-base text-[#F0F0F5]">Lead Pipeline</CardTitle>
+        <CardTitle className="text-base text-[#f0f0f6]">Lead Pipeline</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
@@ -76,7 +76,7 @@ export function PipelineChart({ data }: PipelineChartProps) {
             <div key={stage.label} className="relative">
               {/* Connector line */}
               {index > 0 && (
-                <div className="absolute -top-3 left-4 w-0.5 h-3 bg-[#2A2A3C]" />
+                <div className="absolute -top-3 left-4 w-0.5 h-3 bg-[#363a4f]" />
               )}
               
               {/* Stage bar */}
@@ -99,21 +99,21 @@ export function PipelineChart({ data }: PipelineChartProps) {
 
         {/* Conversion rates */}
         {data.total > 0 && (
-          <div className="mt-6 pt-4 border-t border-[#2A2A3C] grid grid-cols-3 gap-4 text-center">
+          <div className="mt-6 pt-4 border-t border-[#363a4f] grid grid-cols-3 gap-4 text-center">
             <div>
-              <p className="text-xs text-[#9494A8]">Score Rate</p>
-              <p className="text-lg font-bold text-[#F0F0F5]">
+              <p className="text-xs text-[#c4c5d6]">Score Rate</p>
+              <p className="text-lg font-bold text-[#f0f0f6]">
                 {Math.round((data.scored / data.total) * 100)}%
               </p>
             </div>
             <div>
-              <p className="text-xs text-[#9494A8]">Strong Rate</p>
+              <p className="text-xs text-[#c4c5d6]">Strong Rate</p>
               <p className="text-lg font-bold text-[#22C55E]">
                 {data.scored > 0 ? Math.round((data.strong / data.scored) * 100) : 0}%
               </p>
             </div>
             <div>
-              <p className="text-xs text-[#9494A8]">Weak Rate</p>
+              <p className="text-xs text-[#c4c5d6]">Weak Rate</p>
               <p className="text-lg font-bold text-[#EF4444]">
                 {data.scored > 0 ? Math.round((data.weak / data.scored) * 100) : 0}%
               </p>

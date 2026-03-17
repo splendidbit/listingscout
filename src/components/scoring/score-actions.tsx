@@ -57,7 +57,7 @@ export function ScoreActions({ campaignId, unscoredCount, totalCount }: ScoreAct
     return (
       <div className="flex items-center gap-3">
         <Loader2 className="h-4 w-4 animate-spin text-[#6366F1]" />
-        <span className="text-sm text-[#9494A8]">Scoring listings...</span>
+        <span className="text-base text-[#c4c5d6]">Scoring listings...</span>
         {progress > 0 && (
           <Progress value={progress} className="w-24 h-2" />
         )}
@@ -82,7 +82,7 @@ export function ScoreActions({ campaignId, unscoredCount, totalCount }: ScoreAct
           variant="ghost" 
           size="sm"
           onClick={() => handleScore(true)}
-          className="text-[#9494A8]"
+          className="text-[#c4c5d6]"
         >
           <RefreshCw className="h-4 w-4 mr-2" />
           Re-score All

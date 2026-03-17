@@ -2,6 +2,15 @@ import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { checkDuplicateInCampaign } from '@/lib/dedup/engine'
 
+/** Fields a client is allowed to update via PUT. Prevents mass-assignment. */
+const UPDATABLE_FIELDS = new Set([
+  'listing_title', 'property_type', 'city', 'state', 'neighborhood', 'full_address',
+  'bedrooms', 'bathrooms', 'max_guests', 'nightly_rate', 'cleaning_fee',
+  'avg_rating', 'total_reviews', 'host_name', 'host_since', 'host_listing_count',
+  'host_response_rate', 'superhost', 'amenities', 'instant_book',
+  'cancellation_policy', 'notes', 'lead_tier', 'status', 'flags',
+])
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
@@ -158,10 +167,21 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { id, ...updates } = body
+    const { id, ...rawUpdates } = body
 
     if (!id) {
       return NextResponse.json({ error: 'Listing ID is required' }, { status: 400 })
+    }
+
+    const updates: Record<string, unknown> = {}
+    for (const key of Object.keys(rawUpdates)) {
+      if (UPDATABLE_FIELDS.has(key)) {
+        updates[key] = rawUpdates[key]
+      }
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 })
     }
 
     // Get current listing for audit

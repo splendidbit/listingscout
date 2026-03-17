@@ -15,25 +15,25 @@ interface HeaderProps {
 
 export function Header({ title, description, action }: HeaderProps) {
   return (
-    <header className="flex items-center justify-between px-6 py-4 border-b border-[#2A2A3C] bg-[#0A0A0F]">
+    <header className="flex items-center justify-between px-8 py-5 border-b border-[#363a4f] bg-[#13141c]">
       <div>
-        <h1 className="text-xl font-semibold text-[#F0F0F5]">{title}</h1>
+        <h1 className="text-3xl font-bold text-[#f0f0f6] tracking-tight">{title}</h1>
         {description && (
-          <p className="text-sm text-[#9494A8] mt-0.5">{description}</p>
+          <p className="text-base text-[#c4c5d6] mt-1">{description}</p>
         )}
       </div>
       <div className="flex items-center space-x-3">
         <Button
           variant="ghost"
           size="icon"
-          className="text-[#9494A8] hover:text-[#F0F0F5] hover:bg-[#1A1A26]"
+          className="text-[#c4c5d6] hover:text-[#f0f0f6] hover:bg-[#262838]"
         >
           <Bell className="h-5 w-5" />
         </Button>
         {action && (
           <Button
             asChild
-            className="bg-[#6366F1] hover:bg-[#818CF8] text-white"
+            className="bg-[#6366F1] hover:bg-[#818CF8] text-white font-medium"
           >
             <Link href={action.href}>
               <Plus className="mr-2 h-4 w-4" />

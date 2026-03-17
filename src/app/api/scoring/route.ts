@@ -11,7 +11,7 @@ interface MarketData {
 }
 
 async function fetchMarketData(
-  listings: Array<{ city?: string | null; state?: string | null }>
+  listings: Array<{ city?: string | null; state?: string | null; country?: string | null }>
 ): Promise<Map<string, MarketData>> {
   const map = new Map<string, MarketData>()
   const nullEntry: MarketData = { avg_occupancy: null, avg_revpar: null, avg_adr: null, avg_revenue: null }
@@ -20,28 +20,44 @@ async function fetchMarketData(
     return map
   }
 
-  // Collect unique city|state pairs
-  const unique = new Set<string>()
+  // Collect unique city|state pairs and their country
+  const uniqueMarkets = new Map<string, string>()
   for (const l of listings) {
     if (l.city && l.state) {
-      unique.add(`${l.city}|${l.state}`)
+      const key = `${l.city}|${l.state}`
+      if (!uniqueMarkets.has(key)) {
+        uniqueMarkets.set(key, l.country ?? 'US')
+      }
     }
   }
 
-  for (const key of unique) {
-    const [city, state] = key.split('|')
-    try {
+  // Fetch all markets in parallel
+  const entries = Array.from(uniqueMarkets.entries())
+  const results = await Promise.allSettled(
+    entries.map(async ([key, country]) => {
+      const [city, state] = key.split('|')
       const summary = await getMarketSummary({
-        market: { country: 'US', region: state, locality: city },
+        market: { country, region: state, locality: city },
       })
-      map.set(key, {
-        avg_occupancy: summary.occupancy ?? null,
-        avg_revpar: summary.rev_par ?? null,
-        avg_adr: summary.average_daily_rate ?? null,
-        avg_revenue: summary.revenue ?? null,
-      })
-    } catch {
-      map.set(key, nullEntry)
+      return {
+        key,
+        data: {
+          avg_occupancy: summary.occupancy ?? null,
+          avg_revpar: summary.rev_par ?? null,
+          avg_adr: summary.average_daily_rate ?? null,
+          avg_revenue: summary.revenue ?? null,
+        } as MarketData,
+      }
+    })
+  )
+
+  for (const result of results) {
+    if (result.status === 'fulfilled') {
+      map.set(result.value.key, result.value.data)
+    } else {
+      // Find the key for this failed entry by index
+      const idx = results.indexOf(result)
+      map.set(entries[idx][0], nullEntry)
     }
   }
 
@@ -114,52 +130,17 @@ export async function POST(request: NextRequest) {
     for (const listing of listings) {
       try {
         const marketKey = listing.city && listing.state ? `${listing.city}|${listing.state}` : null
+        const market = marketKey ? marketMap.get(marketKey) : undefined
 
         const listingData: ListingData = {
-          listing_id: listing.listing_id,
-          room_type: listing.room_type,
-          bedrooms: listing.bedrooms,
-          bathrooms: listing.bathrooms,
-          max_guests: listing.max_guests,
-          amenities: listing.amenities,
-          amenities_count: listing.amenities_count,
-          photo_count: listing.photo_count,
-          description_length: listing.description_length,
-          title_length: listing.title_length,
-          host_listing_count: listing.host_listing_count,
-          superhost: listing.superhost,
-          host_response_rate: listing.host_response_rate,
+          ...listing,
           professional_management: listing.professional_management ?? false,
           cohost_presence: listing.cohost_presence ?? false,
-          nightly_rate: listing.nightly_rate,
-          ttm_avg_rate: listing.ttm_avg_rate ?? null,
-          l90d_avg_rate: listing.l90d_avg_rate ?? null,
-          cleaning_fee: listing.cleaning_fee,
-          minimum_stay: listing.minimum_stay,
-          instant_book: listing.instant_book,
-          avg_rating: listing.avg_rating,
-          total_reviews: listing.total_reviews,
-          reviews_per_month: listing.reviews_per_month,
-          occupancy_rate: listing.occupancy_rate,
-          ttm_occupancy: listing.ttm_occupancy ?? null,
-          annual_revenue: listing.annual_revenue,
-          ttm_revenue: listing.ttm_revenue ?? null,
-          l90d_revenue: listing.l90d_revenue ?? null,
-          ttm_revpar: listing.ttm_revpar ?? null,
-          l90d_revpar: listing.l90d_revpar ?? null,
-          rating_cleanliness: listing.rating_cleanliness,
-          rating_accuracy: listing.rating_accuracy,
-          rating_communication: listing.rating_communication,
-          rating_location: listing.rating_location,
-          rating_checkin: listing.rating_checkin,
-          rating_value: listing.rating_value,
-          market_avg_price: listing.market_avg_price,
-          market_avg_occupancy: marketKey ? (marketMap.get(marketKey)?.avg_occupancy ?? null) : null,
-          market_avg_revenue: marketKey ? (marketMap.get(marketKey)?.avg_revenue ?? null) : null,
-          market_avg_revpar: marketKey ? (marketMap.get(marketKey)?.avg_revpar ?? null) : null,
-          market_avg_adr: marketKey ? (marketMap.get(marketKey)?.avg_adr ?? null) : null,
-          city: listing.city,
-          state: listing.state,
+          // Inject live market data (overrides any stale values on the row)
+          market_avg_occupancy: market?.avg_occupancy ?? null,
+          market_avg_revenue: market?.avg_revenue ?? null,
+          market_avg_revpar: market?.avg_revpar ?? null,
+          market_avg_adr: market?.avg_adr ?? null,
         }
 
         const result = scoreListing(listingData)

@@ -62,7 +62,7 @@ export function OwnerCard({ owner, compact = false }: OwnerCardProps) {
         )
       default:
         return (
-          <Badge className="bg-[#5C5C72]/10 text-[#9494A8] border-0">
+          <Badge className="bg-[#9395a8]/10 text-[#c4c5d6] border-0">
             Unverified
           </Badge>
         )
@@ -71,14 +71,14 @@ export function OwnerCard({ owner, compact = false }: OwnerCardProps) {
 
   if (compact) {
     return (
-      <div className="flex items-center justify-between p-3 bg-[#1A1A26] rounded-lg">
+      <div className="flex items-center justify-between p-3 bg-[#1c1d2b] rounded-lg">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-[#6366F1]/10 flex items-center justify-center">
             <User className="h-5 w-5 text-[#6366F1]" />
           </div>
           <div>
-            <p className="font-medium text-[#F0F0F5]">{owner.name}</p>
-            <div className="flex items-center gap-2 text-xs text-[#9494A8]">
+            <p className="font-medium text-[#f0f0f6]">{owner.name}</p>
+            <div className="flex items-center gap-2 text-xs text-[#c4c5d6]">
               {owner.email && <Mail className="h-3 w-3" />}
               {owner.phone && <Phone className="h-3 w-3" />}
               {owner.linkedin_url && <Linkedin className="h-3 w-3" />}
@@ -92,7 +92,7 @@ export function OwnerCard({ owner, compact = false }: OwnerCardProps) {
   }
 
   return (
-    <Card className="bg-[#12121A] border-[#2A2A3C]">
+    <Card className="bg-[#13141c] border-[#363a4f]">
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
@@ -100,9 +100,9 @@ export function OwnerCard({ owner, compact = false }: OwnerCardProps) {
               <User className="h-6 w-6 text-[#6366F1]" />
             </div>
             <div>
-              <CardTitle className="text-lg text-[#F0F0F5]">{owner.name}</CardTitle>
+              <CardTitle className="text-lg text-[#f0f0f6]">{owner.name}</CardTitle>
               {owner.company_name && (
-                <div className="flex items-center gap-1 text-sm text-[#9494A8]">
+                <div className="flex items-center gap-1 text-sm text-[#c4c5d6]">
                   <Building2 className="h-3 w-3" />
                   {owner.company_name}
                 </div>
@@ -116,10 +116,10 @@ export function OwnerCard({ owner, compact = false }: OwnerCardProps) {
         {/* Contact Methods */}
         <div className="space-y-2">
           {owner.email && (
-            <div className="flex items-center justify-between p-2 bg-[#1A1A26] rounded-lg">
+            <div className="flex items-center justify-between p-2 bg-[#1c1d2b] rounded-lg">
               <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-[#9494A8]" />
-                <span className="text-sm text-[#F0F0F5]">{owner.email}</span>
+                <Mail className="h-4 w-4 text-[#c4c5d6]" />
+                <span className="text-sm text-[#f0f0f6]">{owner.email}</span>
               </div>
               <Button
                 variant="ghost"
@@ -130,17 +130,17 @@ export function OwnerCard({ owner, compact = false }: OwnerCardProps) {
                 {copiedField === 'email' ? (
                   <CheckCircle className="h-3 w-3 text-[#22C55E]" />
                 ) : (
-                  <Copy className="h-3 w-3 text-[#5C5C72]" />
+                  <Copy className="h-3 w-3 text-[#9395a8]" />
                 )}
               </Button>
             </div>
           )}
 
           {owner.phone && (
-            <div className="flex items-center justify-between p-2 bg-[#1A1A26] rounded-lg">
+            <div className="flex items-center justify-between p-2 bg-[#1c1d2b] rounded-lg">
               <div className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-[#9494A8]" />
-                <span className="text-sm text-[#F0F0F5]">{owner.phone}</span>
+                <Phone className="h-4 w-4 text-[#c4c5d6]" />
+                <span className="text-sm text-[#f0f0f6]">{owner.phone}</span>
               </div>
               <Button
                 variant="ghost"
@@ -151,23 +151,23 @@ export function OwnerCard({ owner, compact = false }: OwnerCardProps) {
                 {copiedField === 'phone' ? (
                   <CheckCircle className="h-3 w-3 text-[#22C55E]" />
                 ) : (
-                  <Copy className="h-3 w-3 text-[#5C5C72]" />
+                  <Copy className="h-3 w-3 text-[#9395a8]" />
                 )}
               </Button>
             </div>
           )}
 
           {owner.linkedin_url && (
-            <div className="flex items-center justify-between p-2 bg-[#1A1A26] rounded-lg">
+            <div className="flex items-center justify-between p-2 bg-[#1c1d2b] rounded-lg">
               <div className="flex items-center gap-2">
                 <Linkedin className="h-4 w-4 text-[#0A66C2]" />
-                <span className="text-sm text-[#F0F0F5]">LinkedIn Profile</span>
+                <span className="text-sm text-[#f0f0f6]">LinkedIn Profile</span>
               </div>
               <a
                 href={owner.linkedin_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-1 text-[#5C5C72] hover:text-[#6366F1] transition-colors"
+                className="p-1 text-[#9395a8] hover:text-[#6366F1] transition-colors"
               >
                 <ExternalLink className="h-4 w-4" />
               </a>
@@ -178,13 +178,13 @@ export function OwnerCard({ owner, compact = false }: OwnerCardProps) {
         {/* Verification Sources */}
         {owner.verification_sources.length > 0 && (
           <div>
-            <p className="text-xs text-[#9494A8] mb-2">Verified via:</p>
+            <p className="text-xs text-[#c4c5d6] mb-2">Verified via:</p>
             <div className="flex flex-wrap gap-1">
               {owner.verification_sources.map((source) => (
                 <Badge 
                   key={source} 
                   variant="secondary" 
-                  className="text-xs bg-[#2A2A3C] text-[#9494A8]"
+                  className="text-xs bg-[#363a4f] text-[#c4c5d6]"
                 >
                   {source}
                 </Badge>
@@ -194,15 +194,15 @@ export function OwnerCard({ owner, compact = false }: OwnerCardProps) {
         )}
 
         {/* Stats */}
-        <div className="flex items-center justify-between pt-2 border-t border-[#2A2A3C]">
-          <span className="text-sm text-[#9494A8]">Properties</span>
-          <span className="text-sm font-medium text-[#F0F0F5]">{owner.property_count}</span>
+        <div className="flex items-center justify-between pt-2 border-t border-[#363a4f]">
+          <span className="text-sm text-[#c4c5d6]">Properties</span>
+          <span className="text-sm font-medium text-[#f0f0f6]">{owner.property_count}</span>
         </div>
 
         {/* Notes */}
         {owner.notes && (
-          <div className="pt-2 border-t border-[#2A2A3C]">
-            <p className="text-xs text-[#9494A8]">{owner.notes}</p>
+          <div className="pt-2 border-t border-[#363a4f]">
+            <p className="text-xs text-[#c4c5d6]">{owner.notes}</p>
           </div>
         )}
       </CardContent>

@@ -153,7 +153,7 @@ export function ScoreBreakdown({ breakdown, showLabels = true }: ScoreBreakdownP
       {/* Header: Score + Priority */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-[#F0F0F5]">Opportunity Score</span>
+          <span className="text-sm font-medium text-[#f0f0f6]">Opportunity Score</span>
           {priorityBadge && (
             <span className={cn('text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded border', priorityBadge.className)}>
               {priorityBadge.label}
@@ -172,25 +172,25 @@ export function ScoreBreakdown({ breakdown, showLabels = true }: ScoreBreakdownP
       </div>
 
       {/* Primary Diagnosis */}
-      <div className="bg-[#1A1A26] border border-[#2A2A3C] rounded p-2.5">
-        <p className="text-[#F0F0F5] font-medium text-xs mb-1.5">
+      <div className="bg-[#13141c] border border-[#2a2d3e] rounded p-2.5">
+        <p className="text-[#f0f0f6] font-medium text-xs mb-1.5">
           🔍 {diagnosis.issue}
         </p>
         {evidence.length > 0 && (
           <div className="mb-1.5 space-y-0.5">
             {evidence.map((bullet, i) => (
-              <p key={i} className="text-xs text-[#F0F0F5] leading-relaxed pl-2">• {bullet}</p>
+              <p key={i} className="text-xs text-[#f0f0f6] leading-relaxed pl-2">• {bullet}</p>
             ))}
           </div>
         )}
-        <p className="text-xs text-[#9494A8] italic">{diagnosis.conclusion}</p>
+        <p className="text-xs text-[#c4c5d6] italic">{diagnosis.conclusion}</p>
       </div>
 
       {/* Metrics Table */}
       {showLabels && (
         <table className="w-full text-xs">
           <thead>
-            <tr className="text-[#9494A8] border-b border-[#2A2A3C]">
+            <tr className="text-[#c4c5d6] border-b border-[#2a2d3e]">
               <th className="text-left py-1 pr-2 font-medium">Metric</th>
               <th className="text-right py-1 px-1 font-medium">Listing</th>
               <th className="text-right py-1 px-1 font-medium">Market</th>
@@ -199,16 +199,16 @@ export function ScoreBreakdown({ breakdown, showLabels = true }: ScoreBreakdownP
           </thead>
           <tbody>
             {metrics.map(row => (
-              <tr key={row.label} className="border-b border-[#2A2A3C]/50">
-                <td className="py-1 pr-2 text-[#9494A8]">{row.label}</td>
-                <td className="py-1 px-1 text-right font-mono text-[#F0F0F5]">{row.listing}</td>
-                <td className="py-1 px-1 text-right font-mono text-[#9494A8]">{row.market}</td>
+              <tr key={row.label} className="border-b border-[#2a2d3e]/50">
+                <td className="py-1 pr-2 text-[#c4c5d6]">{row.label}</td>
+                <td className="py-1 px-1 text-right font-mono text-[#f0f0f6]">{row.listing}</td>
+                <td className="py-1 px-1 text-right font-mono text-[#c4c5d6]">{row.market}</td>
                 <td className={cn(
                   'py-1 pl-1 text-right font-mono font-semibold',
-                  row.diff === null ? 'text-[#5C5C72]' :
+                  row.diff === null ? 'text-[#9395a8]' :
                   row.isBad ? 'text-red-400' :
                   row.diffNum !== null && row.diffNum !== 0 ? 'text-emerald-400' :
-                  'text-[#9494A8]'
+                  'text-[#c4c5d6]'
                 )}>
                   {row.diff ?? '—'}
                 </td>
@@ -220,9 +220,9 @@ export function ScoreBreakdown({ breakdown, showLabels = true }: ScoreBreakdownP
 
       {/* Revenue Upside */}
       {(breakdown.estimated_revenue_upside || breakdown.estimated_upside_pct) && (
-        <div className="bg-emerald-500/5 border border-emerald-500/20 rounded p-2">
+        <div className="bg-emerald-500/8 border border-emerald-500/25 rounded p-2">
           <p className="text-emerald-400 font-medium text-xs">💰 Revenue Opportunity</p>
-          <p className="text-[#F0F0F5] font-mono font-bold text-sm">
+          <p className="text-[#f0f0f6] font-mono font-bold text-sm">
             {breakdown.estimated_revenue_upside && `+$${breakdown.estimated_revenue_upside.toLocaleString()}/yr`}
             {breakdown.estimated_upside_pct && ` (+${Math.round(breakdown.estimated_upside_pct * 100)}%)`}
           </p>

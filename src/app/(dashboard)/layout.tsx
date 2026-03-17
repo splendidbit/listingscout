@@ -25,7 +25,7 @@ export default async function DashboardLayout({
     .eq('id', user.id)
     .single()
 
-  // Type assertion for when Supabase isn't configured yet  
+  // Type assertion for when Supabase isn't configured yet
   const profileData = profile as {
     full_name?: string | null
     avatar_url?: string | null
@@ -40,16 +40,16 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen bg-[#0A0A0F]">
+    <div className="flex h-screen bg-[#09090f]">
       <Sidebar user={userData} />
       <main className="flex-1 overflow-auto">{children}</main>
       <Toaster
         position="bottom-right"
         toastOptions={{
           style: {
-            background: '#1A1A26',
-            border: '1px solid #2A2A3C',
-            color: '#F0F0F5',
+            background: '#1c1d2b',
+            border: '1px solid #363a4f',
+            color: '#f0f0f6',
           },
         }}
       />

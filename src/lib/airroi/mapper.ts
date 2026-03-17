@@ -58,7 +58,7 @@ export function mapAirROIListing(listing: AirROIListing): MappedListing {
   const rat = listing.ratings ?? {}
   const pm = listing.performance_metrics ?? {}
 
-  const listingId = String(li.listing_id ?? Math.random())
+  const listingId = String(li.listing_id ?? '')
 
   return {
     listing_id: listingId,
@@ -105,5 +105,7 @@ export function mapAirROIListing(listing: AirROIListing): MappedListing {
 }
 
 export function mapAirROIListings(listings: AirROIListing[]): MappedListing[] {
-  return listings.map(mapAirROIListing)
+  return listings
+    .filter(l => l.listing_info?.listing_id != null)
+    .map(mapAirROIListing)
 }

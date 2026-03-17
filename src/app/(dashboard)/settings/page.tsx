@@ -1,5 +1,5 @@
 import { Header } from '@/components/layout/header'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Settings, Palette, Bell, Key } from 'lucide-react'
 import Link from 'next/link'
 
@@ -33,14 +33,14 @@ export default function SettingsPage() {
         <div className="grid gap-4">
           {settingsLinks.map((item) => (
             <Link key={item.href} href={item.href}>
-              <Card className="bg-[#12121A] border-[#2A2A3C] hover:border-[#3A3A52] transition-colors cursor-pointer">
+              <Card className="bg-[#13141c] border-[#363a4f] hover:border-[#4a4d65] transition-colors cursor-pointer">
                 <CardContent className="flex items-center p-6">
-                  <div className="p-3 rounded-lg bg-[#1A1A26] mr-4">
+                  <div className="p-3 rounded-lg bg-[#1c1d2b] mr-4">
                     <item.icon className="h-6 w-6 text-[#6366F1]" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-[#F0F0F5]">{item.title}</h3>
-                    <p className="text-sm text-[#9494A8]">{item.description}</p>
+                    <h3 className="font-medium text-[#f0f0f6]">{item.title}</h3>
+                    <p className="text-sm text-[#c4c5d6]">{item.description}</p>
                   </div>
                 </CardContent>
               </Card>
