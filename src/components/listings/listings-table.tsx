@@ -494,36 +494,192 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
   )
 }
 
+// ─── Helpers ────────────────────────────────────────────────────────────────────
+
+function diagnosePrimaryIssue(listing: ListingRow): {
+  issue: string
+  conclusion: string
+} {
+  const occDelta = listing.occupancy_delta
+  const adrDelta = listing.adr_delta
+  const revpanDelta = listing.revpan_delta
+  const momSignal = listing.momentum_signal
+  const qualityGap = listing.listing_quality_gap_score ?? 0
+
+  if (adrDelta !== null && adrDelta !== undefined && adrDelta > 0 && occDelta !== null && occDelta !== undefined && occDelta < -0.05) {
+    return {
+      issue: 'Overpricing',
+      conclusion: 'High pricing is reducing booking volume and total revenue.',
+    }
+  }
+  if (occDelta !== null && occDelta !== undefined && occDelta > 0.05 && revpanDelta !== null && revpanDelta !== undefined && revpanDelta < 0) {
+    return {
+      issue: 'Underpricing',
+      conclusion: 'High occupancy but below-market revenue — the host could charge more.',
+    }
+  }
+  if (momSignal !== null && momSignal !== undefined && momSignal < -0.15) {
+    return {
+      issue: 'Declining Performance',
+      conclusion: 'Revenue has declined significantly compared to last year.',
+    }
+  }
+  if (qualityGap > 60) {
+    return {
+      issue: 'Listing Quality Gaps',
+      conclusion: 'Photos, amenities, or guest ratings are below competitive listings.',
+    }
+  }
+  return {
+    issue: 'Optimization Opportunity',
+    conclusion: 'This listing has multiple small inefficiencies that compound into lower revenue.',
+  }
+}
+
+function fmtPct(val: number, decimals = 0): string {
+  return `${val >= 0 ? '+' : ''}${(val * 100).toFixed(decimals)}%`
+}
+
+function fmtMoney(val: number): string {
+  if (Math.abs(val) >= 1000) return `$${(val / 1000).toFixed(1)}K`
+  return `$${Math.round(val).toLocaleString()}`
+}
+
+function buildEvidenceBullets(listing: ListingRow): string[] {
+  const bullets: string[] = []
+  const listingAdr = listing.nightly_rate ?? listing.ttm_avg_rate
+  const marketAdr = listing.market_avg_price
+
+  if (listing.adr_delta !== null && listing.adr_delta !== undefined && listingAdr && marketAdr) {
+    const pct = marketAdr !== 0 ? Math.round((listing.adr_delta / marketAdr) * 100) : 0
+    const dir = listing.adr_delta > 0 ? 'above' : 'below'
+    bullets.push(`ADR is ${Math.abs(pct)}% ${dir} market ($${Math.round(listingAdr)} vs $${Math.round(marketAdr)})`)
+  }
+
+  const listingOcc = listing.ttm_occupancy
+  const marketOcc = listing.market_avg_occupancy
+  if (listing.occupancy_delta !== null && listing.occupancy_delta !== undefined) {
+    const dir = listing.occupancy_delta > 0 ? 'above' : 'below'
+    const listingPct = listingOcc !== null && listingOcc !== undefined ? `${Math.round(listingOcc * 100)}%` : '—'
+    const marketPct = marketOcc !== null && marketOcc !== undefined ? `${Math.round(marketOcc * 100)}%` : '—'
+    bullets.push(`Occupancy is ${Math.abs(Math.round(listing.occupancy_delta * 100))}% ${dir} market (${listingPct} vs ${marketPct})`)
+  }
+
+  if (listing.revpan_delta !== null && listing.revpan_delta !== undefined) {
+    const dir = listing.revpan_delta > 0 ? 'above' : 'below'
+    const listingRevpar = listingAdr && listingOcc ? Math.round(listingAdr * listingOcc) : null
+    const marketRevpar = marketAdr && marketOcc ? Math.round(marketAdr * marketOcc) : null
+    const pct = marketRevpar ? Math.round((listing.revpan_delta / marketRevpar) * 100) : null
+    const pctStr = pct !== null ? `${Math.abs(pct)}% ` : ''
+    const vals = listingRevpar && marketRevpar ? ` ($${listingRevpar} vs $${marketRevpar})` : ''
+    bullets.push(`RevPAR is ${pctStr}${dir} market${vals}`)
+  }
+
+  if (listing.momentum_signal !== null && listing.momentum_signal !== undefined) {
+    const dir = listing.momentum_signal > 0 ? 'up' : 'down'
+    bullets.push(`Revenue trending ${dir} ${Math.abs(Math.round(listing.momentum_signal * 100))}% vs last year`)
+  }
+
+  return bullets
+}
+
 // ─── Listing Detail Panel ──────────────────────────────────────────────────────
 
-const bucketConfig: Record<string, { emoji: string; label: string }> = {
-  strong_lead:              { emoji: '⚡', label: 'Strong Lead' },
-  pricing_opportunity:      { emoji: '💰', label: 'Pricing Opportunity' },
-  optimization_opportunity: { emoji: '📸', label: 'Needs Optimization' },
-  multi_listing_host:       { emoji: '🔄', label: 'Scaling Host' },
-  weak_lead:                { emoji: '❌', label: 'Weak Lead' },
-}
-
-const HOST_TYPE_LABELS: Record<string, string> = {
-  independent: '🏠 Independent Host',
-  scaling: '📈 Scaling Host',
-  professional: '🏢 Professional',
-  diy: '🏠 DIY Host',
-}
-
 function ListingDetailPanel({ listing }: { listing: ListingRow }) {
-  const bucket = bucketConfig[listing.ai_bucket ?? 'weak_lead'] ?? bucketConfig.weak_lead
-  const pricingGap = listing.market_avg_price && listing.ttm_avg_rate
-    ? Math.round(listing.market_avg_price - listing.ttm_avg_rate)
-    : null
-  const hasNewScoring = listing.opportunity_score !== null && listing.opportunity_score !== undefined
   const oppScore = listing.opportunity_score ?? listing.lead_score ?? 0
   const priority = listing.lead_priority_rank
   const priorityBadge = priority ? PRIORITY_BADGE[priority] : null
+  const diagnosis = diagnosePrimaryIssue(listing)
+  const evidence = buildEvidenceBullets(listing)
+
+  // Metrics table data
+  const listingAdr = listing.nightly_rate ?? listing.ttm_avg_rate
+  const marketAdr = listing.market_avg_price
+  const listingOcc = listing.ttm_occupancy
+  const marketOcc = listing.market_avg_occupancy
+  const listingRevpar = listingAdr && listingOcc ? listingAdr * listingOcc : null
+  const marketRevpar = marketAdr && marketOcc ? marketAdr * marketOcc : null
+  const listingRevenue = listing.ttm_revenue
+  const marketRevenue = listing.market_avg_revenue
+
+  type MetricRow = {
+    label: string
+    listing: string
+    market: string
+    diff: string | null
+    diffNum: number | null
+    isBad: boolean
+  }
+
+  const metrics: MetricRow[] = [
+    (() => {
+      const diff = listing.adr_delta ?? (listingAdr && marketAdr ? listingAdr - marketAdr : null)
+      const pct = marketAdr && diff !== null ? diff / marketAdr : null
+      // Overpricing: high ADR is bad; underpricing: low ADR is bad
+      const isBad = diagnosis.issue === 'Overpricing' ? (diff !== null && diff > 0) : (diff !== null && diff < 0)
+      return {
+        label: 'ADR',
+        listing: listingAdr ? `$${Math.round(listingAdr)}` : '—',
+        market: marketAdr ? `$${Math.round(marketAdr)}` : '—',
+        diff: pct !== null ? fmtPct(pct) : null,
+        diffNum: pct,
+        isBad,
+      }
+    })(),
+    (() => {
+      const delta = listing.occupancy_delta
+      const isBad = delta !== null && delta !== undefined && delta < 0
+      return {
+        label: 'Occupancy',
+        listing: listingOcc !== null && listingOcc !== undefined ? `${Math.round(listingOcc * 100)}%` : '—',
+        market: marketOcc !== null && marketOcc !== undefined ? `${Math.round(marketOcc * 100)}%` : '—',
+        diff: delta !== null && delta !== undefined ? fmtPct(delta) : null,
+        diffNum: delta ?? null,
+        isBad,
+      }
+    })(),
+    (() => {
+      const diff = listing.revpan_delta ?? (listingRevpar && marketRevpar ? listingRevpar - marketRevpar : null)
+      const pct = marketRevpar && diff !== null ? diff / marketRevpar : null
+      const isBad = diff !== null && diff < 0
+      return {
+        label: 'RevPAR',
+        listing: listingRevpar !== null ? `$${Math.round(listingRevpar)}` : '—',
+        market: marketRevpar !== null ? `$${Math.round(marketRevpar)}` : '—',
+        diff: pct !== null ? fmtPct(pct) : null,
+        diffNum: pct,
+        isBad,
+      }
+    })(),
+    (() => {
+      const diff = listingRevenue && marketRevenue ? listingRevenue - marketRevenue : null
+      const pct = marketRevenue && diff !== null ? diff / marketRevenue : null
+      const isBad = diff !== null && diff < 0
+      return {
+        label: 'Annual Revenue',
+        listing: listingRevenue ? fmtMoney(listingRevenue) : '—',
+        market: marketRevenue ? fmtMoney(marketRevenue) : '—',
+        diff: pct !== null ? fmtPct(pct) : null,
+        diffNum: pct,
+        isBad,
+      }
+    })(),
+  ]
+
+  // Determine upside explanation
+  const upsideExplanation = diagnosis.issue === 'Overpricing'
+    ? 'Based on closing the occupancy gap to market average'
+    : diagnosis.issue === 'Underpricing'
+    ? 'Based on raising ADR to market rate while maintaining occupancy'
+    : listing.occupancy_delta !== null && listing.occupancy_delta !== undefined && listing.occupancy_delta < -0.05
+    ? 'Based on closing the occupancy gap to market average'
+    : listing.revpan_delta !== null && listing.revpan_delta !== undefined && listing.revpan_delta < 0
+    ? 'Based on closing the RevPAR gap to market average'
+    : 'Based on combined pricing and occupancy optimization'
 
   return (
     <div className="px-4 py-4 space-y-4 text-xs border-t border-[#2A2A3C] overflow-hidden">
-      {/* Header */}
+      {/* A) Header row */}
       <div className="flex items-center gap-3 flex-wrap">
         <span className={cn(
           'font-mono font-bold text-base px-2 py-0.5 rounded',
@@ -539,125 +695,90 @@ function ListingDetailPanel({ listing }: { listing: ListingRow }) {
             {priorityBadge.label}
           </span>
         )}
-        <span className="text-[#F0F0F5] font-medium">{bucket.emoji} {bucket.label}</span>
-        <span className="text-[#9494A8]">
-          {HOST_TYPE_LABELS[listing.host_type ?? 'independent'] ?? listing.host_type}
-          {listing.host_listing_count ? ` · ${listing.host_listing_count} listing${listing.host_listing_count > 1 ? 's' : ''}` : ''}
-        </span>
-        {pricingGap && pricingGap > 5 && <span className="text-orange-400">↑ ${pricingGap} below market</span>}
         {listing.estimated_revenue_upside && (
-          <span className="text-emerald-400 font-mono">+${listing.estimated_revenue_upside.toLocaleString()} upside</span>
+          <span className="text-emerald-400 font-mono font-bold text-sm">
+            +${listing.estimated_revenue_upside.toLocaleString()}/yr
+          </span>
         )}
       </div>
 
-      {/* Outreach reason callout */}
-      {listing.recommended_outreach_reason && (
-        <div className="bg-[#6366F1]/10 border border-[#6366F1]/20 rounded p-2.5">
-          <p className="text-[#6366F1] font-medium mb-0.5">📡 Outreach Signal</p>
-          <p className="text-[#F0F0F5] leading-relaxed">{listing.recommended_outreach_reason}</p>
-        </div>
-      )}
-
-      {/* Score breakdown */}
-      <div>
-        <p className="text-[#9494A8] font-medium mb-2">📊 How this score was calculated</p>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-          {[
-            {
-              label: 'Occupancy Gap',
-              value: listing.occupancy_gap_score,
-              desc: listing.occupancy_delta !== null && listing.occupancy_delta !== undefined
-                ? `${listing.occupancy_delta > 0 ? '+' : ''}${Math.round(listing.occupancy_delta * 100)}% vs market occupancy`
-                : listing.market_avg_occupancy
-                  ? `Market avg ${Math.round(listing.market_avg_occupancy * 100)}% occupancy`
-                  : 'Market occupancy data unavailable.',
-            },
-            {
-              label: 'RevPAR Gap',
-              value: listing.revpan_gap_score,
-              desc: listing.revpan_delta !== null && listing.revpan_delta !== undefined
-                ? `$${Math.round(listing.revpan_delta)} vs market RevPAR`
-                : 'RevPAR comparison data unavailable.',
-            },
-            {
-              label: 'Pricing Efficiency',
-              value: listing.pricing_inefficiency_score ?? listing.pricing_opportunity_score,
-              desc: listing.adr_delta !== null && listing.adr_delta !== undefined
-                ? `ADR $${Math.round(listing.adr_delta)} vs market${listing.adr_delta > 0 ? ' (above)' : ' (below)'}`
-                : listing.market_avg_price && listing.ttm_avg_rate
-                  ? `$${Math.round(listing.ttm_avg_rate)}/night vs $${Math.round(listing.market_avg_price)} market avg`
-                  : 'Market pricing data unavailable.',
-            },
-            {
-              label: 'Listing Quality',
-              value: listing.listing_quality_gap_score ?? (listing.listing_quality_score !== null && listing.listing_quality_score !== undefined ? 100 - listing.listing_quality_score : null),
-              desc: `${listing.photo_count ?? '?'} photos, ${listing.amenities_count ?? '?'} amenities.${(listing.photo_count ?? 15) < 15 ? ' Low photo count.' : ''}${(listing.amenities_count ?? 8) < 8 ? ' Few amenities.' : ''}`,
-            },
-            {
-              label: 'Momentum',
-              value: listing.momentum_score ?? listing.review_momentum_score,
-              desc: listing.momentum_signal !== null && listing.momentum_signal !== undefined
-                ? `Revenue ${listing.momentum_signal > 0 ? 'up' : 'down'} ${Math.round(Math.abs(listing.momentum_signal) * 100)}% vs last year`
-                : `${listing.total_reviews} reviews, ${listing.avg_rating?.toFixed(1) ?? '?'}★`,
-            },
-            {
-              label: 'Host Profile',
-              value: listing.host_profile_score,
-              desc: listing.host_type === 'independent'
-                ? `Independent host${listing.host_listing_count ? ` with ${listing.host_listing_count} listing${listing.host_listing_count > 1 ? 's' : ''}` : ''} — prime target.`
-                : listing.host_type === 'scaling'
-                ? `Scaling host with ${listing.host_listing_count ?? '?'} listings.`
-                : listing.host_type === 'professional'
-                ? 'Professional operator.'
-                : `${listing.host_listing_count ?? '?'} listings.`,
-            },
-          ].map(item => (
-            <div key={item.label} className="bg-[#12121A] rounded p-2.5 border border-[#2A2A3C]">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[#9494A8] font-medium">{item.label}</span>
-                {item.value !== null && item.value !== undefined && (
-                  <span className={cn(
-                    'font-mono font-bold',
-                    (item.value as number) >= 65 ? 'text-red-400' : (item.value as number) >= 40 ? 'text-orange-400' : 'text-green-400'
-                  )}>{item.value}</span>
-                )}
-              </div>
-              <p className="text-[#9494A8] leading-relaxed">{item.desc}</p>
-            </div>
-          ))}
-        </div>
+      {/* B) Primary Diagnosis */}
+      <div className="bg-[#1A1A26] border border-[#2A2A3C] rounded p-3">
+        <p className="text-[#F0F0F5] font-medium mb-2 text-sm">
+          🔍 Primary Issue: {diagnosis.issue}
+        </p>
+        {evidence.length > 0 && (
+          <div className="mb-2 space-y-1">
+            <p className="text-[#9494A8] font-medium">Evidence:</p>
+            {evidence.map((bullet, i) => (
+              <p key={i} className="text-[#F0F0F5] leading-relaxed pl-3">• {bullet}</p>
+            ))}
+          </div>
+        )}
+        <p className="text-[#9494A8] italic">{diagnosis.conclusion}</p>
       </div>
 
-      {/* Revenue upside estimate */}
+      {/* C) Key Metrics table */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="text-[#9494A8] border-b border-[#2A2A3C]">
+              <th className="text-left py-1.5 pr-4 font-medium">Metric</th>
+              <th className="text-right py-1.5 px-3 font-medium">Listing</th>
+              <th className="text-right py-1.5 px-3 font-medium">Market</th>
+              <th className="text-right py-1.5 pl-3 font-medium">Diff</th>
+            </tr>
+          </thead>
+          <tbody>
+            {metrics.map(row => (
+              <tr key={row.label} className="border-b border-[#2A2A3C]/50">
+                <td className="py-1.5 pr-4 text-[#9494A8] font-medium">{row.label}</td>
+                <td className="py-1.5 px-3 text-right font-mono text-[#F0F0F5]">{row.listing}</td>
+                <td className="py-1.5 px-3 text-right font-mono text-[#9494A8]">{row.market}</td>
+                <td className={cn(
+                  'py-1.5 pl-3 text-right font-mono font-semibold',
+                  row.diff === null ? 'text-[#5C5C72]' :
+                  row.isBad ? 'text-red-400' :
+                  row.diffNum !== null && row.diffNum !== 0 ? 'text-emerald-400' :
+                  'text-[#9494A8]'
+                )}>
+                  {row.diff ?? '—'} {row.diff !== null && (row.diffNum !== null && row.diffNum > 0 ? '⬆' : row.diffNum !== null && row.diffNum < 0 ? '⬇' : '')}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* D) Revenue Upside */}
       {(listing.estimated_revenue_upside || listing.estimated_upside_pct) && (
-        <div className="bg-emerald-500/5 border border-emerald-500/20 rounded p-2.5">
-          <p className="text-emerald-400 font-medium mb-0.5">💰 Revenue Upside Estimate</p>
-          <p className="text-[#F0F0F5] leading-relaxed">
-            {listing.estimated_revenue_upside && `$${listing.estimated_revenue_upside.toLocaleString()} estimated annual upside`}
-            {listing.estimated_upside_pct && ` (${Math.round(listing.estimated_upside_pct * 100)}% improvement potential)`}
+        <div className="bg-emerald-500/5 border border-emerald-500/20 rounded p-3">
+          <p className="text-emerald-400 font-medium text-sm mb-1">💰 Estimated Revenue Opportunity</p>
+          <p className="text-[#F0F0F5] font-mono font-bold text-base">
+            {listing.estimated_revenue_upside && `+$${listing.estimated_revenue_upside.toLocaleString()}/year`}
+            {listing.estimated_upside_pct && ` (+${Math.round(listing.estimated_upside_pct * 100)}%)`}
           </p>
+          <p className="text-[#9494A8] mt-1">{upsideExplanation}</p>
         </div>
       )}
 
-      {/* AI analysis */}
-      {(listing.opportunity_notes || listing.outreach_angle) ? (
-        <div className="grid grid-cols-1 gap-2 min-w-0">
-          {listing.opportunity_notes && (
-            <div className="bg-[#12121A] border border-[#2A2A3C] rounded p-2.5">
-              <p className="text-[#6366F1] font-medium mb-1">💡 Primary Opportunity</p>
-              <p className="text-[#F0F0F5] leading-relaxed break-words whitespace-normal">{listing.opportunity_notes}</p>
-            </div>
-          )}
-          {listing.outreach_angle && (
-            <div className="bg-[#6366F1]/10 border border-[#6366F1]/20 rounded p-2.5">
-              <p className="text-[#6366F1] font-medium mb-1">✉️ Suggested Outreach</p>
-              <p className="text-[#F0F0F5] leading-relaxed italic break-words whitespace-normal">&ldquo;{listing.outreach_angle}&rdquo;</p>
-            </div>
-          )}
-        </div>
-      ) : (
-        <p className="text-[#5C5C72] italic">No AI analysis yet. Run &quot;Re-score All&quot; to generate insights.</p>
-      )}
+      {/* E) Host & Listing Info (compact) */}
+      <div className="flex items-center gap-4 text-[#9494A8] flex-wrap pt-1 border-t border-[#2A2A3C]">
+        {listing.host_name && <span>{listing.host_name}{listing.superhost ? ' (Superhost)' : ''}</span>}
+        {listing.host_type && <span className="capitalize">{listing.host_type}</span>}
+        {listing.host_listing_count && <span>{listing.host_listing_count} listing{listing.host_listing_count > 1 ? 's' : ''}</span>}
+        <span>{listing.bedrooms}BR · {listing.bathrooms}BA · {listing.max_guests}G</span>
+        {listing.photo_count && <span>{listing.photo_count} photos</span>}
+        {listing.amenities_count && <span>{listing.amenities_count} amenities</span>}
+        <a
+          href={listing.listing_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[#6366F1] hover:text-[#818CF8] flex items-center gap-1"
+        >
+          View listing <ExternalLink className="h-3 w-3" />
+        </a>
+      </div>
     </div>
   )
 }

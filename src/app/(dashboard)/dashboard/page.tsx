@@ -52,7 +52,7 @@ export default async function DashboardPage() {
       trend: 'up',
     },
     {
-      name: 'Strong Leads',
+      name: 'Hot Leads',
       value: strongLeads.toLocaleString(),
       icon: Target,
       change: '+8%',
