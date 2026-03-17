@@ -101,6 +101,7 @@ export interface EnrichedListing {
   outreach_angle: string | null
   ai_confidence: number | null
   ai_analyzed_at: string | null
+  is_active: boolean
   cover_image_url: string | null
   raw_data: Record<string, unknown>
 }
@@ -212,6 +213,7 @@ function mapAirROIToEnriched(
     ai_confidence: null,
     ai_analyzed_at: null,
 
+    is_active: true,
     cover_image_url: li.cover_photo_url ?? null,
     raw_data: listing as unknown as Record<string, unknown>,
   }
@@ -358,6 +360,23 @@ export async function POST(request: NextRequest) {
       if (!l.listing_info?.listing_id) return false
       const reviews = l.ratings?.num_reviews ?? l.ratings?.review_count ?? 0
       return reviews >= 3
+    })
+
+    // Filter out likely-dead/inactive listings
+    rawListings = rawListings.filter(l => {
+      const reviews = l.ratings?.num_reviews ?? l.ratings?.review_count ?? 0
+      const lastRevenue = l.performance_metrics?.l90d_revenue ?? null
+      const ttmRevenue = l.performance_metrics?.ttm_revenue ?? null
+      const ttmOccupancy = l.performance_metrics?.ttm_occupancy ?? null
+
+      // Must have at least 5 reviews (very new listings are often test/inactive)
+      if (reviews < 5) return false
+
+      // If l90d_revenue is 0 or null AND ttm_occupancy < 5%, likely inactive
+      if (lastRevenue !== null && lastRevenue <= 0 && ttmOccupancy !== null && ttmOccupancy < 0.05) return false
+      if (lastRevenue !== null && lastRevenue <= 0 && ttmRevenue !== null && ttmRevenue <= 0) return false
+
+      return true
     })
 
     // Map nested AirROI response → flat EnrichedListing

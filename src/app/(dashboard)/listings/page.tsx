@@ -100,6 +100,8 @@ export default async function ListingsPage() {
       outreach_angle: (sb.outreach_angle as string) ?? null,
       ai_lead_score: (sb.ai_lead_score as number) ?? null,
       ai_bucket: (sb.ai_bucket as string) ?? null,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      is_favorited: (l as any).is_favorited ?? false,
     }
   }
 

@@ -73,6 +73,9 @@ export function mapListingRow(l: ListingDbRow): ListingRow {
     outreach_angle: (sb.outreach_angle as string) ?? row.outreach_angle ?? null,
     ai_lead_score: (sb.ai_lead_score as number) ?? row.ai_lead_score ?? null,
     ai_bucket: (sb.ai_bucket as string) ?? row.ai_bucket ?? null,
+
+    // Favorites
+    is_favorited: row.is_favorited ?? false,
   }
 }
 

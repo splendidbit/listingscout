@@ -99,6 +99,7 @@ export interface ListingRow {
   estimated_upside_pct?: number | null
   cohost_presence?: boolean
   professional_management?: boolean
+  is_favorited?: boolean | null
 }
 
 interface ListingsTableProps {
@@ -133,6 +134,30 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
   const [globalFilter, setGlobalFilter] = useState('')
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
   const toggleExpand = (id: string) => setExpandedRows(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
+  const [favoritesOnly, setFavoritesOnly] = useState(false)
+  const [favoriteState, setFavoriteState] = useState<Record<string, boolean>>(() => {
+    const map: Record<string, boolean> = {}
+    data.forEach(r => { if (r.is_favorited) map[r.id] = true })
+    return map
+  })
+
+  const toggleFavorite = async (id: string) => {
+    const current = favoriteState[id] ?? false
+    const next = !current
+    setFavoriteState(prev => ({ ...prev, [id]: next }))
+    try {
+      const res = await fetch('/api/listings/favorite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ listingId: id, favorited: next }),
+      })
+      if (!res.ok) setFavoriteState(prev => ({ ...prev, [id]: current }))
+    } catch {
+      setFavoriteState(prev => ({ ...prev, [id]: current }))
+    }
+  }
+
+  const filteredData = favoritesOnly ? data.filter(r => favoriteState[r.id]) : data
 
   const selectColumn: ColumnDef<ListingRow> = {
     id: 'select',
@@ -175,9 +200,33 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
     size: 48,
   }
 
+  const favoriteColumn: ColumnDef<ListingRow> = {
+    id: 'favorite',
+    header: '',
+    cell: ({ row }) => {
+      const isFav = favoriteState[row.original.id] ?? false
+      return (
+        <button
+          onClick={e => { e.stopPropagation(); toggleFavorite(row.original.id) }}
+          className={cn(
+            'flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-150',
+            isFav
+              ? 'text-[#F59E0B]'
+              : 'text-[#9395a8] hover:text-[#F59E0B]/60'
+          )}
+          aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
+        >
+          <Star className={cn('h-4 w-4', isFav && 'fill-[#F59E0B]')} />
+        </button>
+      )
+    },
+    size: 40,
+  }
+
   const columns: ColumnDef<ListingRow>[] = [
     ...(selectable ? [selectColumn] : []),
     expandColumn,
+    favoriteColumn,
     {
       accessorKey: 'lead_score',
       header: 'Score',
@@ -339,7 +388,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
   ]
 
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -364,6 +413,33 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
 
   return (
     <div className="space-y-4">
+      {/* Filter tabs */}
+      <div className="flex items-center gap-1">
+        <button
+          onClick={() => setFavoritesOnly(false)}
+          className={cn(
+            'px-3 py-1.5 text-sm font-medium rounded-lg transition-colors',
+            !favoritesOnly
+              ? 'bg-[#6366F1]/15 text-[#818CF8] border border-[#6366F1]/30'
+              : 'text-[#9395a8] hover:text-[#c4c5d6] hover:bg-[#1c1d2b]'
+          )}
+        >
+          All
+        </button>
+        <button
+          onClick={() => setFavoritesOnly(true)}
+          className={cn(
+            'px-3 py-1.5 text-sm font-medium rounded-lg transition-colors flex items-center gap-1.5',
+            favoritesOnly
+              ? 'bg-[#F59E0B]/15 text-[#F59E0B] border border-[#F59E0B]/30'
+              : 'text-[#9395a8] hover:text-[#c4c5d6] hover:bg-[#1c1d2b]'
+          )}
+        >
+          <Star className="h-3.5 w-3.5 fill-current" />
+          Favorites
+        </button>
+      </div>
+
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-4">
         <div className="relative flex-1 max-w-md">
@@ -461,11 +537,11 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
       {/* Pagination */}
       <div className="flex items-center justify-between">
         <p className="text-[15px] text-[#c4c5d6]">
-          {data.length > 0
+          {filteredData.length > 0
             ? `Showing ${table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to ${Math.min(
                 (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
-                data.length
-              )} of ${data.length} listings`
+                filteredData.length
+              )} of ${filteredData.length} listings`
             : 'No listings'}
         </p>
 
