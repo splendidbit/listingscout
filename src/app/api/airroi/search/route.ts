@@ -13,6 +13,7 @@ import {
   AirROIFilter,
   AirROISort,
   AirROIListing,
+  AirROIMarket,
   MarketSummaryResponse,
 } from '@/lib/airroi/client'
 import { scoreListing, ListingData, ScoringResult } from '@/lib/scoring/engine'
