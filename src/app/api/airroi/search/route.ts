@@ -106,6 +106,41 @@ export interface EnrichedListing {
   raw_data: Record<string, unknown>
 }
 
+function normalizeOccupancy(value: number | null): number | null {
+  if (value === null) return null
+  return value > 1 ? value / 100 : value
+}
+
+function matchesHostPreference(listing: EnrichedListing, criteria: CampaignCriteria): boolean {
+  if (criteria.host.preferred_type === 'business') {
+    return listing.professional_management || (listing.host_listing_count ?? 0) > 1
+  }
+
+  if (criteria.host.preferred_type === 'individual') {
+    return !listing.professional_management && ((listing.host_listing_count ?? 1) <= 1)
+  }
+
+  return true
+}
+
+function getRequestedRoomType(types: string[]): 'private_room' | 'entire_home' | undefined {
+  if (types.includes('private_room')) return 'private_room'
+  if (types.includes('entire_home')) return 'entire_home'
+  return undefined
+}
+
+function matchesPropertyType(listing: EnrichedListing, selectedTypes: string[]): boolean {
+  if (selectedTypes.length === 0) return true
+
+  const roomType = listing.room_type.toLowerCase()
+  const propertyType = listing.property_type.toLowerCase()
+
+  return selectedTypes.some(type => {
+    const normalized = type.toLowerCase()
+    return roomType === normalized || propertyType.includes(normalized.replaceAll('_', ' '))
+  })
+}
+
 function mapAirROIToEnriched(
   listing: AirROIListing,
   market: MarketSummaryResponse | null
@@ -309,9 +344,22 @@ export async function POST(request: NextRequest) {
 
     // Minimal filter — let scoring engine rank
     const filter: AirROIFilter = {}
-    // Minimum quality: at least 3 reviews, rating >= 3.0 if available
-    filter.num_reviews = { gte: 3 }
-    filter.rating_overall = { gte: 3.0 }
+    const requestedRoomType = getRequestedRoomType(criteria.property.types)
+    if (requestedRoomType) filter.room_type = { eq: requestedRoomType }
+    if (criteria.property.min_bedrooms > 0) filter.bedrooms = { gte: criteria.property.min_bedrooms }
+    if (criteria.property.min_bathrooms > 0) filter.baths = { gte: criteria.property.min_bathrooms }
+    if (criteria.property.min_guests > 0) filter.guests = { gte: criteria.property.min_guests }
+    if (criteria.performance.min_reviews > 0) filter.num_reviews = { gte: criteria.performance.min_reviews }
+    if (criteria.performance.min_rating > 0) filter.rating_overall = { gte: criteria.performance.min_rating }
+    if (criteria.performance.min_occupancy_pct > 0) {
+      filter.ttm_occupancy = { gte: normalizeOccupancy(criteria.performance.min_occupancy_pct) ?? undefined }
+    }
+    if (criteria.performance.nightly_rate_min > 0 || criteria.performance.nightly_rate_max > 0) {
+      filter.ttm_avg_rate = {
+        ...(criteria.performance.nightly_rate_min > 0 && { gte: criteria.performance.nightly_rate_min }),
+        ...(criteria.performance.nightly_rate_max > 0 && { lte: criteria.performance.nightly_rate_max }),
+      }
+    }
     if (criteria.host.superhost_required) filter.superhost = { eq: true }
     const VALID_AIRROI_AMENITIES = new Set(['wifi','pool','hot_tub','dedicated_workspace','kitchen','washer','dryer','free_parking_on_premises','air_conditioning','heating','indoor_fireplace','gym','ev_charger','pets_allowed','bbq_grill','patio_or_balcony','beach_access','waterfront','ski_in_ski_out','lake_access','sauna','fire_pit','bathtub','bikes','dishwasher','iron','refrigerator','tv','coffee_maker','microwave','oven','stove','private_entrance','luggage_dropoff_allowed'])
     const validAmenities = criteria.property.required_amenities.filter(a => VALID_AIRROI_AMENITIES.has(a))
@@ -355,11 +403,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Post-fetch quality filter: remove listings with fewer than 3 reviews or no listing ID
+    // Post-fetch quality filter: remove listings without IDs or below campaign review floor.
     rawListings = rawListings.filter(l => {
       if (!l.listing_info?.listing_id) return false
       const reviews = l.ratings?.num_reviews ?? l.ratings?.review_count ?? 0
-      return reviews >= 3
+      return reviews >= criteria.performance.min_reviews
     })
 
     // Filter out likely-dead/inactive listings
@@ -369,8 +417,8 @@ export async function POST(request: NextRequest) {
       const ttmRevenue = l.performance_metrics?.ttm_revenue ?? null
       const ttmOccupancy = l.performance_metrics?.ttm_occupancy ?? null
 
-      // Must have at least 5 reviews (very new listings are often test/inactive)
-      if (reviews < 5) return false
+      // Ignore obviously inactive inventory, but do not override the campaign's own review threshold.
+      if (reviews < Math.max(criteria.performance.min_reviews, 3)) return false
 
       // If l90d_revenue is 0 or null AND ttm_occupancy < 5%, likely inactive
       if (lastRevenue !== null && lastRevenue <= 0 && ttmOccupancy !== null && ttmOccupancy < 0.05) return false
@@ -382,8 +430,21 @@ export async function POST(request: NextRequest) {
     // Map nested AirROI response → flat EnrichedListing
     let listings = rawListings.map((l: AirROIListing) => mapAirROIToEnriched(l, market))
 
-    // Filter out professional operators (10+ listings)
-    listings = listings.filter(l => l.host_listing_count === null || l.host_listing_count <= 9)
+    listings = listings.filter(listing => matchesPropertyType(listing, criteria.property.types))
+
+    listings = listings.filter(l => {
+      if (!matchesHostPreference(l, criteria)) return false
+
+      if (criteria.host.min_listings > 0 && l.host_listing_count !== null && l.host_listing_count < criteria.host.min_listings) {
+        return false
+      }
+
+      if (criteria.host.max_listings > 0 && l.host_listing_count !== null && l.host_listing_count > criteria.host.max_listings) {
+        return false
+      }
+
+      return true
+    })
 
     // Filter out already-optimized listings (high revenue + high rating = not a consulting target)
     listings = listings.filter(l => {

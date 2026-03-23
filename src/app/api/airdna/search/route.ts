@@ -10,6 +10,64 @@ import { getCompList } from '@/lib/airdna/client'
 import { mapAirDNAProperties } from '@/lib/airdna/mapper'
 import { CampaignCriteria } from '@/lib/types/criteria'
 
+function normalizeOccupancy(value: number | null): number | null {
+  if (value === null) return null
+  return value > 1 ? value / 100 : value
+}
+
+function matchesPropertyType(
+  listing: ReturnType<typeof mapAirDNAProperties>[number],
+  selectedTypes: string[]
+): boolean {
+  if (selectedTypes.length === 0) return true
+
+  const roomType = listing.room_type.toLowerCase()
+  const propertyType = listing.property_type.toLowerCase()
+
+  return selectedTypes.some(type => {
+    const normalized = type.toLowerCase()
+    return roomType === normalized || propertyType.includes(normalized.replaceAll('_', ' '))
+  })
+}
+
+function matchesAirDNACriteria(
+  listing: ReturnType<typeof mapAirDNAProperties>[number],
+  criteria: CampaignCriteria
+): boolean {
+  if (!matchesPropertyType(listing, criteria.property.types)) {
+    return false
+  }
+
+  if (listing.bedrooms < criteria.property.min_bedrooms) return false
+  if (listing.bathrooms < criteria.property.min_bathrooms) return false
+  if (listing.max_guests < criteria.property.min_guests) return false
+
+  if (criteria.property.required_amenities.length > 0) {
+    const amenities = new Set((listing.amenities ?? []).map(amenity => amenity.toLowerCase()))
+    const hasAllAmenities = criteria.property.required_amenities.every(amenity => amenities.has(amenity.toLowerCase()))
+    if (!hasAllAmenities) return false
+  }
+
+  if (listing.total_reviews < criteria.performance.min_reviews) return false
+  if (listing.avg_rating !== null && listing.avg_rating < criteria.performance.min_rating) return false
+
+  const occupancyRate = normalizeOccupancy(listing.occupancy_rate)
+  const minOccupancy = normalizeOccupancy(criteria.performance.min_occupancy_pct)
+  if (occupancyRate !== null && minOccupancy !== null && occupancyRate < minOccupancy) return false
+
+  if (
+    listing.nightly_rate !== null &&
+    criteria.performance.nightly_rate_max > 0 &&
+    listing.nightly_rate > criteria.performance.nightly_rate_max
+  ) {
+    return false
+  }
+
+  if (criteria.host.superhost_required && !listing.superhost) return false
+
+  return true
+}
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
@@ -89,6 +147,7 @@ export async function POST(request: NextRequest) {
     }
 
     const mappedListings = mapAirDNAProperties(result.properties)
+      .filter(listing => matchesAirDNACriteria(listing, criteria))
 
     // Log the search in audit log
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

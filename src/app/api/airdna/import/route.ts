@@ -91,7 +91,8 @@ export async function POST(request: NextRequest) {
       response_rate: listing.response_rate,
       cover_image_url: listing.cover_image_url,
       raw_data: listing.raw_data,
-      status: 'unscored',
+      status: 'active',
+      lead_tier: 'unscored',
     }))
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

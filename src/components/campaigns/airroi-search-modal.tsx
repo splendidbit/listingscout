@@ -65,6 +65,34 @@ interface AirROISearchModalProps {
   onImported: () => void
 }
 
+function parseMarketQuery(query: string): Pick<Market, 'country' | 'region' | 'locality'> {
+  const parts = query
+    .split(',')
+    .map(part => part.trim())
+    .filter(Boolean)
+
+  if (parts.length >= 3) {
+    return {
+      locality: parts[0],
+      region: parts[1],
+      country: parts.slice(2).join(', '),
+    }
+  }
+
+  if (parts.length === 2) {
+    return {
+      locality: parts[0],
+      region: parts[1],
+      country: 'United States',
+    }
+  }
+
+  return {
+    locality: query.trim(),
+    country: 'United States',
+  }
+}
+
 const bucketConfig: Record<string, { emoji: string; label: string; color: string }> = {
   strong_lead:             { emoji: '⚡', label: 'Strong Lead',          color: 'bg-green-500/10 text-green-400 border-green-500/20' },
   pricing_opportunity:     { emoji: '💰', label: 'Pricing Opportunity',  color: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' },
@@ -137,7 +165,7 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
     setSearched(false)
 
     // Use selected market fields if available, otherwise parse the query string
-    const market = selectedMarket ?? { country: 'United States', locality: query.trim(), full_name: query.trim() }
+    const market = selectedMarket ?? { ...parseMarketQuery(query), full_name: query.trim() }
 
     try {
       const res = await fetch('/api/airroi/search', {
@@ -277,7 +305,7 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
               placeholder="Type a city, state, or country… e.g. Austin"
               value={query}
               onChange={e => { setQuery(e.target.value); setSelectedMarket(null) }}
-              onKeyDown={e => e.key === 'Enter' && !showDropdown && selectedMarket && handleSearch()}
+              onKeyDown={e => e.key === 'Enter' && !showDropdown && handleSearch()}
               className="bg-[#1c1d2b] border-[#363a4f] text-[#f0f0f6] pl-9"
             />
             {isLoadingMarkets && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-[#9395a8]" />}
