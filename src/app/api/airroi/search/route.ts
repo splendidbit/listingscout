@@ -141,6 +141,54 @@ function matchesPropertyType(listing: EnrichedListing, selectedTypes: string[]):
   })
 }
 
+async function fetchSearchPages(params: {
+  isRadiusSearch: boolean
+  latitude?: number
+  longitude?: number
+  radius_miles?: number
+  marketParams: AirROIMarket | null
+  filter: AirROIFilter
+  sort: AirROISort
+  pages: number
+}): Promise<AirROIListing[]> {
+  const pagePromises = Array.from({ length: params.pages }, (_, i) =>
+    params.isRadiusSearch
+      ? searchListingsByRadius({
+          latitude: params.latitude!,
+          longitude: params.longitude!,
+          radius_miles: params.radius_miles ?? 5,
+          filter: params.filter,
+          sort: params.sort,
+          pagination: { page_size: 10, offset: i * 10 },
+          currency: 'usd',
+        })
+      : searchListingsByMarket({
+          market: params.marketParams,
+          filter: params.filter,
+          sort: params.sort,
+          pagination: { page_size: 10, offset: i * 10 },
+          currency: 'usd',
+        })
+  )
+
+  const pageResults = await Promise.allSettled(pagePromises)
+  const seen = new Set<number>()
+  const rawListings: AirROIListing[] = []
+
+  for (const pageResult of pageResults) {
+    if (pageResult.status !== 'fulfilled') continue
+
+    for (const listing of pageResult.value.listings ?? []) {
+      const id = listing.listing_info?.listing_id
+      if (!id || seen.has(id)) continue
+      seen.add(id)
+      rawListings.push(listing)
+    }
+  }
+
+  return rawListings
+}
+
 function mapAirROIToEnriched(
   listing: AirROIListing,
   market: MarketSummaryResponse | null
@@ -342,24 +390,10 @@ export async function POST(request: NextRequest) {
 
     const criteria = campaign.criteria as CampaignCriteria
 
-    // Minimal filter — let scoring engine rank
+    // Keep provider-side filtering broad enough to avoid empty responses caused by overly strict upstream matching.
     const filter: AirROIFilter = {}
     const requestedRoomType = getRequestedRoomType(criteria.property.types)
     if (requestedRoomType) filter.room_type = { eq: requestedRoomType }
-    if (criteria.property.min_bedrooms > 0) filter.bedrooms = { gte: criteria.property.min_bedrooms }
-    if (criteria.property.min_bathrooms > 0) filter.baths = { gte: criteria.property.min_bathrooms }
-    if (criteria.property.min_guests > 0) filter.guests = { gte: criteria.property.min_guests }
-    if (criteria.performance.min_reviews > 0) filter.num_reviews = { gte: criteria.performance.min_reviews }
-    if (criteria.performance.min_rating > 0) filter.rating_overall = { gte: criteria.performance.min_rating }
-    if (criteria.performance.min_occupancy_pct > 0) {
-      filter.ttm_occupancy = { gte: normalizeOccupancy(criteria.performance.min_occupancy_pct) ?? undefined }
-    }
-    if (criteria.performance.nightly_rate_min > 0 || criteria.performance.nightly_rate_max > 0) {
-      filter.ttm_avg_rate = {
-        ...(criteria.performance.nightly_rate_min > 0 && { gte: criteria.performance.nightly_rate_min }),
-        ...(criteria.performance.nightly_rate_max > 0 && { lte: criteria.performance.nightly_rate_max }),
-      }
-    }
     if (criteria.host.superhost_required) filter.superhost = { eq: true }
     const VALID_AIRROI_AMENITIES = new Set(['wifi','pool','hot_tub','dedicated_workspace','kitchen','washer','dryer','free_parking_on_premises','air_conditioning','heating','indoor_fireplace','gym','ev_charger','pets_allowed','bbq_grill','patio_or_balcony','beach_access','waterfront','ski_in_ski_out','lake_access','sauna','fire_pit','bathtub','bikes','dishwasher','iron','refrigerator','tv','coffee_maker','microwave','oven','stove','private_entrance','luggage_dropoff_allowed'])
     const validAmenities = criteria.property.required_amenities.filter(a => VALID_AIRROI_AMENITIES.has(a))
@@ -374,33 +408,36 @@ export async function POST(request: NextRequest) {
       ? { country: country!, ...(region && { region }), ...(locality && { locality }), ...(district && { district }) }
       : null
 
-    // Fetch multiple pages in parallel + market summary
-    const pagePromises = Array.from({ length: pages }, (_, i) =>
-      isRadiusSearch
-        ? searchListingsByRadius({ latitude: latitude!, longitude: longitude!, radius_miles: radius_miles ?? 5, filter, sort, pagination: { page_size: 10, offset: i * 10 }, currency: 'usd' })
-        : searchListingsByMarket({ market: marketParams, filter, sort, pagination: { page_size: 10, offset: i * 10 }, currency: 'usd' })
-    )
-
-    const [marketSummary, ...pageResults] = await Promise.allSettled([
+    const [marketSummary] = await Promise.allSettled([
       marketParams ? getMarketSummary({ market: marketParams, currency: 'usd' }) : Promise.resolve(null),
-      ...pagePromises,
     ])
 
     const market = marketSummary.status === 'fulfilled' ? marketSummary.value : null
 
-    // Merge all pages, deduplicate by listing_id
-    const seen = new Set<number>()
-    let rawListings: AirROIListing[] = []
-    for (const pageResult of pageResults) {
-      if (pageResult.status === 'fulfilled') {
-        for (const l of pageResult.value.listings ?? []) {
-          const id = l.listing_info?.listing_id
-          if (id && !seen.has(id)) {
-            seen.add(id)
-            rawListings.push(l)
-          }
-        }
+    let rawListings = await fetchSearchPages({
+      isRadiusSearch,
+      latitude,
+      longitude,
+      radius_miles,
+      marketParams,
+      filter,
+      sort,
+      pages,
+    })
+
+    if (!isRadiusSearch && rawListings.length === 0 && marketParams?.country && marketParams.locality) {
+      const broaderMarket = {
+        country: marketParams.country,
+        locality: marketParams.locality,
       }
+
+      rawListings = await fetchSearchPages({
+        isRadiusSearch: false,
+        marketParams: broaderMarket,
+        filter,
+        sort,
+        pages,
+      })
     }
 
     // Post-fetch quality filter: remove listings without IDs or below campaign review floor.
@@ -430,7 +467,29 @@ export async function POST(request: NextRequest) {
     // Map nested AirROI response → flat EnrichedListing
     let listings = rawListings.map((l: AirROIListing) => mapAirROIToEnriched(l, market))
 
-    listings = listings.filter(listing => matchesPropertyType(listing, criteria.property.types))
+    listings = listings.filter(listing => {
+      if (!matchesPropertyType(listing, criteria.property.types)) return false
+      if (listing.bedrooms < criteria.property.min_bedrooms) return false
+      if (listing.bathrooms < criteria.property.min_bathrooms) return false
+      if (listing.max_guests < criteria.property.min_guests) return false
+
+      if (listing.avg_rating !== null && listing.avg_rating < criteria.performance.min_rating) return false
+      if (listing.total_reviews < criteria.performance.min_reviews) return false
+
+      const occupancyRate = normalizeOccupancy(listing.ttm_occupancy ?? listing.occupancy_rate)
+      const minOccupancy = normalizeOccupancy(criteria.performance.min_occupancy_pct)
+      if (occupancyRate !== null && minOccupancy !== null && occupancyRate < minOccupancy) return false
+
+      if (listing.nightly_rate !== null && criteria.performance.nightly_rate_min > 0 && listing.nightly_rate < criteria.performance.nightly_rate_min) {
+        return false
+      }
+
+      if (listing.nightly_rate !== null && criteria.performance.nightly_rate_max > 0 && listing.nightly_rate > criteria.performance.nightly_rate_max) {
+        return false
+      }
+
+      return true
+    })
 
     listings = listings.filter(l => {
       if (!matchesHostPreference(l, criteria)) return false

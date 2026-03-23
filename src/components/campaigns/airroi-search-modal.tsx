@@ -154,6 +154,27 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
     setMarkets([])
   }
 
+  const resolveMarket = async (): Promise<Market | null> => {
+    if (selectedMarket) return selectedMarket
+
+    const parsed = parseMarketQuery(query)
+    const res = await fetch(`/api/airroi/markets?query=${encodeURIComponent(query.trim())}`)
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error || 'Market lookup failed')
+
+    const candidates: Market[] = data.markets ?? []
+    if (candidates.length === 0) return null
+
+    const normalizedQuery = query.trim().toLowerCase()
+    const exactMatch = candidates.find(candidate => candidate.full_name.toLowerCase() === normalizedQuery)
+      ?? candidates.find(candidate =>
+        candidate.locality?.toLowerCase() === (parsed.locality ?? '').toLowerCase()
+        && (!parsed.region || candidate.region?.toLowerCase() === parsed.region.toLowerCase())
+      )
+
+    return exactMatch ?? candidates[0]
+  }
+
   const handleSearch = async () => {
     if (!query.trim()) {
       toast.error('Enter a market to search')
@@ -164,10 +185,15 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
     setSelected(new Set())
     setSearched(false)
 
-    // Use selected market fields if available, otherwise parse the query string
-    const market = selectedMarket ?? { ...parseMarketQuery(query), full_name: query.trim() }
-
     try {
+      const market = await resolveMarket()
+      if (!market) {
+        throw new Error('No matching AirROI market found. Pick a suggested market or refine the location.')
+      }
+
+      setSelectedMarket(market)
+      setQuery(market.full_name)
+
       const res = await fetch('/api/airroi/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
