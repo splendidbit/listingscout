@@ -29,12 +29,14 @@ export async function GET(request: NextRequest) {
       result = await searchMarkets(query)
     } catch (err) {
       const msg = err instanceof Error ? err.message : ''
+      console.error('[AirROI markets] searchMarkets threw:', msg)
       if (msg.includes('404')) return NextResponse.json({ markets: [] })
       throw err
     }
     return NextResponse.json(result)
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Market search failed'
+    console.error('[AirROI markets] route error:', message)
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }

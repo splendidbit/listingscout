@@ -43,6 +43,7 @@ async function fetchAirROI<T>(
 
   if (!res.ok) {
     const text = await res.text()
+    console.error(`[AirROI] ${method} ${url} → ${res.status}:`, text)
     throw new Error(`AirROI API ${res.status}: ${text}`)
   }
 

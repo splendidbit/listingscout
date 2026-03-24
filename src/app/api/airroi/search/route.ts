@@ -177,7 +177,10 @@ async function fetchSearchPages(params: {
   const rawListings: AirROIListing[] = []
 
   for (const pageResult of pageResults) {
-    if (pageResult.status !== 'fulfilled') continue
+    if (pageResult.status !== 'fulfilled') {
+      console.error('[AirROI search] page fetch failed:', pageResult.reason?.message ?? pageResult.reason)
+      continue
+    }
 
     for (const listing of pageResult.value.listings ?? []) {
       const id = listing.listing_info?.listing_id
