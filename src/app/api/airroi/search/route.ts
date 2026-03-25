@@ -360,6 +360,7 @@ export async function POST(request: NextRequest) {
       radius_miles,
       page_size = 10,
       offset = 0,
+      filterDead = true,
     } = body as {
       campaignId: string
       country?: string
@@ -371,6 +372,7 @@ export async function POST(request: NextRequest) {
       radius_miles?: number
       page_size?: number
       offset?: number
+      filterDead?: boolean
     }
 
     if (!campaignId) return NextResponse.json({ error: 'campaignId is required' }, { status: 400 })
@@ -457,23 +459,24 @@ export async function POST(request: NextRequest) {
     })
     console.log(`[AirROI search] after ID + review floor filter: ${rawListings.length}`)
 
-    // Filter out likely-dead/inactive listings
-    rawListings = rawListings.filter(l => {
-      const reviews = l.ratings?.num_reviews ?? l.ratings?.review_count ?? 0
-      const lastRevenue = l.performance_metrics?.l90d_revenue ?? null
-      const ttmRevenue = l.performance_metrics?.ttm_revenue ?? null
-      const ttmOccupancy = l.performance_metrics?.ttm_occupancy ?? null
+    // Filter out likely-dead/inactive listings (toggleable from search UI)
+    if (filterDead) {
+      rawListings = rawListings.filter(l => {
+        const reviews = l.ratings?.num_reviews ?? l.ratings?.review_count ?? 0
+        const lastRevenue = l.performance_metrics?.l90d_revenue ?? null
+        const ttmRevenue = l.performance_metrics?.ttm_revenue ?? null
+        const ttmOccupancy = l.performance_metrics?.ttm_occupancy ?? null
 
-      // Ignore obviously inactive inventory, but do not override the campaign's own review threshold.
-      if (reviews < Math.max(criteria.performance.min_reviews, 3)) return false
+        if (reviews < criteria.performance.min_reviews) return false
 
-      // If l90d_revenue is 0 or null AND ttm_occupancy < 5%, likely inactive
-      if (lastRevenue !== null && lastRevenue <= 0 && ttmOccupancy !== null && ttmOccupancy < 0.05) return false
-      if (lastRevenue !== null && lastRevenue <= 0 && ttmRevenue !== null && ttmRevenue <= 0) return false
+        // If l90d_revenue is 0 or null AND ttm_occupancy < 5%, likely inactive
+        if (lastRevenue !== null && lastRevenue <= 0 && ttmOccupancy !== null && ttmOccupancy < 0.05) return false
+        if (lastRevenue !== null && lastRevenue <= 0 && ttmRevenue !== null && ttmRevenue <= 0) return false
 
-      return true
-    })
-    console.log(`[AirROI search] after dead listing filter: ${rawListings.length}`)
+        return true
+      })
+    }
+    console.log(`[AirROI search] after dead listing filter (${filterDead ? 'on' : 'off'}): ${rawListings.length}`)
 
     // Map nested AirROI response → flat EnrichedListing
     let listings = rawListings.map((l: AirROIListing) => mapAirROIToEnriched(l, market))

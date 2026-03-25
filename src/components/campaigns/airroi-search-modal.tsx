@@ -118,6 +118,7 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [searched, setSearched] = useState(false)
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
+  const [filterDead, setFilterDead] = useState(true)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -203,6 +204,7 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
           region: (market as Market).region,
           locality: (market as Market).locality,
           page_size: 50,
+          filterDead,
         }),
       })
       const data = await res.json()
@@ -356,6 +358,16 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
             </div>
           )}
         </div>
+
+        <label className="flex items-center gap-2 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={filterDead}
+            onChange={e => setFilterDead(e.target.checked)}
+            className="accent-[#6366F1] h-3.5 w-3.5"
+          />
+          <span className="text-xs text-[#9395a8]">Hide inactive listings</span>
+        </label>
 
         <Button
           onClick={handleSearch}
