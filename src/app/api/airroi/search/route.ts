@@ -418,6 +418,8 @@ export async function POST(request: NextRequest) {
 
     const market = marketSummary.status === 'fulfilled' ? marketSummary.value : null
 
+    console.log('[AirROI search] params:', JSON.stringify({ marketParams, filter, sort, pages, isRadiusSearch }))
+
     let rawListings = await fetchSearchPages({
       isRadiusSearch,
       latitude,
@@ -428,8 +430,10 @@ export async function POST(request: NextRequest) {
       sort,
       pages,
     })
+    console.log(`[AirROI search] fetchSearchPages returned ${rawListings.length} listings`)
 
     if (!isRadiusSearch && rawListings.length === 0 && marketParams?.country && marketParams.locality) {
+      console.log('[AirROI search] fallback: retrying with broader market params')
       const broaderMarket = {
         country: marketParams.country,
         locality: marketParams.locality,
@@ -442,6 +446,7 @@ export async function POST(request: NextRequest) {
         sort,
         pages,
       })
+      console.log(`[AirROI search] fallback returned ${rawListings.length} listings`)
     }
 
     // Post-fetch quality filter: remove listings without IDs or below campaign review floor.
@@ -450,6 +455,7 @@ export async function POST(request: NextRequest) {
       const reviews = l.ratings?.num_reviews ?? l.ratings?.review_count ?? 0
       return reviews >= criteria.performance.min_reviews
     })
+    console.log(`[AirROI search] after ID + review floor filter: ${rawListings.length}`)
 
     // Filter out likely-dead/inactive listings
     rawListings = rawListings.filter(l => {
@@ -467,6 +473,7 @@ export async function POST(request: NextRequest) {
 
       return true
     })
+    console.log(`[AirROI search] after dead listing filter: ${rawListings.length}`)
 
     // Map nested AirROI response → flat EnrichedListing
     let listings = rawListings.map((l: AirROIListing) => mapAirROIToEnriched(l, market))
@@ -494,6 +501,7 @@ export async function POST(request: NextRequest) {
 
       return true
     })
+    console.log(`[AirROI search] after criteria filter: ${listings.length}`)
 
     listings = listings.filter(l => {
       if (!matchesHostPreference(l, criteria)) return false
@@ -508,6 +516,7 @@ export async function POST(request: NextRequest) {
 
       return true
     })
+    console.log(`[AirROI search] after host filter: ${listings.length}`)
 
     // Filter out already-optimized listings (high revenue + high rating = not a consulting target)
     listings = listings.filter(l => {
@@ -515,6 +524,7 @@ export async function POST(request: NextRequest) {
       const highRating = l.avg_rating !== null && l.avg_rating >= 4.9
       return !(highRevenue && highRating)
     })
+    console.log(`[AirROI search] after optimized filter: ${listings.length}`)
 
     // Score every listing
     listings = listings.map(l => {
