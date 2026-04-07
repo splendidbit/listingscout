@@ -215,7 +215,8 @@ function calcOccupancyGapScore(listing: ListingData): { score: number; delta: nu
   const marketOcc = listing.market_avg_occupancy ?? null
 
   if (listingOcc === null || marketOcc === null) {
-    return { score: 30, delta: null }
+    // Missing data → low score (not mid-range) so it doesn't masquerade as real signal
+    return { score: 15, delta: null }
   }
 
   const lOcc = listingOcc > 1 ? listingOcc / 100 : listingOcc
@@ -239,7 +240,7 @@ function calcRevPANGapScore(listing: ListingData): { score: number; delta: numbe
     const listingRev = listing.ttm_revenue ?? listing.annual_revenue ?? null
     const marketRev = listing.market_avg_revenue ?? null
     if (listingRev === null || marketRev === null || marketRev <= 0) {
-      return { score: 30, delta: null }
+      return { score: 15, delta: null }
     }
     const delta = listingRev - marketRev
     const gapPct = (marketRev - listingRev) / marketRev
@@ -272,7 +273,7 @@ function calcPricingInefficiencyScore(listing: ListingData): { score: number; ad
   const mOcc = marketOcc !== null ? (marketOcc > 1 ? marketOcc / 100 : marketOcc) : null
   const adrDelta = (listingAdr !== null && marketAdr !== null) ? listingAdr - marketAdr : null
 
-  if (lOcc === null || mOcc === null) return { score: 25, adrDelta }
+  if (lOcc === null || mOcc === null) return { score: 15, adrDelta }
 
   const occDelta = lOcc - mOcc
 
@@ -364,7 +365,7 @@ function calcRawMomentum(listing: ListingData): number | null {
 function calcMomentumScore(listing: ListingData): { score: number; signal: number | null } {
   const momentum = calcRawMomentum(listing)
 
-  if (momentum === null) return { score: 40, signal: null }
+  if (momentum === null) return { score: 20, signal: null }
 
   // Declining = high opportunity
   if (momentum < -0.30) return { score: 90, signal: momentum }
@@ -400,7 +401,8 @@ function calcHostProfileScore(listing: ListingData): number {
     score = 0
   }
 
-  if (cohostPresence) score = Math.round(score * 0.75)
+  // Fixed penalty rather than multiplicative — consistent impact regardless of base score
+  if (cohostPresence) score = Math.max(0, score - 20)
 
   return Math.min(100, score)
 }
@@ -499,7 +501,7 @@ function matchesIdealProfile(listing: ListingData): boolean {
     bedrooms <= 6 &&
     hostCount <= 3 &&
     reviews < 80 &&
-    (rating === null || (rating >= 4.4 && rating <= 4.8))
+    (rating === null || (rating >= 4.0 && rating <= 4.9))
   )
 }
 

@@ -153,6 +153,13 @@ export async function POST(request: NextRequest) {
 
     const mappedListings = mapAirDNAProperties(result.properties)
       .filter(listing => matchesAirDNACriteria(listing, criteria))
+      // Filter out dead listings: zero revenue AND near-zero occupancy
+      .filter(listing => {
+        const rev = listing.annual_revenue
+        const occ = listing.occupancy_rate
+        if (rev !== null && rev <= 0 && occ !== null && occ < 0.05) return false
+        return true
+      })
 
     // Log the search in audit log
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

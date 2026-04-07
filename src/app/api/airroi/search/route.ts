@@ -417,9 +417,9 @@ export async function POST(request: NextRequest) {
     const requestedRoomType = getRequestedRoomType(criteria.property.types)
     if (requestedRoomType) filter.room_type = { eq: requestedRoomType }
     if (criteria.host.superhost_required) filter.superhost = { eq: true }
-    const VALID_AIRROI_AMENITIES = new Set(['wifi','pool','hot_tub','dedicated_workspace','kitchen','washer','dryer','free_parking_on_premises','air_conditioning','heating','indoor_fireplace','gym','ev_charger','pets_allowed','bbq_grill','patio_or_balcony','beach_access','waterfront','ski_in_ski_out','lake_access','sauna','fire_pit','bathtub','bikes','dishwasher','iron','refrigerator','tv','coffee_maker','microwave','oven','stove','private_entrance','luggage_dropoff_allowed'])
-    const validAmenities = criteria.property.required_amenities.filter(a => VALID_AIRROI_AMENITIES.has(a))
-    if (validAmenities.length > 0) filter.amenities = { all: validAmenities }
+    // Amenity filtering moved to post-fetch (below) for fuzzy matching.
+    // Provider-side exact filtering was causing zero results when amenity
+    // names didn't match exactly (e.g. 'WiFi' vs 'wifi').
 
     // Sort ascending by revenue to surface underperformers
     const sort: AirROISort = { ttm_revenue: 'asc', ttm_occupancy: 'asc' }
@@ -521,6 +521,22 @@ export async function POST(request: NextRequest) {
       return true
     })
     console.log(`[AirROI search] after criteria filter: ${listings.length}`)
+
+    // Fuzzy amenity matching (post-fetch instead of provider-side exact matching)
+    if (criteria.property.required_amenities.length > 0) {
+      listings = listings.filter(listing => {
+        const listingAmenities = new Set(
+          (listing.amenities ?? []).map(a => a.toLowerCase().replace(/[_\-\s]+/g, ''))
+        )
+        return criteria.property.required_amenities.every(required => {
+          const normalized = required.toLowerCase().replace(/[_\-\s]+/g, '')
+          // Direct match or substring containment (e.g. 'wifi' matches 'wireless_wifi')
+          return listingAmenities.has(normalized) ||
+            [...listingAmenities].some(a => a.includes(normalized) || normalized.includes(a))
+        })
+      })
+      console.log(`[AirROI search] after amenity filter: ${listings.length}`)
+    }
 
     listings = listings.filter(l => {
       if (!matchesHostPreference(l, criteria)) return false

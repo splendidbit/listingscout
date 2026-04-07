@@ -27,7 +27,7 @@ function buildUrl(path: string, params: Record<string, string | number | boolean
 async function fetchAirDNA<T>(url: string): Promise<T> {
   const res = await fetch(url, {
     headers: { Accept: 'application/json' },
-    next: { revalidate: 3600 }, // cache 1h
+    next: { revalidate: 1800 }, // cache 30min
   })
   if (!res.ok) {
     const text = await res.text()
