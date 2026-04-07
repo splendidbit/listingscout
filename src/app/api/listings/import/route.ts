@@ -43,6 +43,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    if (listings.length > 5000) {
+      return NextResponse.json(
+        { error: 'Maximum 5000 listings per import' },
+        { status: 400 }
+      )
+    }
+
     // Verify campaign ownership
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: campaign } = await (supabase as any)
@@ -149,7 +156,7 @@ export async function POST(request: NextRequest) {
       if (insertError) {
         console.error('Error inserting listings:', insertError)
         return NextResponse.json(
-          { error: `Failed to insert listings: ${insertError.message}` },
+          { error: 'Failed to insert listings' },
           { status: 500 }
         )
       }

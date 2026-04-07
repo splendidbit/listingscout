@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (!process.env.AIRROI_API_KEY) {
-      return NextResponse.json({ error: 'AIRROI_API_KEY not configured' }, { status: 503 })
+      return NextResponse.json({ error: 'Estimate service temporarily unavailable' }, { status: 503 })
     }
 
     const p = request.nextUrl.searchParams
@@ -26,9 +26,14 @@ export async function GET(request: NextRequest) {
     const rawBedrooms = p.get('bedrooms')
     const rawBaths = p.get('baths')
     const rawGuests = p.get('guests')
-    const bedrooms = rawBedrooms != null && rawBedrooms !== '' ? Number(rawBedrooms) : 2
-    const baths = rawBaths != null && rawBaths !== '' ? Number(rawBaths) : 1
-    const guests = rawGuests != null && rawGuests !== '' ? Number(rawGuests) : 4
+    const clampPositive = (val: string | null, fallback: number, max: number) => {
+      if (val == null || val === '') return fallback
+      const n = Number(val)
+      return Number.isFinite(n) && n > 0 ? Math.min(Math.round(n), max) : fallback
+    }
+    const bedrooms = clampPositive(rawBedrooms, 2, 50)
+    const baths = clampPositive(rawBaths, 1, 50)
+    const guests = clampPositive(rawGuests, 4, 100)
 
     if (!address && (lat === undefined || lng === undefined)) {
       return NextResponse.json({ error: 'Provide address or lat/lng' }, { status: 400 })
@@ -44,7 +49,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result)
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Estimate failed'
-    return NextResponse.json({ error: message }, { status: 500 })
+    console.error('Estimate error:', error)
+    return NextResponse.json({ error: 'Estimate failed' }, { status: 500 })
   }
 }

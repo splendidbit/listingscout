@@ -454,7 +454,7 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
                 return (
                   <div key={listing.listing_id} className={`rounded-lg border transition-colors ${selected.has(listing.listing_id) ? 'border-[#6366F1] bg-[#6366F1]/10' : 'border-[#363a4f] bg-[#1c1d2b]'}`}>
                     {/* Main row */}
-                    <div className="p-3 cursor-pointer hover:bg-white/[0.02]" onClick={() => toggleSelect(listing.listing_id)}>
+                    <div role="button" tabIndex={0} className="p-3 cursor-pointer hover:bg-white/[0.02]" onClick={() => toggleSelect(listing.listing_id)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSelect(listing.listing_id) } }}>
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
@@ -480,7 +480,7 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
                           {listing.ttm_avg_rate && <div className="flex items-center gap-1 text-[#c4c5d6]"><DollarSign className="h-3 w-3" /><span>${Math.round(listing.ttm_avg_rate)}/night</span></div>}
                           {listing.ttm_revenue && <div className="flex items-center gap-1 text-[#22C55E]"><TrendingUp className="h-3 w-3" /><span>${Math.round(listing.ttm_revenue / 1000)}k/yr</span></div>}
                           <div className="flex items-center gap-2 mt-0.5">
-                            <a href={listing.listing_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-[#6366F1] hover:text-[#818CF8]"><ExternalLink className="h-3 w-3" /></a>
+                            <a href={listing.listing_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-[#6366F1] hover:text-[#818CF8]" aria-label="Open listing on Airbnb"><ExternalLink className="h-3 w-3" /></a>
                             <button onClick={e => { e.stopPropagation(); setExpanded(prev => { const n = new Set(prev); n.has(listing.listing_id) ? n.delete(listing.listing_id) : n.add(listing.listing_id); return n }) }} className="text-[#9395a8] hover:text-[#c4c5d6]">
                               {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
                             </button>

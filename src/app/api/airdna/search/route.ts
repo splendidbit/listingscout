@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     if (!process.env.AIRDNA_API_KEY) {
       return NextResponse.json(
-        { error: 'AirDNA API key not configured. Add AIRDNA_API_KEY to environment variables.' },
+        { error: 'AirDNA search is temporarily unavailable' },
         { status: 503 }
       )
     }
@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
       room_types: criteria.property.types.includes('private_room') ? 'private_room' : 'entire_home',
       order: 'revenue',
       desc: true,
-      limit: Math.min(limit, 25),
+      limit: Math.max(1, Math.min(Number(limit) || 25, 25)),
       show_amenities: true,
       show_location: true,
       currency: 'usd',
@@ -173,7 +173,6 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('AirDNA search error:', error)
-    const message = error instanceof Error ? error.message : 'Search failed'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: 'Search failed' }, { status: 500 })
   }
 }

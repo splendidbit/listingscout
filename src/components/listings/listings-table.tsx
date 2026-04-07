@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -141,6 +141,13 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
     return map
   })
 
+  // Sync favoriteState when data prop changes (e.g. after parent reload)
+  useEffect(() => {
+    const map: Record<string, boolean> = {}
+    data.forEach(r => { if (r.is_favorited) map[r.id] = true })
+    setFavoriteState(map)
+  }, [data])
+
   const toggleFavorite = async (id: string) => {
     const current = favoriteState[id] ?? false
     const next = !current
@@ -157,7 +164,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
     }
   }
 
-  const filteredData = favoritesOnly ? data.filter(r => favoriteState[r.id]) : data
+  const filteredData = useMemo(() => favoritesOnly ? data.filter(r => favoriteState[r.id]) : data, [data, favoritesOnly, favoriteState])
 
   const selectColumn: ColumnDef<ListingRow> = {
     id: 'select',
