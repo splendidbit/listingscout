@@ -89,6 +89,8 @@ export interface EnrichedListing {
   estimated_revenue_upside: number | null
   estimated_upside_pct: number | null
   cohost_presence: boolean
+  score_confidence: number
+  likely_stale: boolean
   // Backward compat
   revenue_potential_score: number
   pricing_opportunity_score: number
@@ -124,9 +126,19 @@ function matchesHostPreference(listing: EnrichedListing, criteria: CampaignCrite
   return true
 }
 
+/**
+ * Map campaign property types to AirROI room_type filter values.
+ * Returns undefined when no room type restriction is needed (both or neither selected).
+ */
 function getRequestedRoomType(types: string[]): 'private_room' | 'entire_home' | undefined {
-  if (types.includes('private_room')) return 'private_room'
-  if (types.includes('entire_home')) return 'entire_home'
+  const hasPrivate = types.some(t => t.toLowerCase() === 'private_room')
+  const hasEntire = types.some(t =>
+    ['entire_home', 'condo', 'townhouse', 'apartment', 'cabin', 'villa', 'cottage', 'loft'].includes(t.toLowerCase())
+  )
+  // If both private room AND entire-home-style types selected, don't restrict — let all through
+  if (hasPrivate && hasEntire) return undefined
+  if (hasPrivate) return 'private_room'
+  if (hasEntire) return 'entire_home'
   return undefined
 }
 
@@ -286,6 +298,8 @@ function mapAirROIToEnriched(
     estimated_revenue_upside: null,
     estimated_upside_pct: null,
     cohost_presence: false,
+    score_confidence: 0,
+    likely_stale: false,
     revenue_potential_score: 0,
     pricing_opportunity_score: 0,
     listing_quality_score: 0,
@@ -324,6 +338,8 @@ function applyScores(listing: EnrichedListing, scores: ScoringResult): EnrichedL
     momentum_signal: scores.momentum_signal,
     estimated_revenue_upside: scores.estimated_revenue_upside,
     estimated_upside_pct: scores.estimated_upside_pct,
+    score_confidence: scores.score_confidence,
+    likely_stale: scores.likely_stale,
     host_type: scores.host_type,
     cohost_presence: scores.cohost_presence,
     revenue_potential_score: scores.revenue_potential_score,
@@ -461,20 +477,20 @@ export async function POST(request: NextRequest) {
 
     // Filter out likely-dead/inactive listings (toggleable from search UI)
     if (filterDead) {
+      const beforeDead = rawListings.length
       rawListings = rawListings.filter(l => {
-        const reviews = l.ratings?.num_reviews ?? l.ratings?.review_count ?? 0
         const lastRevenue = l.performance_metrics?.l90d_revenue ?? null
         const ttmRevenue = l.performance_metrics?.ttm_revenue ?? null
         const ttmOccupancy = l.performance_metrics?.ttm_occupancy ?? null
 
-        if (reviews < criteria.performance.min_reviews) return false
-
-        // If l90d_revenue is 0 or null AND ttm_occupancy < 5%, likely inactive
+        // Truly dead: no recent revenue AND near-zero occupancy
         if (lastRevenue !== null && lastRevenue <= 0 && ttmOccupancy !== null && ttmOccupancy < 0.05) return false
+        // Zero revenue everywhere
         if (lastRevenue !== null && lastRevenue <= 0 && ttmRevenue !== null && ttmRevenue <= 0) return false
 
         return true
       })
+      console.log(`[AirROI search] dead listing filter removed ${beforeDead - rawListings.length} listings`)
     }
     console.log(`[AirROI search] after dead listing filter (${filterDead ? 'on' : 'off'}): ${rawListings.length}`)
 
@@ -521,13 +537,9 @@ export async function POST(request: NextRequest) {
     })
     console.log(`[AirROI search] after host filter: ${listings.length}`)
 
-    // Filter out already-optimized listings (high revenue + high rating = not a consulting target)
-    listings = listings.filter(l => {
-      const highRevenue = l.ttm_revenue !== null && l.ttm_revenue > 100000
-      const highRating = l.avg_rating !== null && l.avg_rating >= 4.9
-      return !(highRevenue && highRating)
-    })
-    console.log(`[AirROI search] after optimized filter: ${listings.length}`)
+    // Note: We no longer hard-filter "already optimized" listings. The scoring engine
+    // naturally assigns low opportunity scores to well-optimized properties, so they
+    // sort to the bottom rather than silently vanishing from results.
 
     // Score every listing
     listings = listings.map(l => {

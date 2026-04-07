@@ -74,6 +74,10 @@ export function mapListingRow(l: ListingDbRow): ListingRow {
     ai_lead_score: (sb.ai_lead_score as number) ?? row.ai_lead_score ?? null,
     ai_bucket: (sb.ai_bucket as string) ?? row.ai_bucket ?? null,
 
+    // Score quality indicators
+    score_confidence: (sb.score_confidence as number) ?? null,
+    likely_stale: (sb.likely_stale as boolean) ?? false,
+
     // Favorites
     is_favorited: row.is_favorited ?? false,
   }

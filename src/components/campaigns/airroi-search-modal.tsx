@@ -56,6 +56,8 @@ interface EnrichedListing {
   market_avg_price: number | null
   market_avg_occupancy: number | null
   market_avg_revenue: number | null
+  score_confidence?: number | null
+  likely_stale?: boolean
 }
 
 interface AirROISearchModalProps {
@@ -218,7 +220,9 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
       const autoSelected = new Set(listings.filter(l => l.revenue_potential_score >= 65).map(l => l.listing_id))
       setSelected(autoSelected)
 
-      if (listings.length === 0) toast.info('No listings found for this market.')
+      if (listings.length === 0) {
+        toast.info('No listings found. Try turning off the dead listing filter, lowering the minimum rating, or searching a broader market.')
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Search failed')
     } finally {
@@ -294,7 +298,7 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
         setResults(listings)
         setSelected(new Set(listings.filter((l: EnrichedListing) => l.revenue_potential_score >= 65).map((l: EnrichedListing) => l.listing_id)))
         setSearched(true)
-        if (listings.length === 0) toast.info('No listings found for that address.')
+        if (listings.length === 0) toast.info('No listings found for that address. Try a nearby market search instead.')
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Lookup failed')
@@ -467,6 +471,8 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
                           </p>
                           <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                             <ScoreBadge score={listing.revenue_potential_score} />
+                            {listing.likely_stale && <span className="text-[10px] px-1.5 py-0.5 rounded border bg-amber-500/10 text-amber-400 border-amber-500/20">⚠ Possibly inactive</span>}
+                            {listing.score_confidence != null && listing.score_confidence < 0.5 && !listing.likely_stale && <span className="text-[10px] px-1.5 py-0.5 rounded border bg-gray-500/10 text-gray-400 border-gray-500/20">Low data</span>}
                             <span className={`text-[10px] px-1.5 py-0.5 rounded border ${bucket.color}`}>{bucket.emoji} {bucket.label}</span>
                             <span className="text-[10px] text-[#c4c5d6]">
                               {listing.host_type === 'diy' || listing.host_type === 'independent' ? '🏠 Independent' : listing.host_type === 'scaling' ? '📈 Scaling' : '🏢 Pro'}

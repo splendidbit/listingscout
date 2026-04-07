@@ -100,6 +100,8 @@ export interface ListingRow {
   cohost_presence?: boolean
   professional_management?: boolean
   is_favorited?: boolean | null
+  score_confidence?: number | null
+  likely_stale?: boolean
 }
 
 interface ListingsTableProps {
