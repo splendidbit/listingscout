@@ -114,7 +114,8 @@ export async function POST(request: NextRequest) {
     const { data: listings, error: listingsError } = await query
 
     if (listingsError) {
-      return NextResponse.json({ error: listingsError.message }, { status: 500 })
+      console.error('Error fetching listings for scoring:', listingsError)
+      return NextResponse.json({ error: 'Failed to fetch listings' }, { status: 500 })
     }
 
     if (!listings || listings.length === 0) {
@@ -168,21 +169,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Update campaign stats
+    // Update campaign stats via RPC (atomic, avoids race conditions)
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: allListings } = await (supabase as any)
-        .from('listings').select('lead_tier').eq('campaign_id', campaignId).eq('status', 'active')
-      const rows = allListings ?? []
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('campaigns').update({
-        total_listings: rows.length,
-        strong_leads: rows.filter((r: {lead_tier: string}) => r.lead_tier === 'strong').length,
-        moderate_leads: rows.filter((r: {lead_tier: string}) => r.lead_tier === 'moderate').length,
-        weak_leads: rows.filter((r: {lead_tier: string}) => r.lead_tier === 'weak').length,
-      }).eq('id', campaignId)
-    } catch {
-      // Non-fatal
+      await (supabase as any).rpc('refresh_campaign_stats', { p_campaign_id: campaignId })
+    } catch (err) {
+      console.error('Failed to refresh campaign stats:', err)
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

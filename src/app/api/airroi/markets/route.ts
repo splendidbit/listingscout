@@ -16,12 +16,12 @@ export async function GET(request: NextRequest) {
     }
 
     if (!process.env.AIRROI_API_KEY) {
-      return NextResponse.json({ error: 'AIRROI_API_KEY not configured' }, { status: 503 })
+      return NextResponse.json({ error: 'Market search temporarily unavailable' }, { status: 503 })
     }
 
     const query = request.nextUrl.searchParams.get('query')
-    if (!query || query.length < 2) {
-      return NextResponse.json({ error: 'query must be at least 2 characters' }, { status: 400 })
+    if (!query || query.length < 2 || query.length > 255) {
+      return NextResponse.json({ error: 'query must be 2-255 characters' }, { status: 400 })
     }
 
     let result
@@ -35,8 +35,7 @@ export async function GET(request: NextRequest) {
     }
     return NextResponse.json(result)
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Market search failed'
-    console.error('[AirROI markets] route error:', message)
-    return NextResponse.json({ error: message }, { status: 500 })
+    console.error('[AirROI markets] route error:', error)
+    return NextResponse.json({ error: 'Market search failed' }, { status: 500 })
   }
 }

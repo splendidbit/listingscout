@@ -56,6 +56,8 @@ interface EnrichedListing {
   market_avg_price: number | null
   market_avg_occupancy: number | null
   market_avg_revenue: number | null
+  score_confidence?: number | null
+  likely_stale?: boolean
 }
 
 interface AirROISearchModalProps {
@@ -218,7 +220,9 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
       const autoSelected = new Set(listings.filter(l => l.revenue_potential_score >= 65).map(l => l.listing_id))
       setSelected(autoSelected)
 
-      if (listings.length === 0) toast.info('No listings found for this market.')
+      if (listings.length === 0) {
+        toast.info('No listings found. Try turning off the dead listing filter, lowering the minimum rating, or searching a broader market.')
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Search failed')
     } finally {
@@ -294,7 +298,7 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
         setResults(listings)
         setSelected(new Set(listings.filter((l: EnrichedListing) => l.revenue_potential_score >= 65).map((l: EnrichedListing) => l.listing_id)))
         setSearched(true)
-        if (listings.length === 0) toast.info('No listings found for that address.')
+        if (listings.length === 0) toast.info('No listings found for that address. Try a nearby market search instead.')
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Lookup failed')
@@ -454,7 +458,7 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
                 return (
                   <div key={listing.listing_id} className={`rounded-lg border transition-colors ${selected.has(listing.listing_id) ? 'border-[#6366F1] bg-[#6366F1]/10' : 'border-[#363a4f] bg-[#1c1d2b]'}`}>
                     {/* Main row */}
-                    <div className="p-3 cursor-pointer hover:bg-white/[0.02]" onClick={() => toggleSelect(listing.listing_id)}>
+                    <div role="button" tabIndex={0} className="p-3 cursor-pointer hover:bg-white/[0.02]" onClick={() => toggleSelect(listing.listing_id)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSelect(listing.listing_id) } }}>
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
@@ -467,6 +471,8 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
                           </p>
                           <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                             <ScoreBadge score={listing.revenue_potential_score} />
+                            {listing.likely_stale && <span className="text-[10px] px-1.5 py-0.5 rounded border bg-amber-500/10 text-amber-400 border-amber-500/20">⚠ Possibly inactive</span>}
+                            {listing.score_confidence != null && listing.score_confidence < 0.5 && !listing.likely_stale && <span className="text-[10px] px-1.5 py-0.5 rounded border bg-gray-500/10 text-gray-400 border-gray-500/20">Low data</span>}
                             <span className={`text-[10px] px-1.5 py-0.5 rounded border ${bucket.color}`}>{bucket.emoji} {bucket.label}</span>
                             <span className="text-[10px] text-[#c4c5d6]">
                               {listing.host_type === 'diy' || listing.host_type === 'independent' ? '🏠 Independent' : listing.host_type === 'scaling' ? '📈 Scaling' : '🏢 Pro'}
@@ -480,7 +486,7 @@ export function AirROISearchModal({ open, onOpenChange, campaignId, onImported }
                           {listing.ttm_avg_rate && <div className="flex items-center gap-1 text-[#c4c5d6]"><DollarSign className="h-3 w-3" /><span>${Math.round(listing.ttm_avg_rate)}/night</span></div>}
                           {listing.ttm_revenue && <div className="flex items-center gap-1 text-[#22C55E]"><TrendingUp className="h-3 w-3" /><span>${Math.round(listing.ttm_revenue / 1000)}k/yr</span></div>}
                           <div className="flex items-center gap-2 mt-0.5">
-                            <a href={listing.listing_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-[#6366F1] hover:text-[#818CF8]"><ExternalLink className="h-3 w-3" /></a>
+                            <a href={listing.listing_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-[#6366F1] hover:text-[#818CF8]" aria-label="Open listing on Airbnb"><ExternalLink className="h-3 w-3" /></a>
                             <button onClick={e => { e.stopPropagation(); setExpanded(prev => { const n = new Set(prev); n.has(listing.listing_id) ? n.delete(listing.listing_id) : n.add(listing.listing_id); return n }) }} className="text-[#9395a8] hover:text-[#c4c5d6]">
                               {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
                             </button>

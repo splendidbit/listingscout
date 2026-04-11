@@ -43,7 +43,7 @@ export async function checkDuplicateInCampaign(
     .select('id, listing_id')
     .eq('campaign_id', campaignId)
     .eq('listing_id', listing.listing_id)
-    .single()
+    .maybeSingle()
 
   if (exactMatch) {
     return {

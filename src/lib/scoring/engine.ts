@@ -123,6 +123,11 @@ export interface ScoringResult {
   estimated_revenue_upside: number | null
   estimated_upside_pct: number | null
 
+  // Score confidence (0-1): how much data was available to produce this score
+  score_confidence: number
+  // Staleness flag: true if L90D data suggests listing may be inactive
+  likely_stale: boolean
+
   // Host/listing classification
   host_type: HostType
   cohost_presence: boolean
@@ -210,7 +215,8 @@ function calcOccupancyGapScore(listing: ListingData): { score: number; delta: nu
   const marketOcc = listing.market_avg_occupancy ?? null
 
   if (listingOcc === null || marketOcc === null) {
-    return { score: 30, delta: null }
+    // Missing data → low score (not mid-range) so it doesn't masquerade as real signal
+    return { score: 15, delta: null }
   }
 
   const lOcc = listingOcc > 1 ? listingOcc / 100 : listingOcc
@@ -234,7 +240,7 @@ function calcRevPANGapScore(listing: ListingData): { score: number; delta: numbe
     const listingRev = listing.ttm_revenue ?? listing.annual_revenue ?? null
     const marketRev = listing.market_avg_revenue ?? null
     if (listingRev === null || marketRev === null || marketRev <= 0) {
-      return { score: 30, delta: null }
+      return { score: 15, delta: null }
     }
     const delta = listingRev - marketRev
     const gapPct = (marketRev - listingRev) / marketRev
@@ -267,7 +273,7 @@ function calcPricingInefficiencyScore(listing: ListingData): { score: number; ad
   const mOcc = marketOcc !== null ? (marketOcc > 1 ? marketOcc / 100 : marketOcc) : null
   const adrDelta = (listingAdr !== null && marketAdr !== null) ? listingAdr - marketAdr : null
 
-  if (lOcc === null || mOcc === null) return { score: 25, adrDelta }
+  if (lOcc === null || mOcc === null) return { score: 15, adrDelta }
 
   const occDelta = lOcc - mOcc
 
@@ -359,7 +365,7 @@ function calcRawMomentum(listing: ListingData): number | null {
 function calcMomentumScore(listing: ListingData): { score: number; signal: number | null } {
   const momentum = calcRawMomentum(listing)
 
-  if (momentum === null) return { score: 40, signal: null }
+  if (momentum === null) return { score: 20, signal: null }
 
   // Declining = high opportunity
   if (momentum < -0.30) return { score: 90, signal: momentum }
@@ -395,9 +401,54 @@ function calcHostProfileScore(listing: ListingData): number {
     score = 0
   }
 
-  if (cohostPresence) score = Math.round(score * 0.75)
+  // Fixed penalty rather than multiplicative — consistent impact regardless of base score
+  if (cohostPresence) score = Math.max(0, score - 20)
 
   return Math.min(100, score)
+}
+
+// ─── 8b. Score Confidence ──────────────────────────────────────────────────
+
+/**
+ * Measures how much real data was available to produce the score.
+ * Returns 0-1 where 1 means all key metrics were present.
+ */
+function calcScoreConfidence(listing: ListingData): number {
+  const signals = [
+    listing.ttm_occupancy ?? listing.occupancy_rate,       // occupancy data
+    listing.ttm_revpar ?? listing.ttm_revenue,              // revenue/revpar data
+    listing.market_avg_occupancy,                           // market occupancy
+    listing.market_avg_revpar ?? listing.market_avg_revenue, // market revenue
+    listing.l90d_revenue,                                   // recent performance
+    listing.avg_rating,                                     // review data
+  ]
+  const present = signals.filter(v => v !== null && v !== undefined).length
+  return Math.round((present / signals.length) * 100) / 100
+}
+
+// ─── 8c. Staleness Detection ──────────────────────────────────────────────
+
+/**
+ * Detects likely-stale listings by comparing L90D performance to TTM.
+ * A listing with $0 recent revenue but significant TTM revenue is likely inactive.
+ */
+function isLikelyStale(listing: ListingData): boolean {
+  const l90dRev = listing.l90d_revenue ?? null
+  const ttmRev = listing.ttm_revenue ?? listing.annual_revenue ?? null
+
+  // If no L90D data at all, we can't determine staleness
+  if (l90dRev === null) return false
+
+  // $0 in last 90 days with meaningful TTM revenue = likely inactive
+  if (l90dRev <= 0 && ttmRev !== null && ttmRev > 1000) return true
+
+  // L90D annualized is <15% of TTM = severe decline, likely winding down
+  if (ttmRev !== null && ttmRev > 0) {
+    const l90dAnnualized = l90dRev * 4
+    if (l90dAnnualized / ttmRev < 0.15) return true
+  }
+
+  return false
 }
 
 // ─── 9. Revenue Upside Estimate ─────────────────────────────────────────────
@@ -450,7 +501,7 @@ function matchesIdealProfile(listing: ListingData): boolean {
     bedrooms <= 6 &&
     hostCount <= 3 &&
     reviews < 80 &&
-    (rating === null || (rating >= 4.4 && rating <= 4.8))
+    (rating === null || (rating >= 4.0 && rating <= 4.9))
   )
 }
 
@@ -575,6 +626,10 @@ export function scoreListing(listing: ListingData): ScoringResult {
   // Revenue upside
   const { upside, upsidePct } = calcRevenueUpside(listing)
 
+  // Data confidence and staleness
+  const scoreConfidence = calcScoreConfidence(listing)
+  const likelyStale = isLikelyStale(listing)
+
   // Host classification
   const count = listing.host_listing_count ?? null
   let hostType: HostType
@@ -593,10 +648,13 @@ export function scoreListing(listing: ListingData): ScoringResult {
       listing.avg_rating < 3.5 &&
       reviews > 20)
 
-  // Lead priority
+  // Lead priority (stale listings can never be hot — cap at warm)
   let leadPriority: LeadPriority
   if (isExcluded) {
     leadPriority = 'excluded'
+  } else if (likelyStale) {
+    // Stale listings are capped at warm regardless of score
+    leadPriority = opportunityScore >= 50 ? 'warm' : 'cold'
   } else if (
     opportunityScore >= 70 &&
     (upsidePct === null || upsidePct >= 0.20) &&
@@ -610,7 +668,7 @@ export function scoreListing(listing: ListingData): ScoringResult {
   }
 
   // Outreach reason
-  const outreachReason = buildOutreachReason(
+  let outreachReason = buildOutreachReason(
     listing,
     occDelta,
     revpanDelta,
@@ -618,6 +676,9 @@ export function scoreListing(listing: ListingData): ScoringResult {
     momSignal,
     upsidePct
   )
+  if (likelyStale) {
+    outreachReason = `⚠ Listing may be inactive (no recent bookings). ${outreachReason}`
+  }
 
   // AI bucket (backward compat)
   const aiBucket = assignBucket(
@@ -657,6 +718,9 @@ export function scoreListing(listing: ListingData): ScoringResult {
 
     estimated_revenue_upside: upside,
     estimated_upside_pct: upsidePct !== null ? Math.round(upsidePct * 1000) / 1000 : null,
+
+    score_confidence: scoreConfidence,
+    likely_stale: likelyStale,
 
     host_type: hostType,
     cohost_presence: cohostPresence,

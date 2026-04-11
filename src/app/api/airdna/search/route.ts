@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     if (!process.env.AIRDNA_API_KEY) {
       return NextResponse.json(
-        { error: 'AirDNA API key not configured. Add AIRDNA_API_KEY to environment variables.' },
+        { error: 'AirDNA search is temporarily unavailable' },
         { status: 503 }
       )
     }
@@ -126,10 +126,15 @@ export async function POST(request: NextRequest) {
       accommodates: criteria.property.min_guests > 0 ? criteria.property.min_guests : undefined,
       adr_min: criteria.performance.nightly_rate_min > 0 ? criteria.performance.nightly_rate_min : undefined,
       adr_max: criteria.performance.nightly_rate_max > 0 ? criteria.performance.nightly_rate_max : undefined,
-      room_types: criteria.property.types.includes('private_room') ? 'private_room' : 'entire_home',
+      // Only restrict room type if campaign exclusively wants one type
+      room_types: criteria.property.types.includes('private_room') && !criteria.property.types.some(t => ['entire_home', 'condo', 'townhouse', 'apartment', 'cabin', 'villa', 'cottage', 'loft'].includes(t))
+        ? 'private_room'
+        : criteria.property.types.length > 0 && !criteria.property.types.includes('private_room')
+          ? 'entire_home'
+          : undefined,
       order: 'revenue',
       desc: true,
-      limit: Math.min(limit, 25),
+      limit: Math.max(1, Math.min(Number(limit) || 25, 25)),
       show_amenities: true,
       show_location: true,
       currency: 'usd',
@@ -148,6 +153,13 @@ export async function POST(request: NextRequest) {
 
     const mappedListings = mapAirDNAProperties(result.properties)
       .filter(listing => matchesAirDNACriteria(listing, criteria))
+      // Filter out dead listings: zero revenue AND near-zero occupancy
+      .filter(listing => {
+        const rev = listing.annual_revenue
+        const occ = listing.occupancy_rate
+        if (rev !== null && rev <= 0 && occ !== null && occ < 0.05) return false
+        return true
+      })
 
     // Log the search in audit log
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -173,7 +185,6 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('AirDNA search error:', error)
-    const message = error instanceof Error ? error.message : 'Search failed'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: 'Search failed' }, { status: 500 })
   }
 }

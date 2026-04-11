@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -100,6 +100,8 @@ export interface ListingRow {
   cohost_presence?: boolean
   professional_management?: boolean
   is_favorited?: boolean | null
+  score_confidence?: number | null
+  likely_stale?: boolean
 }
 
 interface ListingsTableProps {
@@ -141,6 +143,13 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
     return map
   })
 
+  // Sync favoriteState when data prop changes (e.g. after parent reload)
+  useEffect(() => {
+    const map: Record<string, boolean> = {}
+    data.forEach(r => { if (r.is_favorited) map[r.id] = true })
+    setFavoriteState(map)
+  }, [data])
+
   const toggleFavorite = async (id: string) => {
     const current = favoriteState[id] ?? false
     const next = !current
@@ -157,7 +166,7 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
     }
   }
 
-  const filteredData = favoritesOnly ? data.filter(r => favoriteState[r.id]) : data
+  const filteredData = useMemo(() => favoritesOnly ? data.filter(r => favoriteState[r.id]) : data, [data, favoritesOnly, favoriteState])
 
   const selectColumn: ColumnDef<ListingRow> = {
     id: 'select',
@@ -268,6 +277,12 @@ export function ListingsTable({ data, onRowClick, selectable, selectedIds = [], 
                 <span className={cn('text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded border', badge.className)}>
                   {badge.label}
                 </span>
+              )}
+              {row.original.likely_stale && (
+                <span className="text-[9px] px-1 py-0.5 rounded bg-amber-500/10 text-amber-400">STALE</span>
+              )}
+              {row.original.score_confidence != null && row.original.score_confidence < 0.5 && !row.original.likely_stale && (
+                <span className="text-[9px] px-1 py-0.5 rounded bg-gray-500/10 text-gray-400">LOW DATA</span>
               )}
             </div>
             {upside && (
@@ -792,6 +807,21 @@ function ListingDetailPanel({ listing }: { listing: ListingRow }) {
         {priorityBadge && (
           <span className={cn('text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded border', priorityBadge.className)}>
             {priorityBadge.label}
+          </span>
+        )}
+        {listing.likely_stale && (
+          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded border bg-amber-500/15 text-amber-400 border-amber-500/30">
+            Possibly Inactive
+          </span>
+        )}
+        {listing.score_confidence != null && listing.score_confidence < 0.5 && !listing.likely_stale && (
+          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded border bg-gray-500/15 text-gray-400 border-gray-500/30">
+            Low Data
+          </span>
+        )}
+        {listing.score_confidence != null && (
+          <span className="text-[10px] text-[#9395a8]">
+            {Math.round(listing.score_confidence * 100)}% confidence
           </span>
         )}
         {listing.estimated_revenue_upside && (

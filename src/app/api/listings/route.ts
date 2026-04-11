@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Error creating listing:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to create listing' }, { status: 500 })
     }
 
     // Update campaign stats
@@ -213,7 +213,7 @@ export async function PUT(request: NextRequest) {
 
     if (error) {
       console.error('Error updating listing:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to update listing' }, { status: 500 })
     }
 
     // Create audit log
