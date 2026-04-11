@@ -126,6 +126,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       metros: {
         Row: {
@@ -179,6 +180,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       hosts: {
         Row: {
@@ -232,6 +234,7 @@ export interface Database {
           first_seen_at?: string
           last_refreshed_at?: string | null
         }
+        Relationships: []
       }
       listings: {
         Row: {
@@ -330,6 +333,7 @@ export interface Database {
           last_refreshed_at?: string | null
           raw_payload?: Json | null
         }
+        Relationships: []
       }
       listing_snapshots: {
         Row: {
@@ -365,6 +369,7 @@ export interface Database {
           avg_rating?: number | null
           total_reviews?: number | null
         }
+        Relationships: []
       }
       market_benchmarks: {
         Row: {
@@ -400,6 +405,7 @@ export interface Database {
           market_revpar?: number | null
           fetched_at?: string
         }
+        Relationships: []
       }
       leads: {
         Row: {
@@ -456,6 +462,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       lead_events: {
         Row: {
@@ -482,6 +489,7 @@ export interface Database {
           payload?: Json | null
           created_at?: string
         }
+        Relationships: []
       }
       contacts: {
         Row: {
@@ -523,6 +531,7 @@ export interface Database {
           stale?: boolean
           enrichment_run_id?: string | null
         }
+        Relationships: []
       }
       enrichment_runs: {
         Row: {
@@ -564,6 +573,7 @@ export interface Database {
           error?: string | null
           triggered_by?: string
         }
+        Relationships: []
       }
       crawl_runs: {
         Row: {
@@ -599,6 +609,7 @@ export interface Database {
           listings_errored?: number
           errors?: Json | null
         }
+        Relationships: []
       }
     }
     Views: Record<string, never>
