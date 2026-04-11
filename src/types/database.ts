@@ -1,3 +1,11 @@
+// Database types for ListingScout.
+//
+// Hand-written from supabase/migrations/011–014 (the schema rebuild for
+// the revenue-share co-host pipeline). When Supabase CLI becomes
+// available, this file should be regenerated via:
+//   supabase gen types typescript --linked > src/types/database.ts
+// and this notice removed.
+
 export type Json =
   | string
   | number
@@ -5,6 +13,57 @@ export type Json =
   | null
   | { [key: string]: Json | undefined }
   | Json[]
+
+export type LeadState =
+  | 'discovered'
+  | 'market_scored'
+  | 'operator_scored'
+  | 'matched'
+  | 'in_review'
+  | 'enrich_light'
+  | 'enrich_permit'
+  | 'enrich_broker'
+  | 'enrich_agent'
+  | 'qualified'
+  | 'rejected'
+  | 'archived'
+
+export type ContactType =
+  | 'email'
+  | 'phone'
+  | 'linkedin'
+  | 'website'
+  | 'address'
+  | 'instagram'
+  | 'facebook'
+  | 'twitter'
+  | 'other'
+
+export type ContactConfidence = 'high' | 'medium' | 'low'
+
+export type ContactSource =
+  | 'airbnb'
+  | 'permit'
+  | 'assessor'
+  | 'hunter'
+  | 'apollo'
+  | 'pdl'
+  | 'agent'
+  | 'web'
+  | 'user_manual'
+
+export type EnrichmentTier = 'light' | 'permit' | 'broker' | 'agent'
+
+export type EnrichmentStatus =
+  | 'pending'
+  | 'running'
+  | 'success'
+  | 'failed'
+  | 'skipped'
+
+export type CrawlRunStatus = 'running' | 'success' | 'failed' | 'ping_ok'
+
+export type BenchmarkSource = 'airroi' | 'airdna'
 
 export interface Database {
   public: {
@@ -68,22 +127,21 @@ export interface Database {
           updated_at?: string
         }
       }
-      campaigns: {
+      metros: {
         Row: {
           id: string
           user_id: string
           name: string
-          description: string | null
-          status: 'draft' | 'active' | 'paused' | 'completed' | 'archived'
-          criteria: Json
-          google_sheet_id: string | null
-          sheets_sync_enabled: boolean
-          last_synced_at: string | null
-          total_listings: number
-          strong_leads: number
-          moderate_leads: number
-          weak_leads: number
-          owners_found: number
+          slug: string
+          state: string
+          country: string
+          airroi_market_id: string | null
+          airdna_market_id: string | null
+          airbnb_search_config: Json
+          permit_registry_config: Json | null
+          crawl_enabled: boolean
+          crawl_cron: string
+          last_crawled_at: string | null
           created_at: string
           updated_at: string
         }
@@ -91,17 +149,16 @@ export interface Database {
           id?: string
           user_id: string
           name: string
-          description?: string | null
-          status?: 'draft' | 'active' | 'paused' | 'completed' | 'archived'
-          criteria?: Json
-          google_sheet_id?: string | null
-          sheets_sync_enabled?: boolean
-          last_synced_at?: string | null
-          total_listings?: number
-          strong_leads?: number
-          moderate_leads?: number
-          weak_leads?: number
-          owners_found?: number
+          slug: string
+          state: string
+          country?: string
+          airroi_market_id?: string | null
+          airdna_market_id?: string | null
+          airbnb_search_config?: Json
+          permit_registry_config?: Json | null
+          crawl_enabled?: boolean
+          crawl_cron?: string
+          last_crawled_at?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -109,306 +166,446 @@ export interface Database {
           id?: string
           user_id?: string
           name?: string
-          description?: string | null
-          status?: 'draft' | 'active' | 'paused' | 'completed' | 'archived'
-          criteria?: Json
-          google_sheet_id?: string | null
-          sheets_sync_enabled?: boolean
-          last_synced_at?: string | null
-          total_listings?: number
-          strong_leads?: number
-          moderate_leads?: number
-          weak_leads?: number
-          owners_found?: number
+          slug?: string
+          state?: string
+          country?: string
+          airroi_market_id?: string | null
+          airdna_market_id?: string | null
+          airbnb_search_config?: Json
+          permit_registry_config?: Json | null
+          crawl_enabled?: boolean
+          crawl_cron?: string
+          last_crawled_at?: string | null
           created_at?: string
           updated_at?: string
+        }
+      }
+      hosts: {
+        Row: {
+          id: string
+          airbnb_host_id: string
+          display_name: string | null
+          profile_url: string | null
+          joined_month: string | null
+          superhost: boolean | null
+          response_rate_pct: number | null
+          identity_verified: boolean | null
+          listing_count_observed: number
+          excluded: boolean
+          exclusion_reason: string | null
+          cohost_presence: boolean
+          pm_company_detected: boolean
+          first_seen_at: string
+          last_refreshed_at: string | null
+        }
+        Insert: {
+          id?: string
+          airbnb_host_id: string
+          display_name?: string | null
+          profile_url?: string | null
+          joined_month?: string | null
+          superhost?: boolean | null
+          response_rate_pct?: number | null
+          identity_verified?: boolean | null
+          listing_count_observed?: number
+          excluded?: boolean
+          exclusion_reason?: string | null
+          cohost_presence?: boolean
+          pm_company_detected?: boolean
+          first_seen_at?: string
+          last_refreshed_at?: string | null
+        }
+        Update: {
+          id?: string
+          airbnb_host_id?: string
+          display_name?: string | null
+          profile_url?: string | null
+          joined_month?: string | null
+          superhost?: boolean | null
+          response_rate_pct?: number | null
+          identity_verified?: boolean | null
+          listing_count_observed?: number
+          excluded?: boolean
+          exclusion_reason?: string | null
+          cohost_presence?: boolean
+          pm_company_detected?: boolean
+          first_seen_at?: string
+          last_refreshed_at?: string | null
         }
       }
       listings: {
         Row: {
           id: string
-          campaign_id: string
-          user_id: string
-          listing_id: string
+          airbnb_listing_id: string
+          host_id: string
+          metro_id: string
           listing_url: string
-          listing_title: string
-          property_type: string
-          city: string
-          state: string
+          title: string | null
+          room_type: string | null
+          bedrooms: number | null
+          bathrooms: number | null
+          max_guests: number | null
           neighborhood: string | null
-          full_address: string | null
-          latitude: number | null
-          longitude: number | null
-          bedrooms: number
-          bathrooms: number
-          max_guests: number
+          lat: number | null
+          lng: number | null
+          photo_count: number | null
+          photo_hash: string | null
           nightly_rate: number | null
           cleaning_fee: number | null
-          service_fee: number | null
-          avg_rating: number | null
-          total_reviews: number
-          host_name: string | null
-          host_since: string | null
-          host_listing_count: number | null
-          host_response_rate: number | null
-          superhost: boolean
-          amenities: string[] | null
+          minimum_stay: number | null
           instant_book: boolean | null
           cancellation_policy: string | null
-          lead_score: number | null
-          lead_tier: 'strong' | 'moderate' | 'weak' | 'unscored' | 'excluded' | null
-          score_breakdown: Json | null
-          scored_at: string | null
-          flags: string[] | null
-          notes: string | null
-          status: 'active' | 'archived' | 'excluded' | 'merged'
-          collection_source: 'manual' | 'ai_agent' | 'csv_import' | 'api'
-          created_at: string
-          updated_at: string
+          amenities: Json | null
+          amenity_count: number | null
+          avg_rating: number | null
+          total_reviews: number | null
+          sub_ratings: Json | null
+          last_review_at: string | null
+          description_hash: string | null
+          discovered_at: string
+          last_refreshed_at: string | null
+          raw_payload: Json | null
         }
         Insert: {
           id?: string
-          campaign_id: string
-          user_id: string
-          listing_id: string
+          airbnb_listing_id: string
+          host_id: string
+          metro_id: string
           listing_url: string
-          listing_title: string
-          property_type: string
-          city: string
-          state: string
+          title?: string | null
+          room_type?: string | null
+          bedrooms?: number | null
+          bathrooms?: number | null
+          max_guests?: number | null
           neighborhood?: string | null
-          full_address?: string | null
-          latitude?: number | null
-          longitude?: number | null
-          bedrooms?: number
-          bathrooms?: number
-          max_guests?: number
+          lat?: number | null
+          lng?: number | null
+          photo_count?: number | null
+          photo_hash?: string | null
           nightly_rate?: number | null
           cleaning_fee?: number | null
-          service_fee?: number | null
-          avg_rating?: number | null
-          total_reviews?: number
-          host_name?: string | null
-          host_since?: string | null
-          host_listing_count?: number | null
-          host_response_rate?: number | null
-          superhost?: boolean
-          amenities?: string[] | null
+          minimum_stay?: number | null
           instant_book?: boolean | null
           cancellation_policy?: string | null
-          lead_score?: number | null
-          lead_tier?: 'strong' | 'moderate' | 'weak' | 'unscored' | 'excluded' | null
-          score_breakdown?: Json | null
-          scored_at?: string | null
-          flags?: string[] | null
-          notes?: string | null
-          status?: 'active' | 'archived' | 'excluded' | 'merged'
-          collection_source?: 'manual' | 'ai_agent' | 'csv_import' | 'api'
-          created_at?: string
-          updated_at?: string
+          amenities?: Json | null
+          amenity_count?: number | null
+          avg_rating?: number | null
+          total_reviews?: number | null
+          sub_ratings?: Json | null
+          last_review_at?: string | null
+          description_hash?: string | null
+          discovered_at?: string
+          last_refreshed_at?: string | null
+          raw_payload?: Json | null
         }
         Update: {
           id?: string
-          campaign_id?: string
-          user_id?: string
-          listing_id?: string
+          airbnb_listing_id?: string
+          host_id?: string
+          metro_id?: string
           listing_url?: string
-          listing_title?: string
-          property_type?: string
-          city?: string
-          state?: string
+          title?: string | null
+          room_type?: string | null
+          bedrooms?: number | null
+          bathrooms?: number | null
+          max_guests?: number | null
           neighborhood?: string | null
-          full_address?: string | null
-          latitude?: number | null
-          longitude?: number | null
-          bedrooms?: number
-          bathrooms?: number
-          max_guests?: number
+          lat?: number | null
+          lng?: number | null
+          photo_count?: number | null
+          photo_hash?: string | null
           nightly_rate?: number | null
           cleaning_fee?: number | null
-          service_fee?: number | null
-          avg_rating?: number | null
-          total_reviews?: number
-          host_name?: string | null
-          host_since?: string | null
-          host_listing_count?: number | null
-          host_response_rate?: number | null
-          superhost?: boolean
-          amenities?: string[] | null
+          minimum_stay?: number | null
           instant_book?: boolean | null
           cancellation_policy?: string | null
-          lead_score?: number | null
-          lead_tier?: 'strong' | 'moderate' | 'weak' | 'unscored' | 'excluded' | null
-          score_breakdown?: Json | null
-          scored_at?: string | null
-          flags?: string[] | null
-          notes?: string | null
-          status?: 'active' | 'archived' | 'excluded' | 'merged'
-          collection_source?: 'manual' | 'ai_agent' | 'csv_import' | 'api'
-          created_at?: string
-          updated_at?: string
+          amenities?: Json | null
+          amenity_count?: number | null
+          avg_rating?: number | null
+          total_reviews?: number | null
+          sub_ratings?: Json | null
+          last_review_at?: string | null
+          description_hash?: string | null
+          discovered_at?: string
+          last_refreshed_at?: string | null
+          raw_payload?: Json | null
         }
       }
-      owners: {
+      listing_snapshots: {
+        Row: {
+          id: string
+          listing_id: string
+          snapshot_at: string
+          photo_hash: string | null
+          description_hash: string | null
+          title: string | null
+          nightly_rate: number | null
+          avg_rating: number | null
+          total_reviews: number | null
+        }
+        Insert: {
+          id?: string
+          listing_id: string
+          snapshot_at?: string
+          photo_hash?: string | null
+          description_hash?: string | null
+          title?: string | null
+          nightly_rate?: number | null
+          avg_rating?: number | null
+          total_reviews?: number | null
+        }
+        Update: {
+          id?: string
+          listing_id?: string
+          snapshot_at?: string
+          photo_hash?: string | null
+          description_hash?: string | null
+          title?: string | null
+          nightly_rate?: number | null
+          avg_rating?: number | null
+          total_reviews?: number | null
+        }
+      }
+      market_benchmarks: {
+        Row: {
+          metro_id: string
+          property_type: string
+          bedroom_bucket: number
+          source: BenchmarkSource
+          market_adr: number | null
+          market_occupancy: number | null
+          market_revenue: number | null
+          market_revpar: number | null
+          fetched_at: string
+        }
+        Insert: {
+          metro_id: string
+          property_type: string
+          bedroom_bucket: number
+          source: BenchmarkSource
+          market_adr?: number | null
+          market_occupancy?: number | null
+          market_revenue?: number | null
+          market_revpar?: number | null
+          fetched_at?: string
+        }
+        Update: {
+          metro_id?: string
+          property_type?: string
+          bedroom_bucket?: number
+          source?: BenchmarkSource
+          market_adr?: number | null
+          market_occupancy?: number | null
+          market_revenue?: number | null
+          market_revpar?: number | null
+          fetched_at?: string
+        }
+      }
+      leads: {
         Row: {
           id: string
           user_id: string
-          owner_name: string
-          owner_type: 'individual' | 'llc' | 'corporation' | 'trust' | 'unknown'
-          entity_name: string | null
-          email: string | null
-          phone: string | null
-          linkedin_url: string | null
-          website: string | null
-          mailing_address: string | null
-          verification_status: 'verified' | 'partial' | 'unverified' | 'conflicting'
-          verification_sources: string[] | null
-          verification_notes: string | null
-          airbnb_host_name: string | null
-          estimated_listing_count: number | null
-          researched_at: string | null
-          research_method: string | null
+          metro_id: string
+          listing_id: string
+          host_id: string
+          state: LeadState
+          upside_score: number | null
+          operator_pain_score: number | null
+          composite_score: number | null
+          score_breakdown: Json | null
+          rejection_reason: string | null
+          notes: string | null
+          scored_at: string | null
+          state_changed_at: string
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
           user_id: string
-          owner_name: string
-          owner_type?: 'individual' | 'llc' | 'corporation' | 'trust' | 'unknown'
-          entity_name?: string | null
-          email?: string | null
-          phone?: string | null
-          linkedin_url?: string | null
-          website?: string | null
-          mailing_address?: string | null
-          verification_status?: 'verified' | 'partial' | 'unverified' | 'conflicting'
-          verification_sources?: string[] | null
-          verification_notes?: string | null
-          airbnb_host_name?: string | null
-          estimated_listing_count?: number | null
-          researched_at?: string | null
-          research_method?: string | null
+          metro_id: string
+          listing_id: string
+          host_id: string
+          state?: LeadState
+          upside_score?: number | null
+          operator_pain_score?: number | null
+          composite_score?: number | null
+          score_breakdown?: Json | null
+          rejection_reason?: string | null
+          notes?: string | null
+          scored_at?: string | null
+          state_changed_at?: string
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
           user_id?: string
-          owner_name?: string
-          owner_type?: 'individual' | 'llc' | 'corporation' | 'trust' | 'unknown'
-          entity_name?: string | null
-          email?: string | null
-          phone?: string | null
-          linkedin_url?: string | null
-          website?: string | null
-          mailing_address?: string | null
-          verification_status?: 'verified' | 'partial' | 'unverified' | 'conflicting'
-          verification_sources?: string[] | null
-          verification_notes?: string | null
-          airbnb_host_name?: string | null
-          estimated_listing_count?: number | null
-          researched_at?: string | null
-          research_method?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      listing_owners: {
-        Row: {
-          id: string
-          listing_id: string
-          owner_id: string
-          confidence: 'high' | 'medium' | 'low'
-          notes: string | null
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          listing_id: string
-          owner_id: string
-          confidence?: 'high' | 'medium' | 'low'
-          notes?: string | null
-          created_at?: string
-        }
-        Update: {
-          id?: string
+          metro_id?: string
           listing_id?: string
-          owner_id?: string
-          confidence?: 'high' | 'medium' | 'low'
+          host_id?: string
+          state?: LeadState
+          upside_score?: number | null
+          operator_pain_score?: number | null
+          composite_score?: number | null
+          score_breakdown?: Json | null
+          rejection_reason?: string | null
           notes?: string | null
+          scored_at?: string | null
+          state_changed_at?: string
           created_at?: string
+          updated_at?: string
         }
       }
-      audit_log: {
+      lead_events: {
         Row: {
           id: string
-          user_id: string
-          campaign_id: string | null
-          action: string
-          entity_type: string | null
-          entity_id: string | null
-          details: Json
-          previous_value: Json | null
-          new_value: Json | null
+          lead_id: string
+          event_type: string
+          actor: string
+          payload: Json | null
           created_at: string
         }
         Insert: {
           id?: string
-          user_id: string
-          campaign_id?: string | null
-          action: string
-          entity_type?: string | null
-          entity_id?: string | null
-          details?: Json
-          previous_value?: Json | null
-          new_value?: Json | null
+          lead_id: string
+          event_type: string
+          actor: string
+          payload?: Json | null
           created_at?: string
         }
         Update: {
           id?: string
-          user_id?: string
-          campaign_id?: string | null
-          action?: string
-          entity_type?: string | null
-          entity_id?: string | null
-          details?: Json
-          previous_value?: Json | null
-          new_value?: Json | null
+          lead_id?: string
+          event_type?: string
+          actor?: string
+          payload?: Json | null
           created_at?: string
         }
       }
+      contacts: {
+        Row: {
+          id: string
+          host_id: string
+          contact_type: ContactType
+          value: string
+          confidence: ContactConfidence
+          source: ContactSource
+          source_url: string | null
+          discovered_at: string
+          verified_at: string | null
+          stale: boolean
+          enrichment_run_id: string | null
+        }
+        Insert: {
+          id?: string
+          host_id: string
+          contact_type: ContactType
+          value: string
+          confidence: ContactConfidence
+          source: ContactSource
+          source_url?: string | null
+          discovered_at?: string
+          verified_at?: string | null
+          stale?: boolean
+          enrichment_run_id?: string | null
+        }
+        Update: {
+          id?: string
+          host_id?: string
+          contact_type?: ContactType
+          value?: string
+          confidence?: ContactConfidence
+          source?: ContactSource
+          source_url?: string | null
+          discovered_at?: string
+          verified_at?: string | null
+          stale?: boolean
+          enrichment_run_id?: string | null
+        }
+      }
+      enrichment_runs: {
+        Row: {
+          id: string
+          lead_id: string
+          tier: EnrichmentTier
+          status: EnrichmentStatus
+          started_at: string
+          finished_at: string | null
+          cost_usd: number | null
+          findings_summary: string | null
+          results: Json | null
+          error: string | null
+          triggered_by: string
+        }
+        Insert: {
+          id?: string
+          lead_id: string
+          tier: EnrichmentTier
+          status: EnrichmentStatus
+          started_at?: string
+          finished_at?: string | null
+          cost_usd?: number | null
+          findings_summary?: string | null
+          results?: Json | null
+          error?: string | null
+          triggered_by: string
+        }
+        Update: {
+          id?: string
+          lead_id?: string
+          tier?: EnrichmentTier
+          status?: EnrichmentStatus
+          started_at?: string
+          finished_at?: string | null
+          cost_usd?: number | null
+          findings_summary?: string | null
+          results?: Json | null
+          error?: string | null
+          triggered_by?: string
+        }
+      }
+      crawl_runs: {
+        Row: {
+          id: string
+          metro_id: string
+          started_at: string
+          finished_at: string | null
+          status: CrawlRunStatus
+          listings_discovered: number
+          listings_updated: number
+          listings_errored: number
+          errors: Json | null
+        }
+        Insert: {
+          id?: string
+          metro_id: string
+          started_at?: string
+          finished_at?: string | null
+          status?: CrawlRunStatus
+          listings_discovered?: number
+          listings_updated?: number
+          listings_errored?: number
+          errors?: Json | null
+        }
+        Update: {
+          id?: string
+          metro_id?: string
+          started_at?: string
+          finished_at?: string | null
+          status?: CrawlRunStatus
+          listings_discovered?: number
+          listings_updated?: number
+          listings_errored?: number
+          errors?: Json | null
+        }
+      }
     }
-    Functions: {
-      check_listing_duplicate: {
-        Args: {
-          p_campaign_id: string
-          p_listing_id: string
-          p_user_id: string
-        }
-        Returns: {
-          is_duplicate: boolean
-          existing_campaign_id: string | null
-          existing_campaign_name: string | null
-          existing_internal_id: string | null
-        }[]
-      }
-      refresh_campaign_stats: {
-        Args: {
-          p_campaign_id: string
-        }
-        Returns: undefined
-      }
-      classify_listings: {
-        Args: {
-          p_campaign_id: string
-        }
-        Returns: {
-          strong_count: number
-          moderate_count: number
-          weak_count: number
-        }[]
-      }
+    Views: Record<string, never>
+    Functions: Record<string, never>
+    Enums: {
+      lead_state: LeadState
     }
+    CompositeTypes: Record<string, never>
   }
 }
