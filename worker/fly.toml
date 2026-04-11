@@ -1,0 +1,30 @@
+# fly.toml — worker service deployment config.
+#
+# The `app` name must be globally unique across all Fly apps.
+# If "listingscout-worker" is taken, replace it with something like
+# "listingscout-worker-<yourusername>" and update the Fly dashboard
+# app name to match.
+
+app = "listingscout-worker"
+primary_region = "iad"
+
+[build]
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "10s"
+    method = "GET"
+    path = "/health"
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 512
