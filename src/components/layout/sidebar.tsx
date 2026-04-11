@@ -5,11 +5,8 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import {
   LayoutDashboard,
-  FolderKanban,
-  Home,
+  MapPin,
   Target,
-  Users,
-  Download,
   Settings,
   HelpCircle,
   LogOut,
@@ -30,11 +27,7 @@ import { toast } from 'sonner'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Campaigns', href: '/campaigns', icon: FolderKanban },
-  { name: 'All Listings', href: '/listings', icon: Home },
-  { name: 'Leads', href: '/leads', icon: Target },
-  { name: 'Owners', href: '/owners', icon: Users },
-  { name: 'Exports', href: '/exports', icon: Download },
+  { name: 'Metros', href: '/metros', icon: MapPin },
 ]
 
 const secondaryNavigation = [
